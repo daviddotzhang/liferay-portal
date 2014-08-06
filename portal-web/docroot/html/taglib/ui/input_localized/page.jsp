@@ -25,16 +25,17 @@ Locale[] availableLocales = (Locale[])request.getAttribute("liferay-ui:input-loc
 String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-localized:cssClass"));
 String defaultLanguageId = (String)request.getAttribute("liferay-ui:input-localized:defaultLanguageId");
 boolean disabled = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:disabled"));
+Map<String, Object> dynamicAttributes = (Map<String, Object>)request.getAttribute("liferay-ui:input-localized:dynamicAttributes");
 String fieldPrefix = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-localized:fieldPrefix"));
 String fieldPrefixSeparator = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-localized:fieldPrefixSeparator"));
 String id = HtmlUtil.getAUICompatibleId((String)request.getAttribute("liferay-ui:input-localized:id"));
-Map<String, Object> dynamicAttributes = (Map<String, Object>)request.getAttribute("liferay-ui:input-localized:dynamicAttributes");
 boolean ignoreRequestValue = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-localized:ignoreRequestValue"));
 String languageId = (String)request.getAttribute("liferay-ui:input-localized:languageId");
 String maxLength = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-localized:maxLength"));
 String name = (String)request.getAttribute("liferay-ui:input-localized:name");
-String xml = (String)request.getAttribute("liferay-ui:input-localized:xml");
+String toolbarSet = (String)request.getAttribute("liferay-ui:input-localized:toolbarSet");
 String type = (String)request.getAttribute("liferay-ui:input-localized:type");
+String xml = (String)request.getAttribute("liferay-ui:input-localized:xml");
 
 Locale defaultLocale = null;
 
@@ -90,7 +91,7 @@ String focusField = (String)request.getAttribute("liferay-ui:error:focusField");
 Set<Locale> errorLocales = new HashSet<Locale>();
 
 if ((exception != null) && fieldName.equals(focusField)) {
-	if (LocalizedException.class.isAssignableFrom(exception.getClass())) {
+	if (exception instanceof LocalizedException) {
 		LocalizedException le = (LocalizedException)exception;
 
 		Map<Locale, Exception> localizedExceptionsMap = le.getLocalizedExceptionsMap();
@@ -104,6 +105,7 @@ if ((exception != null) && fieldName.equals(focusField)) {
 	<c:choose>
 		<c:when test='<%= type.equals("editor") %>'>
 			<liferay-ui:input-editor
+				contentsLanguageId="<%= languageId %>"
 				cssClass='<%= \"language-value \" + cssClass %>'
 				editorImpl="ckeditor"
 				initMethod='<%= randomNamespace + \"InitEditor\" %>'
@@ -111,7 +113,7 @@ if ((exception != null) && fieldName.equals(focusField)) {
 				onBlurMethod='<%= randomNamespace + \"OnBlurEditor\" %>'
 				onChangeMethod='<%= randomNamespace + \"OnChangeEditor\" %>'
 				onFocusMethod='<%= randomNamespace + \"OnFocusEditor\" %>'
-				toolbarSet="simple"
+				toolbarSet="<%= toolbarSet %>"
 			/>
 
 			<aui:script>
@@ -245,7 +247,7 @@ if ((exception != null) && fieldName.equals(focusField)) {
 
 						<li class="palette-item <%= itemCssClass %>" data-index="<%= index++ %>" data-value="<%= curLanguageId %>" role="menuitem" style="display: inline-block;">
 							<a class="palette-item-inner" href="javascript:void(0);">
-								<img alt="<%= curLocale.getDisplayName(LocaleUtil.fromLanguageId(LanguageUtil.getLanguageId(request))) %> <liferay-ui:message key="translation" />" class="lfr-input-localized-flag" data-languageid="<%= curLanguageId %>" src="<%= themeDisplay.getPathThemeImages() %>/language/<%= curLanguageId %>.png" />
+								<img alt="<%= HtmlUtil.escapeAttribute(curLocale.getDisplayName(LocaleUtil.fromLanguageId(LanguageUtil.getLanguageId(request)))) %> <liferay-ui:message key="translation" />" class="lfr-input-localized-flag" data-languageid="<%= curLanguageId %>" src="<%= themeDisplay.getPathThemeImages() %>/language/<%= curLanguageId %>.png" />
 								<div class='<%= errorLocales.contains(curLocale) ? "lfr-input-localized-state lfr-input-localized-state-error" : "lfr-input-localized-state" %>'></div>
 							</a>
 						</li>

@@ -22,7 +22,7 @@
 			<i class="icon-search"></i>
 
 			<div class="search-panels-bar">
-				<aui:input cssClass="search-panels-input search-query span12" label="" name="searchPanel" />
+				<aui:input cssClass="form-control search-panels-input search-query" label="" name="searchPanel" />
 			</div>
 		</div>
 	</div>
@@ -61,7 +61,7 @@
 			}
 		%>
 
-			<liferay-ui:panel collapsible="<%= true %>" cssClass="panel-page-category unstyled" extended="<%= true %>" iconCssClass="<%= iconCssClass %>" id="<%= panelPageCategoryId %>" persistState="<%= true %>" state='<%= siteAdministrationCategory.equals(portletCategory) ? "open" : "closed" %>' title='<%= LanguageUtil.get(pageContext, "category." + siteAdministrationCategory) %>'>
+			<liferay-ui:panel collapsible="<%= true %>" cssClass="list-unstyled panel-page-category" extended="<%= true %>" iconCssClass="<%= iconCssClass %>" id="<%= panelPageCategoryId %>" persistState="<%= true %>" state='<%= siteAdministrationCategory.equals(portletCategory) ? "open" : "closed" %>' title='<%= LanguageUtil.get(request, "category." + siteAdministrationCategory) %>'>
 				<c:if test="<%= siteAdministrationCategory.equals(PortletCategoryKeys.SITE_ADMINISTRATION_CONTENT) %>">
 
 					<%
@@ -82,12 +82,12 @@
 						scopeLabel = StringUtil.shorten(scopeLayout.getName(locale), 20);
 					}
 					else {
-						scopeLabel = LanguageUtil.get(pageContext, "default");
+						scopeLabel = LanguageUtil.get(request, "default");
 					}
 					%>
 
 					<c:if test="<%= !scopeLayouts.isEmpty() && siteAdministrationCategory.equals(PortletCategoryKeys.SITE_ADMINISTRATION_CONTENT) %>">
-						<div class="nobr lfr-title-scope-selector">
+						<div class="lfr-title-scope-selector nobr">
 							<liferay-ui:message key="scope" />:
 							<liferay-ui:icon-menu direction="down" icon="" message="<%= scopeLabel %>">
 								<liferay-ui:icon
@@ -116,7 +116,7 @@
 					</c:if>
 				</c:if>
 
-				<ul aria-labelledby="<%= panelPageCategoryId %>" class="category-portlets" role="menu">
+				<ul aria-labelledby="<%= panelPageCategoryId %>" class="category-portlets list-unstyled" role="menu">
 
 					<%
 					List<Portlet> portlets = siteAdministrationCategoriesMap.get(siteAdministrationCategory);
@@ -131,20 +131,15 @@
 								portletName="<%= portlet.getRootPortletId() %>"
 								var="portletURL"
 								windowState="<%= WindowState.MAXIMIZED.toString() %>"
-								/>
+							/>
 
-							<a href="<%= portletURL %>" id="<portlet:namespace />portlet_<%= portletId %>" role="menuitem">
-								<c:choose>
-									<c:when test="<%= Validator.isNull(portlet.getIcon()) %>">
-										<liferay-ui:icon src='<%= themeDisplay.getPathContext() + "/html/icons/default.png" %>' />
-									</c:when>
-									<c:otherwise>
-										<liferay-portlet:icon-portlet portlet="<%= portlet %>" />
-									</c:otherwise>
-								</c:choose>
-
-								<%= PortalUtil.getPortletTitle(portlet, application, locale) %>
-							</a>
+							<liferay-portlet:icon-portlet
+								ariaRole="menuitem"
+								id='<%= "portlet_" + portletId %>'
+								label="<%= true %>"
+								portlet="<%= portlet %>"
+								url="<%= portletURL %>"
+							/>
 						</li>
 
 						<c:if test="<%= !ppid.equals(portletId) %>">

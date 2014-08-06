@@ -3,11 +3,17 @@
 <#assign latitude = "">
 <#assign longitude = "">
 
+<#assign coordinatesContainerCssClass = "hide">
+
+<#assign fieldRawValue = paramUtil.getString(request, "${namespacedFieldName}", fieldRawValue)>
+
 <#if (fieldRawValue != "")>
 	<#assign geolocationJSONObject = jsonFactoryUtil.createJSONObject(fieldRawValue)>
 
 	<#assign latitude = geolocationJSONObject.getDouble("latitude")>
 	<#assign longitude = geolocationJSONObject.getDouble("longitude")>
+
+	<#assign coordinatesContainerCssClass = "">
 </#if>
 
 <@aui["field-wrapper"] cssClass="geolocation-field" data=data label=label required=required>
@@ -17,15 +23,11 @@
 		<@aui.button onClick="window['${portletNamespace}${namespacedFieldName}SetGeolocation']();" value="geolocate" />
 	</@>
 
-	<p>
+	<p class="${coordinatesContainerCssClass}" id="${portletNamespace}${namespacedFieldName}CoordinatesContainer">
 		<strong><@liferay_ui.message key="location" />:</strong>
 
 		<span id="${portletNamespace}${namespacedFieldName}Coordinates">
-			<#if (fieldRawValue != "")>
-				${latitude}, ${longitude}
-			<#else>
-				-
-			</#if>
+		    <@fmt.formatNumber value=latitude type="NUMBER" />, <@fmt.formatNumber value=longitude type="NUMBER" />
 		</span>
 	</p>
 
@@ -40,6 +42,9 @@
 			var A = AUI();
 
 			var coordinatesNode = A.one('#${portletNamespace}${namespacedFieldName}Coordinates');
+			var coordinatesContainerNode = A.one('#${portletNamespace}${namespacedFieldName}CoordinatesContainer');
+
+			coordinatesContainerNode.show();
 
 			coordinatesNode.html('<@liferay_ui.message key="loading" />');
 

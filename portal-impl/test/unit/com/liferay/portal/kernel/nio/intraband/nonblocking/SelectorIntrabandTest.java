@@ -30,7 +30,7 @@ import com.liferay.portal.kernel.test.CodeCoverageAssertor;
 import com.liferay.portal.kernel.test.JDKLoggerTestUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.AdviseWith;
-import com.liferay.portal.test.AspectJMockingNewClassLoaderJUnitTestRunner;
+import com.liferay.portal.test.runners.AspectJMockingNewClassLoaderJUnitTestRunner;
 
 import java.io.IOException;
 
@@ -1179,6 +1179,8 @@ public class SelectorIntrabandTest {
 			(ChannelContext)writeSelectionKey.attachment();
 
 		Queue<Datagram> sendingQueue = channelContext.getSendingQueue();
+
+		while ((writeSelectionKey.interestOps() & SelectionKey.OP_WRITE) != 0);
 
 		synchronized (writeSelectionKey) {
 			synchronized (selector) {

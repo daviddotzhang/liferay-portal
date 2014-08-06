@@ -216,6 +216,10 @@ public class PortletDisplay implements Serializable {
 		return _portletName;
 	}
 
+	public String getPortletResource() {
+		return _portletResource;
+	}
+
 	public PortletPreferences getPortletSetup() {
 		return _portletSetup;
 	}
@@ -721,8 +725,6 @@ public class PortletDisplay implements Serializable {
 	}
 
 	public void setTitle(String title) {
-		title = HtmlUtil.escape(title);
-
 		_title = title;
 
 		// LEP-5317

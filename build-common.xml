@@ -5,7 +5,11 @@
 	xmlns:artifact="antlib:org.apache.maven.artifact.ant"
 	xmlns:sonar="antlib:org.sonar.ant"
 >
-	<dirname file="${ant.file.build-common}" property="project.dir" />
+	<dirname file="${ant.file.build-common}" property="project.dir.native" />
+
+	<pathconvert property="project.dir" targetos="unix">
+		<path location="${project.dir.native}" />
+	</pathconvert>
 
 	<property name="test.properties" value="com/liferay/portal/tools/dependencies/portal-tools.properties" />
 
@@ -55,6 +59,7 @@
 	<path id="test.classpath">
 		<pathelement path="${classpath}" />
 		<pathelement path="test-classes/${test.type}" />
+		<pathelement path="${test.additional.classpath}" />
 		<fileset dir="${project.dir}/lib/development" includes="*.jar" excludes="jalopy.jar,jetty*.jar,tomcat*.jar" />
 		<fileset dir="${project.dir}/lib/global" includes="*.jar" />
 		<fileset dir="${project.dir}/lib/portal" includes="*.jar" excludes="ant.jar" />
@@ -76,10 +81,15 @@
 	<typedef classpathref="lib.classpath" resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" />
 	<taskdef classpathref="lib.classpath" resource="tasks.properties" />
 
+	<taskdef classname="com.liferay.ant.bnd.BaselineJarTask" classpathref="lib.classpath" name="baseline-jar" />
 	<taskdef classname="com.tonicsystems.jarjar.JarJarTask" classpath="${project.dir}/lib/development/jarjar.jar" name="jarjar" />
 	<taskdef classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpath="${project.dir}/lib/development/xmltask.jar" name="xmltask" />
 
-	<property location="${project.dir}" name="project.location.absolute" />
+	<property location="${project.dir}" name="project.location.absolute.native" />
+
+	<pathconvert property="project.location.absolute" targetos="unix">
+		<path location="${project.location.absolute.native}" />
+	</pathconvert>
 
 	<propertycopy
 		from="project.location.absolute"
@@ -500,6 +510,24 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		</sequential>
 	</macrodef>
 
+	<macrodef name="app-server-properties-reset">
+		<sequential>
+			<delete file="app.server.${user.name}.properties" />
+
+			<delete file="${project.dir}/tools/sdk/build.${user.name}.properties" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="app-server-properties-update">
+		<text name="properties.content" />
+
+		<sequential>
+			<echo file="app.server.${user.name}.properties">@{properties.content}</echo>
+
+			<echo file="${project.dir}/tools/sdk/build.${user.name}.properties">@{properties.content}</echo>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="baseline-jar-macro">
 		<attribute name="bndRootFile" />
 		<attribute name="file" />
@@ -508,26 +536,6 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		<attribute name="sourcePath" />
 
 		<sequential>
-			<trycatch>
-				<try>
-					<taskdef
-						classname="com.liferay.portal.ant.bnd.BaselineJarTask"
-						classpathref="project.classpath"
-						name="baseline-jar"
-					/>
-				</try>
-				<catch>
-					<ant antfile="${project.dir}/portal-service/build.xml" target="compile" inheritAll="false" />
-					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
-
-					<taskdef
-						classname="com.liferay.portal.ant.bnd.BaselineJarTask"
-						classpathref="project.classpath"
-						name="baseline-jar"
-					/>
-				</catch>
-			</trycatch>
-
 			<manifest-helper />
 
 			<bndexpand propertyfile="@{bndRootFile}" />
@@ -808,7 +816,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 			<trycatch>
 				<try>
 					<taskdef
-						classname="com.liferay.portal.ant.ManifestHelperTask"
+						classname="com.liferay.util.ant.ManifestHelperTask"
 						classpathref="project.classpath"
 						name="liferay-manifest-helper"
 					/>
@@ -818,7 +826,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
 
 					<taskdef
-						classname="com.liferay.portal.ant.ManifestHelperTask"
+						classname="com.liferay.util.ant.ManifestHelperTask"
 						classpathref="project.classpath"
 						name="liferay-manifest-helper"
 					/>
@@ -841,7 +849,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 			<trycatch>
 				<try>
 					<taskdef
-						classname="com.liferay.portal.ant.bnd.ReleaseToRepoTask"
+						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
 						classpathref="project.classpath"
 						name="release-to-repo"
 					/>
@@ -851,7 +859,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
 
 					<taskdef
-						classname="com.liferay.portal.ant.bnd.ReleaseToRepoTask"
+						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
 						classpathref="project.classpath"
 						name="release-to-repo"
 					/>
@@ -1104,6 +1112,24 @@ rerun your task.
 		<ant target="compile-test-cmd">
 			<property name="test.type" value="integration" />
 		</ant>
+
+		<unzip
+			dest="${project.dir}/portal-impl/test-classes/integration"
+			src="${project.dir}/portal-impl/portal-impl.jar"
+		>
+			<patternset>
+				<include name="META-INF/MANIFEST.MF" />
+			</patternset>
+		</unzip>
+
+		<unzip
+			dest="${project.dir}/portal-service/test-classes/integration"
+			src="${project.dir}/portal-service/portal-service.jar"
+		>
+			<patternset>
+				<include name="META-INF/MANIFEST.MF" />
+			</patternset>
+		</unzip>
 	</target>
 
 	<target name="compile-test-unit">
@@ -1283,10 +1309,11 @@ rerun your task.
 				<isset property="test.suite.classes.available" />
 			</not>
 			<then>
-				<junit dir="${project.dir}" fork="on" forkmode="perTest" haltonfailure="${junit.halt.on.failure}" printsummary="on">
+				<junit dir="${project.dir}" fork="on" forkmode="perTest" haltonfailure="${junit.halt.on.failure}" jvm="${junit.jvm}" printsummary="on">
 					<sysproperty key="junit.aspectj.dump" file="woven-classes" />
 					<sysproperty key="junit.cobertura.agent" value="${junit.cobertura.agent}" />
 					<sysproperty key="junit.code.coverage" value="${junit.code.coverage}" />
+					<sysproperty key="junit.code.coverage.dump" value="${junit.code.coverage.dump}" />
 					<sysproperty key="junit.debug" value="${junit.debug}" />
 					<sysproperty key="net.sourceforge.cobertura.datafile" file="test-coverage/cobertura.ser" />
 					<jvmarg line="${junit.cobertura.agent}" />
@@ -1305,10 +1332,11 @@ rerun your task.
 				</junit>
 			</then>
 			<else>
-				<junit dir="${project.dir}" fork="on" forkmode="perTest" haltonfailure="${junit.halt.on.failure}" printsummary="on">
+				<junit dir="${project.dir}" fork="on" forkmode="perTest" haltonfailure="${junit.halt.on.failure}" jvm="${junit.jvm}" printsummary="on">
 					<sysproperty key="junit.aspectj.dump" file="woven-classes" />
 					<sysproperty key="junit.cobertura.agent" value="${junit.cobertura.agent}" />
 					<sysproperty key="junit.code.coverage" value="${junit.code.coverage}" />
+					<sysproperty key="junit.code.coverage.dump" value="${junit.code.coverage.dump}" />
 					<sysproperty key="junit.debug" value="${junit.debug}" />
 					<sysproperty key="net.sourceforge.cobertura.datafile" file="test-coverage/cobertura.ser" />
 					<jvmarg line="${junit.cobertura.agent}" />
@@ -1388,10 +1416,11 @@ rerun your task.
 						<equals arg1="${test.with.security.count}" arg2="0" />
 					</not>
 					<then>
-						<junit dir="${project.dir}" fork="on" forkmode="once" haltonfailure="${junit.halt.on.failure}" outputtoformatters="false" printsummary="on" showoutput="true">
+						<junit dir="${project.dir}" fork="on" forkmode="once" haltonfailure="${junit.halt.on.failure}" jvm="${junit.jvm}" outputtoformatters="false" printsummary="on" showoutput="true">
 							<sysproperty key="junit.aspectj.dump" file="woven-classes" />
 							<sysproperty key="junit.cobertura.agent" value="${junit.cobertura.agent}" />
 							<sysproperty key="junit.code.coverage" value="${junit.code.coverage}" />
+							<sysproperty key="junit.code.coverage.dump" value="${junit.code.coverage.dump}" />
 							<sysproperty key="junit.debug" value="${junit.debug}" />
 							<sysproperty key="net.sourceforge.cobertura.datafile" file="test-coverage/${test.type}/cobertura.ser" />
 							<jvmarg line="${junit.cobertura.agent}" />
@@ -1404,6 +1433,7 @@ rerun your task.
 							<jvmarg value="-Djava.net.preferIPv4Stack=true" />
 							<jvmarg value="-Djava.security.manager" />
 							<jvmarg value="-Djava.security.policy=${basedir}/test-classes/${test.type}/com/liferay/portal/security/pacl/security.policy" />
+							<jvmarg value="-Dliferay.mode=test" />
 							<jvmarg value="-Duser.timezone=GMT" />
 							<classpath location="test-coverage" />
 							<classpath refid="test.classpath" />
@@ -1439,10 +1469,11 @@ rerun your task.
 						<equals arg1="${test.without.security.count}" arg2="0" />
 					</not>
 					<then>
-						<junit dir="${project.dir}" fork="on" forkmode="${junit.forkmode}" haltonfailure="${junit.halt.on.failure}" outputtoformatters="false" printsummary="on" showoutput="true">
+						<junit dir="${project.dir}" fork="on" forkmode="${junit.forkmode}" haltonfailure="${junit.halt.on.failure}" jvm="${junit.jvm}" outputtoformatters="false" printsummary="on" showoutput="true">
 							<sysproperty key="junit.aspectj.dump" file="woven-classes" />
 							<sysproperty key="junit.cobertura.agent" value="${junit.cobertura.agent}" />
 							<sysproperty key="junit.code.coverage" value="${junit.code.coverage}" />
+							<sysproperty key="junit.code.coverage.dump" value="${junit.code.coverage.dump}" />
 							<sysproperty key="junit.debug" value="${junit.debug}" />
 							<sysproperty key="net.sourceforge.cobertura.datafile" file="test-coverage/${test.type}/cobertura.ser" />
 							<jvmarg line="${junit.cobertura.agent}" />
@@ -1453,6 +1484,7 @@ rerun your task.
 							<jvmarg value="-Dfile.encoding=UTF-8" />
 							<jvmarg value="-Dfixed.issues=${fixed.issues}" />
 							<jvmarg value="-Djava.net.preferIPv4Stack=true" />
+							<jvmarg value="-Dliferay.mode=test" />
 							<jvmarg value="-Duser.timezone=GMT" />
 							<classpath location="test-coverage" />
 							<classpath refid="test.classpath" />
@@ -1556,10 +1588,11 @@ rerun your task.
 			replace="com."
 		/>
 
-		<junit dir="${project.dir}" fork="on" forkmode="once" haltonfailure="${junit.halt.on.failure}" outputtoformatters="false" printsummary="on" showoutput="true">
+		<junit dir="${project.dir}" fork="on" forkmode="once" haltonfailure="${junit.halt.on.failure}" jvm="${junit.jvm}" outputtoformatters="false" printsummary="on" showoutput="true">
 			<sysproperty key="junit.aspectj.dump" file="woven-classes" />
 			<sysproperty key="junit.cobertura.agent" value="${junit.cobertura.agent}" />
 			<sysproperty key="junit.code.coverage" value="${junit.code.coverage}" />
+			<sysproperty key="junit.code.coverage.dump" value="${junit.code.coverage.dump}" />
 			<sysproperty key="junit.debug" value="${junit.debug}" />
 			<sysproperty key="net.sourceforge.cobertura.datafile" file="test-coverage/cobertura.ser" />
 			<jvmarg line="${junit.cobertura.agent}" />

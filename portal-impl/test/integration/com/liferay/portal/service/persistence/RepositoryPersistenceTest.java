@@ -15,7 +15,6 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchRepositoryException;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -24,7 +23,9 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -35,33 +36,50 @@ import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.Repository;
 import com.liferay.portal.model.impl.RepositoryModelImpl;
 import com.liferay.portal.service.RepositoryLocalServiceUtil;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class RepositoryPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -73,25 +91,13 @@ public class RepositoryPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<Repository> iterator = _repositories.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<Repository> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -100,7 +106,7 @@ public class RepositoryPersistenceTest {
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Repository repository = _persistence.create(pk);
 
@@ -127,39 +133,39 @@ public class RepositoryPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Repository newRepository = _persistence.create(pk);
 
-		newRepository.setMvccVersion(ServiceTestUtil.nextLong());
+		newRepository.setMvccVersion(RandomTestUtil.nextLong());
 
-		newRepository.setUuid(ServiceTestUtil.randomString());
+		newRepository.setUuid(RandomTestUtil.randomString());
 
-		newRepository.setGroupId(ServiceTestUtil.nextLong());
+		newRepository.setGroupId(RandomTestUtil.nextLong());
 
-		newRepository.setCompanyId(ServiceTestUtil.nextLong());
+		newRepository.setCompanyId(RandomTestUtil.nextLong());
 
-		newRepository.setUserId(ServiceTestUtil.nextLong());
+		newRepository.setUserId(RandomTestUtil.nextLong());
 
-		newRepository.setUserName(ServiceTestUtil.randomString());
+		newRepository.setUserName(RandomTestUtil.randomString());
 
-		newRepository.setCreateDate(ServiceTestUtil.nextDate());
+		newRepository.setCreateDate(RandomTestUtil.nextDate());
 
-		newRepository.setModifiedDate(ServiceTestUtil.nextDate());
+		newRepository.setModifiedDate(RandomTestUtil.nextDate());
 
-		newRepository.setClassNameId(ServiceTestUtil.nextLong());
+		newRepository.setClassNameId(RandomTestUtil.nextLong());
 
-		newRepository.setName(ServiceTestUtil.randomString());
+		newRepository.setName(RandomTestUtil.randomString());
 
-		newRepository.setDescription(ServiceTestUtil.randomString());
+		newRepository.setDescription(RandomTestUtil.randomString());
 
-		newRepository.setPortletId(ServiceTestUtil.randomString());
+		newRepository.setPortletId(RandomTestUtil.randomString());
 
-		newRepository.setTypeSettings(ServiceTestUtil.randomString());
+		newRepository.setTypeSettings(RandomTestUtil.randomString());
 
-		newRepository.setDlFolderId(ServiceTestUtil.nextLong());
+		newRepository.setDlFolderId(RandomTestUtil.nextLong());
 
-		_persistence.update(newRepository);
+		_repositories.add(_persistence.update(newRepository));
 
 		Repository existingRepository = _persistence.findByPrimaryKey(newRepository.getPrimaryKey());
 
@@ -215,7 +221,7 @@ public class RepositoryPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -230,7 +236,7 @@ public class RepositoryPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -244,7 +250,7 @@ public class RepositoryPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -256,7 +262,7 @@ public class RepositoryPersistenceTest {
 	@Test
 	public void testCountByG_N_P() {
 		try {
-			_persistence.countByG_N_P(ServiceTestUtil.nextLong(),
+			_persistence.countByG_N_P(RandomTestUtil.nextLong(),
 				StringPool.BLANK, StringPool.BLANK);
 
 			_persistence.countByG_N_P(0L, StringPool.NULL, StringPool.NULL);
@@ -279,7 +285,7 @@ public class RepositoryPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -302,7 +308,7 @@ public class RepositoryPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<Repository> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Repository", "mvccVersion",
 			true, "uuid", true, "repositoryId", true, "groupId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
@@ -322,11 +328,93 @@ public class RepositoryPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Repository missingRepository = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingRepository);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		Repository newRepository1 = addRepository();
+		Repository newRepository2 = addRepository();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newRepository1.getPrimaryKey());
+		primaryKeys.add(newRepository2.getPrimaryKey());
+
+		Map<Serializable, Repository> repositories = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, repositories.size());
+		Assert.assertEquals(newRepository1,
+			repositories.get(newRepository1.getPrimaryKey()));
+		Assert.assertEquals(newRepository2,
+			repositories.get(newRepository2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, Repository> repositories = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(repositories.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		Repository newRepository = addRepository();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newRepository.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, Repository> repositories = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, repositories.size());
+		Assert.assertEquals(newRepository,
+			repositories.get(newRepository.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, Repository> repositories = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(repositories.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		Repository newRepository = addRepository();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newRepository.getPrimaryKey());
+
+		Map<Serializable, Repository> repositories = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, repositories.size());
+		Assert.assertEquals(newRepository,
+			repositories.get(newRepository.getPrimaryKey()));
 	}
 
 	@Test
@@ -377,7 +465,7 @@ public class RepositoryPersistenceTest {
 				Repository.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("repositoryId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<Repository> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -418,7 +506,7 @@ public class RepositoryPersistenceTest {
 				"repositoryId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("repositoryId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -454,45 +542,45 @@ public class RepositoryPersistenceTest {
 	}
 
 	protected Repository addRepository() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Repository repository = _persistence.create(pk);
 
-		repository.setMvccVersion(ServiceTestUtil.nextLong());
+		repository.setMvccVersion(RandomTestUtil.nextLong());
 
-		repository.setUuid(ServiceTestUtil.randomString());
+		repository.setUuid(RandomTestUtil.randomString());
 
-		repository.setGroupId(ServiceTestUtil.nextLong());
+		repository.setGroupId(RandomTestUtil.nextLong());
 
-		repository.setCompanyId(ServiceTestUtil.nextLong());
+		repository.setCompanyId(RandomTestUtil.nextLong());
 
-		repository.setUserId(ServiceTestUtil.nextLong());
+		repository.setUserId(RandomTestUtil.nextLong());
 
-		repository.setUserName(ServiceTestUtil.randomString());
+		repository.setUserName(RandomTestUtil.randomString());
 
-		repository.setCreateDate(ServiceTestUtil.nextDate());
+		repository.setCreateDate(RandomTestUtil.nextDate());
 
-		repository.setModifiedDate(ServiceTestUtil.nextDate());
+		repository.setModifiedDate(RandomTestUtil.nextDate());
 
-		repository.setClassNameId(ServiceTestUtil.nextLong());
+		repository.setClassNameId(RandomTestUtil.nextLong());
 
-		repository.setName(ServiceTestUtil.randomString());
+		repository.setName(RandomTestUtil.randomString());
 
-		repository.setDescription(ServiceTestUtil.randomString());
+		repository.setDescription(RandomTestUtil.randomString());
 
-		repository.setPortletId(ServiceTestUtil.randomString());
+		repository.setPortletId(RandomTestUtil.randomString());
 
-		repository.setTypeSettings(ServiceTestUtil.randomString());
+		repository.setTypeSettings(RandomTestUtil.randomString());
 
-		repository.setDlFolderId(ServiceTestUtil.nextLong());
+		repository.setDlFolderId(RandomTestUtil.nextLong());
 
-		_persistence.update(repository);
+		_repositories.add(_persistence.update(repository));
 
 		return repository;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(RepositoryPersistenceTest.class);
+	private List<Repository> _repositories = new ArrayList<Repository>();
 	private ModelListener<Repository>[] _modelListeners;
-	private RepositoryPersistence _persistence = (RepositoryPersistence)PortalBeanLocatorUtil.locate(RepositoryPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private RepositoryPersistence _persistence = RepositoryUtil.getPersistence();
 }

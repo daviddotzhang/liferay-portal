@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.lar.xstream.XStreamAliasRegistryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.util.PortalUtil;
@@ -39,6 +40,9 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUti
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalFeed;
 import com.liferay.portlet.journal.model.JournalFolder;
+import com.liferay.portlet.journal.model.impl.JournalArticleImpl;
+import com.liferay.portlet.journal.model.impl.JournalFeedImpl;
+import com.liferay.portlet.journal.model.impl.JournalFolderImpl;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalFeedLocalServiceUtil;
 import com.liferay.portlet.journal.service.JournalFolderLocalServiceUtil;
@@ -111,6 +115,12 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 				JournalFeed.class.getName()));
 		setPublishToLiveByDefault(
 			PropsValues.JOURNAL_PUBLISH_TO_LIVE_BY_DEFAULT);
+
+		XStreamAliasRegistryUtil.register(
+			JournalArticleImpl.class, "JournalArticle");
+		XStreamAliasRegistryUtil.register(JournalFeedImpl.class, "JournalFeed");
+		XStreamAliasRegistryUtil.register(
+			JournalFolderImpl.class, "JournalFolder");
 	}
 
 	@Override
@@ -320,8 +330,7 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 	}
 
 	protected ActionableDynamicQuery getArticleActionableDynamicQuery(
-			final PortletDataContext portletDataContext)
-		throws SystemException {
+		final PortletDataContext portletDataContext) {
 
 		ActionableDynamicQuery actionableDynamicQuery =
 			JournalArticleLocalServiceUtil.getExportActionableDynamicQuery(
@@ -363,9 +372,8 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 	}
 
 	protected ActionableDynamicQuery getDDMStructureActionableDynamicQuery(
-			final PortletDataContext portletDataContext,
-			final List<DDMTemplate> ddmTemplates, final boolean export)
-		throws SystemException {
+		final PortletDataContext portletDataContext,
+		final List<DDMTemplate> ddmTemplates, final boolean export) {
 
 		ExportActionableDynamicQuery exportActionableDynamicQuery =
 			DDMStructureLocalServiceUtil.getExportActionableDynamicQuery(
@@ -421,8 +429,7 @@ public class JournalPortletDataHandler extends BasePortletDataHandler {
 	}
 
 	protected ActionableDynamicQuery getDDMTemplateActionableDynamicQuery(
-			final PortletDataContext portletDataContext)
-		throws SystemException {
+		final PortletDataContext portletDataContext) {
 
 		ExportActionableDynamicQuery exportActionableDynamicQuery =
 			DDMTemplateLocalServiceUtil.getExportActionableDynamicQuery(

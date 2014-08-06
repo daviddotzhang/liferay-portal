@@ -34,6 +34,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SUCCESS_MESSAGE</td>
+	<td>//div[contains(@class,'alert') and contains(@class,'alert-success')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -63,6 +68,16 @@
 <tr>
 	<td>THREAD_ACTIONS_UNSUBSCRIBE</td>
 	<td>//div[@class='thread-actions']/ul/li/a/span[contains(.,'Unsubscribe')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_LOCK_THREAD</td>
+	<td>//div[@class='thread-actions']/ul/li/a/span[contains(.,'Lock Thread')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>THREAD_ACTIONS_UNLOCK_THREAD</td>
+	<td>//div[@class='thread-actions']/ul/li/a/span[contains(.,'Unlock Thread')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -113,8 +128,18 @@
 </tr>
 <!--MESSAGE-->
 <tr>
+	<td>MESSAGE_USER_DETAILS</td>
+	<td>//div[contains(.,'${key_userName}')]//div[@class='user-details']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MESSAGE_BAN_THIS_USER</td>
 	<td>//div[contains(.,'${key_userName}')]/div/span/a/span[contains(.,'Ban This User')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_UNBAN_THIS_USER</td>
+	<td>//div[contains(.,'${key_userName}')]/div/span/a/span[contains(.,'Unban This User')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -148,8 +173,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MESSAGE_BODY_1_BLOCK_QUOTE</td>
+	<td>xpath=(//div[@class='thread-body'])[1]//div[@class='quote-content']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MESSAGE_BODY_2</td>
 	<td>xpath=(//div[@class='thread-body'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_BODY_2_BLOCK_QUOTE</td>
+	<td>xpath=(//div[@class='thread-body'])[2]//div[@class='quote-content']</td>
 	<td></td>
 </tr>
 <tr>
@@ -158,8 +193,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MESSAGE_BODY_3_BLOCK_QUOTE</td>
+	<td>xpath=(//div[@class='thread-body'])[3]//div[@class='quote-content']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MESSAGE_BODY_4</td>
 	<td>xpath=(//div[@class='thread-body'])[4]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_BODY_4_BLOCK_QUOTE</td>
+	<td>xpath=(//div[@class='thread-body'])[4]//div[@class='quote-content']</td>
 	<td></td>
 </tr>
 <tr>
@@ -248,6 +293,21 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MESSAGE_REPLY_WITH_QUOTE_1</td>
+	<td>xpath=(//span[.='Reply with Quote'])[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_REPLY_WITH_QUOTE_2</td>
+	<td>xpath=(//span[.='Reply with Quote'])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_REPLY_WITH_QUOTE_3</td>
+	<td>xpath=(//span[.='Reply with Quote'])[3]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MESSAGE_RATING_1</td>
 	<td>xpath=(//div[contains(@id,'ratingThumbContent')]/div)[1]</td>
 	<td></td>
@@ -295,6 +355,21 @@
 <tr>
 	<td>MESSAGE_RATING_3_DOWNVOTE</td>
 	<td>xpath=(//div[contains(@id,'ratingThumbContent')]/a[contains(@class,'rating-thumb-down')])[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_FLAG_1</td>
+	<td>xpath=(//div[@title='Flag']//a)[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_FLAG_2</td>
+	<td>xpath=(//div[@title='Flag']//a)[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MESSAGE_FLAG_3</td>
+	<td>xpath=(//div[@title='Flag']//a)[3]</td>
 	<td></td>
 </tr>
 <tr>
@@ -356,6 +431,47 @@
 <tr>
 	<td>QUICK_REPLY_CANCEL_BUTTON</td>
 	<td>//button[@type='button' and contains(.,'Cancel')]</td>
+	<td></td>
+</tr>
+<!--REPORT_INAPPROPRIATE_CONTENT-->
+<tr>
+	<td>REPORT_INAPPROPRIATE_CONTENT_HEADER</td>
+	<td>//h3[contains(.,'Report')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPORT_INAPPROPRIATE_CONTENT_WARNING</td>
+	<td>//p[contains(.,'You are about to report a violation')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPORT_INAPPROPRIATE_CONTENT_WARNING_TERMS_OF_USE_LINK</td>
+	<td>//a[@href='/c/portal/terms_of_use']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPORT_INAPPROPRIATE_CONTENT_REASON_SELECT</td>
+	<td>//div[contains(.,'Reason for the Report')]/select[@id='_142_reason']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPORT_INAPPROPRIATE_CONTENT_SAVE_BUTTON</td>
+	<td>//button[@id='_142_flagsSubmit']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPORT_INAPPROPRIATE_CONTENT_SUCCESS_MESSAGE</td>
+	<td>//div[contains(.,'Thank you for your report')]/p[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPORT_INAPPROPRIATE_CONTENT_CLOSE_BUTTON</td>
+	<td>//button[contains(@class,'btn close')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
 	<td></td>
 </tr>
 </tbody>

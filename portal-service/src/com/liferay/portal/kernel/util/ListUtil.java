@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +153,7 @@ public class ListUtil {
 
 	@SuppressWarnings("rawtypes")
 	public static <E> List<E> fromCollection(Collection<? extends E> c) {
-		if ((c != null) && List.class.isAssignableFrom(c.getClass())) {
+		if ((c != null) && (c instanceof List)) {
 			return (List)c;
 		}
 
@@ -253,7 +254,7 @@ public class ListUtil {
 	}
 
 	public static boolean isUnmodifiableList(List<?> list) {
-		return _unmodifiableListClass.isAssignableFrom(list.getClass());
+		return _unmodifiableListClass.isInstance(list);
 	}
 
 	/**
@@ -410,6 +411,10 @@ public class ListUtil {
 		return aList;
 	}
 
+	public static <T, V extends T> List<T> toList(List<V> vlist) {
+		return new ArrayList<T>(vlist);
+	}
+
 	public static List<Long> toList(long[] array) {
 		if (ArrayUtil.isEmpty(array)) {
 			return new ArrayList<Long>();
@@ -517,6 +522,18 @@ public class ListUtil {
 		}
 
 		return sb.toString();
+	}
+
+	public static <T> List<T> unique(List<T> list) {
+		Set<T> set = new LinkedHashSet<T>();
+
+		set.addAll(list);
+
+		if (list.size() == set.size()) {
+			return list;
+		}
+
+		return new ArrayList<T>(set);
 	}
 
 	private static Class<? extends List<?>> _unmodifiableListClass;

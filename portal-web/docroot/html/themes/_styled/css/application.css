@@ -81,6 +81,39 @@
 	z-index: 1110 !important;
 }
 
+/* ---------- List group ---------- */
+
+.nav.list-group {
+	li > a {
+		&:focus, &:hover {
+			background-color: #E5F5FC;
+			color: #009AE5;
+		}
+	}
+
+	> .active {
+		border-width: 1px 0 0 0;
+
+		> a {
+			&, &:focus, &:hover {
+				background-color: #60BFEF;
+				border: 1px solid #60BFEF;
+				color: #FFF;
+			}
+		}
+	}
+
+	.list-group-item {
+		padding: 0;
+
+		&.nav-header {
+			background-color: #F3F3F3;
+			padding-left: 10px;
+			padding-right: 10px;
+		}
+	}
+}
+
 /* ---------- Portal tool tips ---------- */
 
 .tooltip {
@@ -219,6 +252,10 @@
 
 /* ---------- Tabs ---------- */
 
+.lfr-nav.nav-tabs {
+	margin-bottom: 20px;
+}
+
 .tab-active strong {
 	font-weight: normal;
 }
@@ -285,6 +322,7 @@
 	font-weight: bold;
 
 	.category-portlets & {
+		background-color: #00A2EA;
 		color: #FFF;
 	}
 }
@@ -401,6 +439,44 @@
 	background-color: #5B677D;
 	color: #FFF;
 	text-shadow: -1px -1px #2C2F34;
+}
+
+/* ---------- Modals ---------- */
+
+.aui {
+	&.dialog-iframe-root-node #main-content {
+		bottom: 0;
+		left: 0;
+		overflow: auto;
+		padding: 20px;
+		position: absolute;
+		right: 0;
+		top: 0;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.modal {
+		display: block;
+		margin: 0;
+		overflow: hidden;
+		position: fixed;
+	}
+
+	.modal-body {
+		overflow: auto;
+
+		&.dialog-iframe-bd {
+			overflow: hidden;
+		}
+	}
+
+	.modal-hidden {
+		display: none;
+	}
+}
+
+.modal-open body {
+	position: fixed;
 }
 
 /* ---------- Loading mask ---------- */
@@ -582,6 +658,10 @@
 		height: auto;
 	}
 
+	.cke_editable_inline a {
+		cursor: pointer;
+	}
+
 	.cke_panel.cke_combopanel {
 		width: 220px;
 	}
@@ -609,9 +689,10 @@
 
 /* ---------- HTML editor ---------- */
 
-body.html-editor {
+.aui .html-editor.portlet {
 	background: #FFF;
 	color: #000;
+	line-height: 1;
 	padding: 1em;
 }
 
@@ -773,9 +854,8 @@ body.html-editor {
 	}
 }
 
-.ios.mobile {
-	.modal-content .dialog-iframe-bd {
-		-webkit-overflow-scrolling: touch;
-		overflow: auto;
-	}
+/* LPS-44925 */
+
+.aui .modal-content .dialog-iframe-node {
+	border: 1px solid transparent;
 }

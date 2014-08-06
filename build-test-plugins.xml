@@ -44,6 +44,15 @@ security-manager-enabled=true</echo>
 			</then>
 		</if>
 
+		<if>
+			<equals arg1="${liferay.portal.bundle}" arg2="6.1.20" />
+			<then>
+				<echo file="${lp.plugins.dir}/build.${user.name}.properties" append="true">
+
+app.server.tomcat.dir=${app.server.parent.dir}/tomcat-7.0.27</echo>
+			</then>
+		</if>
+
 		<for list="${plugins.includes}" param="plugin">
 			<sequential>
 				<if>
@@ -104,10 +113,31 @@ security-manager-enabled=true</echo>
 				</for>
 			</then>
 			<else>
-				<ant dir="${lp.plugins.dir}/${plugin.types}" inheritAll="false">
-					<target name="clean" />
-					<target name="deploy" />
-				</ant>
+				<if>
+					<isset property="plugin.types" />
+					<then>
+						<ant-execute
+							ant.dir="${lp.plugins.dir}/${plugin.types}"
+							ant.target="clean"
+						/>
+
+						<ant-execute
+							ant.dir="${lp.plugins.dir}/${plugin.types}"
+							ant.target="deploy"
+						/>
+					</then>
+					<else>
+						<ant-execute
+							ant.dir="${lp.plugins.dir}"
+							ant.target="clean"
+						/>
+
+						<ant-execute
+							ant.dir="${lp.plugins.dir}"
+							ant.target="deploy"
+						/>
+					</else>
+				</if>
 			</else>
 		</if>
 

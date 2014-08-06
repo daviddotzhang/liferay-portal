@@ -145,7 +145,34 @@ public class SearchEngineUtil {
 
 		PortalRuntimePermission.checkSearchEngine(searchEngineId);
 
-		_searchEngines.put(searchEngineId, searchEngine);
+		setSearchEngine(searchEngineId, searchEngine);
+	}
+
+	public synchronized static void backup(long companyId, String backupName)
+		throws SearchException {
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			searchEngine.backup(companyId, backupName);
+		}
+	}
+
+	public synchronized static String backup(
+			long companyId, String searchEngineId, String backupName)
+		throws SearchException {
+
+		SearchEngine searchEngine = getSearchEngine(searchEngineId);
+
+		return searchEngine.backup(companyId, backupName);
+	}
+
+	public synchronized static void backup(String backupName)
+		throws SearchException {
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			for (long companyId : _companyIds) {
+				searchEngine.backup(companyId, backupName);
+			}
+		}
 	}
 
 	/**
@@ -288,6 +315,19 @@ public class SearchEngineUtil {
 		SearchEngine searchEngine = _searchEngines.get(searchEngineId);
 
 		if (searchEngine == null) {
+			if (SYSTEM_ENGINE_ID.equals(searchEngineId)) {
+				waitForSystemSearchEngine();
+
+				searchEngine = _searchEngines.get(SYSTEM_ENGINE_ID);
+
+				if (searchEngine == null) {
+					throw new IllegalStateException(
+						"Unable to find search engine " + SYSTEM_ENGINE_ID);
+				}
+
+				return searchEngine;
+			}
+
 			if (getDefaultSearchEngineId().equals(searchEngineId)) {
 				throw new IllegalStateException(
 					"There is no default search engine configured with ID " +
@@ -495,6 +535,20 @@ public class SearchEngineUtil {
 		indexWriter.indexSpellCheckerDictionary(searchContext);
 	}
 
+	public synchronized static void initialize(long companyId) {
+		if (_companyIds.contains(companyId)) {
+			return;
+		}
+
+		waitForSystemSearchEngine();
+
+		_companyIds.add(companyId);
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			searchEngine.initialize(companyId);
+		}
+	}
+
 	public static boolean isIndexReadOnly() {
 		PortalRuntimePermission.checkGetBeanProperty(
 			SearchEngineUtil.class, "indexReadOnly");
@@ -502,10 +556,59 @@ public class SearchEngineUtil {
 		return _indexReadOnly;
 	}
 
+	public synchronized static void removeBackup(
+			long companyId, String backupName)
+		throws SearchException {
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			searchEngine.removeBackup(companyId, backupName);
+		}
+	}
+
+	public synchronized static void removeBackup(String backupName)
+		throws SearchException {
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			for (long companyId : _companyIds) {
+				searchEngine.removeBackup(companyId, backupName);
+			}
+		}
+	}
+
+	public synchronized static void removeCompany(long companyId) {
+		if (!_companyIds.contains(companyId)) {
+			return;
+		}
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			searchEngine.removeCompany(companyId);
+		}
+
+		_companyIds.remove(companyId);
+	}
+
 	public static SearchEngine removeSearchEngine(String searchEngineId) {
 		PortalRuntimePermission.checkSearchEngine(searchEngineId);
 
 		return _searchEngines.remove(searchEngineId);
+	}
+
+	public synchronized static void restore(long companyId, String backupName)
+		throws SearchException {
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			searchEngine.restore(companyId, backupName);
+		}
+	}
+
+	public synchronized static void restore(String backupName)
+		throws SearchException {
+
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			for (long companyId : _companyIds) {
+				searchEngine.restore(companyId, backupName);
+			}
+		}
 	}
 
 	/**
@@ -694,6 +797,10 @@ public class SearchEngineUtil {
 		PortalRuntimePermission.checkSearchEngine(searchEngineId);
 
 		_searchEngines.put(searchEngineId, searchEngine);
+
+		for (Long companyId : _companyIds) {
+			searchEngine.initialize(companyId);
+		}
 	}
 
 	public static String spellCheckKeywords(SearchContext searchContext)
@@ -849,7 +956,7 @@ public class SearchEngineUtil {
 
 		PortalRuntimePermission.checkSearchEngine(searchEngineId);
 
-		_searchEngines.put(searchEngineId, searchEngine);
+		setSearchEngine(searchEngineId, searchEngine);
 	}
 
 	public void setSearchPermissionChecker(
@@ -859,6 +966,25 @@ public class SearchEngineUtil {
 			getClass(), "searchPermissionChecker");
 
 		_searchPermissionChecker = searchPermissionChecker;
+	}
+
+	private static void waitForSystemSearchEngine() {
+		try {
+			int count = 1000;
+
+			while (!_searchEngines.containsKey(SYSTEM_ENGINE_ID) &&
+				   (--count > 0)) {
+
+				if (_log.isDebugEnabled()) {
+					_log.debug("Waiting for search engine " + SYSTEM_ENGINE_ID);
+				}
+
+				Thread.sleep(500);
+			}
+		}
+		catch (InterruptedException ie) {
+			_log.error(ie, ie);
+		}
 	}
 
 	private SearchEngineUtil() {
@@ -873,6 +999,7 @@ public class SearchEngineUtil {
 
 	private static Log _log = LogFactoryUtil.getLog(SearchEngineUtil.class);
 
+	private static Set<Long> _companyIds = new HashSet<Long>();
 	private static String _defaultSearchEngineId;
 	private static Set<String> _excludedEntryClassNames = new HashSet<String>();
 	private static boolean _indexReadOnly = GetterUtil.getBoolean(

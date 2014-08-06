@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,7 +22,9 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -31,12 +32,11 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.documentlibrary.NoSuchFileShortcutException;
 import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
@@ -46,23 +46,41 @@ import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUti
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class DLFileShortcutPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -74,25 +92,13 @@ public class DLFileShortcutPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<DLFileShortcut> iterator = _dlFileShortcuts.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<DLFileShortcut> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -101,7 +107,7 @@ public class DLFileShortcutPersistenceTest {
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DLFileShortcut dlFileShortcut = _persistence.create(pk);
 
@@ -128,43 +134,43 @@ public class DLFileShortcutPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DLFileShortcut newDLFileShortcut = _persistence.create(pk);
 
-		newDLFileShortcut.setUuid(ServiceTestUtil.randomString());
+		newDLFileShortcut.setUuid(RandomTestUtil.randomString());
 
-		newDLFileShortcut.setGroupId(ServiceTestUtil.nextLong());
+		newDLFileShortcut.setGroupId(RandomTestUtil.nextLong());
 
-		newDLFileShortcut.setCompanyId(ServiceTestUtil.nextLong());
+		newDLFileShortcut.setCompanyId(RandomTestUtil.nextLong());
 
-		newDLFileShortcut.setUserId(ServiceTestUtil.nextLong());
+		newDLFileShortcut.setUserId(RandomTestUtil.nextLong());
 
-		newDLFileShortcut.setUserName(ServiceTestUtil.randomString());
+		newDLFileShortcut.setUserName(RandomTestUtil.randomString());
 
-		newDLFileShortcut.setCreateDate(ServiceTestUtil.nextDate());
+		newDLFileShortcut.setCreateDate(RandomTestUtil.nextDate());
 
-		newDLFileShortcut.setModifiedDate(ServiceTestUtil.nextDate());
+		newDLFileShortcut.setModifiedDate(RandomTestUtil.nextDate());
 
-		newDLFileShortcut.setRepositoryId(ServiceTestUtil.nextLong());
+		newDLFileShortcut.setRepositoryId(RandomTestUtil.nextLong());
 
-		newDLFileShortcut.setFolderId(ServiceTestUtil.nextLong());
+		newDLFileShortcut.setFolderId(RandomTestUtil.nextLong());
 
-		newDLFileShortcut.setToFileEntryId(ServiceTestUtil.nextLong());
+		newDLFileShortcut.setToFileEntryId(RandomTestUtil.nextLong());
 
-		newDLFileShortcut.setTreePath(ServiceTestUtil.randomString());
+		newDLFileShortcut.setTreePath(RandomTestUtil.randomString());
 
-		newDLFileShortcut.setActive(ServiceTestUtil.randomBoolean());
+		newDLFileShortcut.setActive(RandomTestUtil.randomBoolean());
 
-		newDLFileShortcut.setStatus(ServiceTestUtil.nextInt());
+		newDLFileShortcut.setStatus(RandomTestUtil.nextInt());
 
-		newDLFileShortcut.setStatusByUserId(ServiceTestUtil.nextLong());
+		newDLFileShortcut.setStatusByUserId(RandomTestUtil.nextLong());
 
-		newDLFileShortcut.setStatusByUserName(ServiceTestUtil.randomString());
+		newDLFileShortcut.setStatusByUserName(RandomTestUtil.randomString());
 
-		newDLFileShortcut.setStatusDate(ServiceTestUtil.nextDate());
+		newDLFileShortcut.setStatusDate(RandomTestUtil.nextDate());
 
-		_persistence.update(newDLFileShortcut);
+		_dlFileShortcuts.add(_persistence.update(newDLFileShortcut));
 
 		DLFileShortcut existingDLFileShortcut = _persistence.findByPrimaryKey(newDLFileShortcut.getPrimaryKey());
 
@@ -225,7 +231,7 @@ public class DLFileShortcutPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -240,7 +246,7 @@ public class DLFileShortcutPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -254,7 +260,7 @@ public class DLFileShortcutPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -266,7 +272,7 @@ public class DLFileShortcutPersistenceTest {
 	@Test
 	public void testCountByToFileEntryId() {
 		try {
-			_persistence.countByToFileEntryId(ServiceTestUtil.nextLong());
+			_persistence.countByToFileEntryId(RandomTestUtil.nextLong());
 
 			_persistence.countByToFileEntryId(0L);
 		}
@@ -278,8 +284,8 @@ public class DLFileShortcutPersistenceTest {
 	@Test
 	public void testCountByG_F() {
 		try {
-			_persistence.countByG_F(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByG_F(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByG_F(0L, 0L);
 		}
@@ -291,8 +297,8 @@ public class DLFileShortcutPersistenceTest {
 	@Test
 	public void testCountByC_NotS() {
 		try {
-			_persistence.countByC_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByC_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByC_NotS(0L, 0);
 		}
@@ -304,10 +310,10 @@ public class DLFileShortcutPersistenceTest {
 	@Test
 	public void testCountByG_F_A() {
 		try {
-			_persistence.countByG_F_A(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.randomBoolean());
+			_persistence.countByG_F_A(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByG_F_A(0L, 0L, ServiceTestUtil.randomBoolean());
+			_persistence.countByG_F_A(0L, 0L, RandomTestUtil.randomBoolean());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -317,12 +323,12 @@ public class DLFileShortcutPersistenceTest {
 	@Test
 	public void testCountByG_F_A_S() {
 		try {
-			_persistence.countByG_F_A_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.randomBoolean(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByG_F_A_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean(),
+				RandomTestUtil.nextInt());
 
-			_persistence.countByG_F_A_S(0L, 0L,
-				ServiceTestUtil.randomBoolean(), 0);
+			_persistence.countByG_F_A_S(0L, 0L, RandomTestUtil.randomBoolean(),
+				0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -340,7 +346,7 @@ public class DLFileShortcutPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -363,7 +369,7 @@ public class DLFileShortcutPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<DLFileShortcut> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("DLFileShortcut", "uuid",
 			true, "fileShortcutId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
@@ -384,11 +390,93 @@ public class DLFileShortcutPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DLFileShortcut missingDLFileShortcut = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingDLFileShortcut);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		DLFileShortcut newDLFileShortcut1 = addDLFileShortcut();
+		DLFileShortcut newDLFileShortcut2 = addDLFileShortcut();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLFileShortcut1.getPrimaryKey());
+		primaryKeys.add(newDLFileShortcut2.getPrimaryKey());
+
+		Map<Serializable, DLFileShortcut> dlFileShortcuts = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, dlFileShortcuts.size());
+		Assert.assertEquals(newDLFileShortcut1,
+			dlFileShortcuts.get(newDLFileShortcut1.getPrimaryKey()));
+		Assert.assertEquals(newDLFileShortcut2,
+			dlFileShortcuts.get(newDLFileShortcut2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, DLFileShortcut> dlFileShortcuts = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(dlFileShortcuts.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		DLFileShortcut newDLFileShortcut = addDLFileShortcut();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLFileShortcut.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, DLFileShortcut> dlFileShortcuts = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, dlFileShortcuts.size());
+		Assert.assertEquals(newDLFileShortcut,
+			dlFileShortcuts.get(newDLFileShortcut.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, DLFileShortcut> dlFileShortcuts = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(dlFileShortcuts.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		DLFileShortcut newDLFileShortcut = addDLFileShortcut();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLFileShortcut.getPrimaryKey());
+
+		Map<Serializable, DLFileShortcut> dlFileShortcuts = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, dlFileShortcuts.size());
+		Assert.assertEquals(newDLFileShortcut,
+			dlFileShortcuts.get(newDLFileShortcut.getPrimaryKey()));
 	}
 
 	@Test
@@ -439,7 +527,7 @@ public class DLFileShortcutPersistenceTest {
 				DLFileShortcut.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("fileShortcutId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<DLFileShortcut> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -480,7 +568,7 @@ public class DLFileShortcutPersistenceTest {
 				"fileShortcutId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("fileShortcutId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -507,49 +595,49 @@ public class DLFileShortcutPersistenceTest {
 	}
 
 	protected DLFileShortcut addDLFileShortcut() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DLFileShortcut dlFileShortcut = _persistence.create(pk);
 
-		dlFileShortcut.setUuid(ServiceTestUtil.randomString());
+		dlFileShortcut.setUuid(RandomTestUtil.randomString());
 
-		dlFileShortcut.setGroupId(ServiceTestUtil.nextLong());
+		dlFileShortcut.setGroupId(RandomTestUtil.nextLong());
 
-		dlFileShortcut.setCompanyId(ServiceTestUtil.nextLong());
+		dlFileShortcut.setCompanyId(RandomTestUtil.nextLong());
 
-		dlFileShortcut.setUserId(ServiceTestUtil.nextLong());
+		dlFileShortcut.setUserId(RandomTestUtil.nextLong());
 
-		dlFileShortcut.setUserName(ServiceTestUtil.randomString());
+		dlFileShortcut.setUserName(RandomTestUtil.randomString());
 
-		dlFileShortcut.setCreateDate(ServiceTestUtil.nextDate());
+		dlFileShortcut.setCreateDate(RandomTestUtil.nextDate());
 
-		dlFileShortcut.setModifiedDate(ServiceTestUtil.nextDate());
+		dlFileShortcut.setModifiedDate(RandomTestUtil.nextDate());
 
-		dlFileShortcut.setRepositoryId(ServiceTestUtil.nextLong());
+		dlFileShortcut.setRepositoryId(RandomTestUtil.nextLong());
 
-		dlFileShortcut.setFolderId(ServiceTestUtil.nextLong());
+		dlFileShortcut.setFolderId(RandomTestUtil.nextLong());
 
-		dlFileShortcut.setToFileEntryId(ServiceTestUtil.nextLong());
+		dlFileShortcut.setToFileEntryId(RandomTestUtil.nextLong());
 
-		dlFileShortcut.setTreePath(ServiceTestUtil.randomString());
+		dlFileShortcut.setTreePath(RandomTestUtil.randomString());
 
-		dlFileShortcut.setActive(ServiceTestUtil.randomBoolean());
+		dlFileShortcut.setActive(RandomTestUtil.randomBoolean());
 
-		dlFileShortcut.setStatus(ServiceTestUtil.nextInt());
+		dlFileShortcut.setStatus(RandomTestUtil.nextInt());
 
-		dlFileShortcut.setStatusByUserId(ServiceTestUtil.nextLong());
+		dlFileShortcut.setStatusByUserId(RandomTestUtil.nextLong());
 
-		dlFileShortcut.setStatusByUserName(ServiceTestUtil.randomString());
+		dlFileShortcut.setStatusByUserName(RandomTestUtil.randomString());
 
-		dlFileShortcut.setStatusDate(ServiceTestUtil.nextDate());
+		dlFileShortcut.setStatusDate(RandomTestUtil.nextDate());
 
-		_persistence.update(dlFileShortcut);
+		_dlFileShortcuts.add(_persistence.update(dlFileShortcut));
 
 		return dlFileShortcut;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(DLFileShortcutPersistenceTest.class);
+	private List<DLFileShortcut> _dlFileShortcuts = new ArrayList<DLFileShortcut>();
 	private ModelListener<DLFileShortcut>[] _modelListeners;
-	private DLFileShortcutPersistence _persistence = (DLFileShortcutPersistence)PortalBeanLocatorUtil.locate(DLFileShortcutPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private DLFileShortcutPersistence _persistence = DLFileShortcutUtil.getPersistence();
 }

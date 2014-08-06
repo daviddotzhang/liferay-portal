@@ -22,15 +22,19 @@ import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.lar.xstream.XStreamAliasRegistryUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portlet.wiki.model.WikiNode;
 import com.liferay.portlet.wiki.model.WikiPage;
+import com.liferay.portlet.wiki.model.impl.WikiNodeImpl;
+import com.liferay.portlet.wiki.model.impl.WikiPageImpl;
 import com.liferay.portlet.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
 import com.liferay.portlet.wiki.service.permission.WikiPermission;
 import com.liferay.portlet.wiki.util.WikiCacheThreadLocal;
 import com.liferay.portlet.wiki.util.WikiCacheUtil;
+import com.liferay.portlet.wiki.util.WikiConstants;
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +67,14 @@ public class WikiPortletDataHandler extends BasePortletDataHandler {
 				},
 				WikiPage.class.getName()));
 		setImportControls(getExportControls());
+
+		XStreamAliasRegistryUtil.register(WikiNodeImpl.class, "WikiNode");
+		XStreamAliasRegistryUtil.register(WikiPageImpl.class, "WikiPage");
+	}
+
+	@Override
+	public String getServiceName() {
+		return WikiConstants.SERVICE_NAME;
 	}
 
 	@Override

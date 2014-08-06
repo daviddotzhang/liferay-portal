@@ -52,7 +52,9 @@ String newTitle = ParamUtil.get(request, "newTitle", StringPool.BLANK);
 		<%
 		boolean pending = false;
 
-		if (WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, WikiPage.class.getName())) {
+		boolean hasWorkflowDefinitionLink = WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, WikiPage.class.getName());
+
+		if (hasWorkflowDefinitionLink) {
 			WikiPage latestWikiPage = WikiPageServiceUtil.getPage(wikiPage.getNodeId(), wikiPage.getTitle(), null);
 
 			pending = latestWikiPage.isPending();
@@ -76,7 +78,7 @@ String newTitle = ParamUtil.get(request, "newTitle", StringPool.BLANK);
 				</c:if>
 
 				<aui:button-row>
-					<aui:button disabled="<%= pending %>" onClick='<%= renderResponse.getNamespace() + "renamePage();" %>' value="rename" />
+					<aui:button disabled="<%= pending %>" onClick='<%= renderResponse.getNamespace() + "renamePage();" %>' value='<%= hasWorkflowDefinitionLink ? "submit-for-publication" : "rename" %>' />
 
 					<aui:button href="<%= redirect %>" type="cancel" />
 				</aui:button-row>
@@ -93,7 +95,7 @@ String newTitle = ParamUtil.get(request, "newTitle", StringPool.BLANK);
 			WikiPage parentPage = wikiPage.getViewableParentPage();
 
 			if (parentPage == null) {
-				parentText = StringPool.OPEN_PARENTHESIS + LanguageUtil.get(pageContext, "none") + StringPool.CLOSE_PARENTHESIS;
+				parentText = StringPool.OPEN_PARENTHESIS + LanguageUtil.get(request, "none") + StringPool.CLOSE_PARENTHESIS;
 			}
 			else {
 				parentText = parentPage.getTitle();
@@ -165,7 +167,7 @@ String newTitle = ParamUtil.get(request, "newTitle", StringPool.BLANK);
 
 				<aui:button-row>
 					<c:choose>
-						<c:when test="<%= WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, WikiPage.class.getName()) %>">
+						<c:when test="<%= hasWorkflowDefinitionLink %>">
 							<aui:button disabled="<%= pending %>" name="publishButton" onClick='<%= renderResponse.getNamespace() + "publishPage();" %>' value="submit-for-publication" />
 						</c:when>
 						<c:otherwise>
@@ -182,7 +184,7 @@ String newTitle = ParamUtil.get(request, "newTitle", StringPool.BLANK);
 
 <aui:script>
 	function <portlet:namespace />changeParent() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = 'changeParent';
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= Constants.CHANGE_PARENT %>';
 
 		submitForm(document.<portlet:namespace />fm);
 	}
@@ -194,7 +196,7 @@ String newTitle = ParamUtil.get(request, "newTitle", StringPool.BLANK);
 	}
 
 	function <portlet:namespace />renamePage() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = 'rename';
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= Constants.RENAME %>';
 
 		submitForm(document.<portlet:namespace />fm);
 	}

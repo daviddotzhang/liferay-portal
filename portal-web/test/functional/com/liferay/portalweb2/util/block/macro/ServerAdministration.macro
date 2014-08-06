@@ -1,4 +1,15 @@
 <definition>
+	<command name="configureDMFileUploadMaxSize">
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Server Administration" />
+		</execute>
+
+		<execute action="CPServeradministration#assertClick" locator-key1="NAVIGATION_FILE_UPLOADS" value1="File Uploads" />
+		<execute action="CPServeradministrationFileuploads#type" locator-key1="DOCUMENTS_AND_MEDIA_MAX_FILE_SIZE" value1="${maxFileSize}" />
+		<execute action="CPServeradministrationFileuploads#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
+		<execute action="CPServeradministrationFileuploads#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
+	</command>
+
 	<command name="configureMailServerSettings">
 		<execute action="CPServeradministration#assertClick" locator-key1="NAVIGATION_MAIL" value1="Mail" />
 
@@ -15,6 +26,24 @@
 		<execute action="CPServeradministrationMail#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
 
 		<execute action="CPServeradministrationMail#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
+	</command>
+
+	<command name="enableOpenOfficeIntegration">
+		<execute action="CPServeradministration#assertClick" locator-key1="NAVIGATION_EXTERNAL_SERVICES" value1="External Services" />
+
+		<execute action="CPServeradministrationExternalservices#check" locator-key1="OPEN_OFFICE_INTEGRATION_ENABLED_CHECKBOX" />
+		<execute action="CPServeradministrationExternalservices#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
+
+		<execute action="CPServeradministrationExternalservices#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
+	</command>
+
+	<command name="executeServerResourcesActions">
+		<var name="key_actionsDescription" value="${actionsDescription}" />
+
+		<execute action="CPServeradministration#assertClick" locator-key1="NAVIGATION_RESOURCES" value1="Resources" />
+		<execute action="CPServeradministration#assertTextEquals" locator-key1="RESOURCES_ACTIONS_TABLE_DESCRIPTION" value1="${actionsDescription}" />
+		<execute action="CPServeradministration#assertClick" locator-key1="RESOURCES_ACTIONS_TABLE_EXECUTE" value1="Execute" />
+		<execute action="CPServeradministration#assertTextEquals" locator-key1="SUCCESS_MESSAGE" value1="Your request completed successfully." />
 	</command>
 
 	<command name="searchPortalPropertiesCP">
@@ -39,6 +68,16 @@
 				<execute action="CPServeradministration#assertTextEquals" locator-key1="PROPERTIES_PORTAL_PROPERTIES_TABLE_SOURCE" value1="The value of this property is read from a portal.properties file or one of its extension files." />
 			</else>
 		</if>
+	</command>
+
+	<command name="tearDownDMFileUploadSettings">
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Server Administration" />
+		</execute>
+
+		<execute action="CPServeradministration#assertClick" locator-key1="NAVIGATION_FILE_UPLOADS" value1="File Uploads" />
+		<execute action="CPServeradministrationFileuploads#type" locator-key1="DOCUMENTS_AND_MEDIA_MAX_FILE_SIZE" value1="" />
+		<execute action="CPServeradministrationFileuploads#assertClick" locator-key1="SAVE_BUTTON" value1="Save" />
 	</command>
 
 	<command name="tearDownMailServerSettings">

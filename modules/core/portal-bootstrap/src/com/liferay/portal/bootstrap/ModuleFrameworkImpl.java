@@ -20,6 +20,7 @@ import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Builder;
 import aQute.bnd.osgi.Jar;
+import aQute.bnd.osgi.Resource;
 import aQute.bnd.osgi.Verifier;
 import aQute.bnd.version.Version;
 
@@ -28,7 +29,7 @@ import com.liferay.portal.kernel.cache.key.CacheKeyGenerator;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -49,12 +50,16 @@ import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.impl.RegistryImpl;
+import com.liferay.registry.internal.RegistryImpl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 
 import java.net.JarURLConnection;
@@ -201,7 +206,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 			for (Bundle bundle : bundleContext.getBundles()) {
 				Version curBundleVersion = Version.parseVersion(
-					bundle.getVersion().toString());
+					String.valueOf(bundle.getVersion()));
 
 				if (bundleSymbolicName.equals(bundle.getSymbolicName()) &&
 					bundleVersion.equals(curBundleVersion)) {
@@ -593,6 +598,52 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		return properties;
 	}
 
+	private String _calculateExportPackage(Jar jar) {
+		StringBundler sb = new StringBundler();
+
+		String delimiter = StringPool.BLANK;
+
+		Map<String, Map<String, Resource>> directories = jar.getDirectories();
+
+		for (String directory : directories.keySet()) {
+			if (directory.equals("META-INF") ||
+				directory.startsWith("META-INF/")) {
+
+				continue;
+			}
+
+			if (directory.equals("OSGI-OPT") ||
+				directory.startsWith("OSGI-OPT/")) {
+
+				continue;
+			}
+
+			if (directory.equals(StringPool.SLASH)) {
+				continue;
+			}
+
+			if (directory.endsWith(StringPool.SLASH)) {
+				directory = directory.substring(0, directory.length() - 1);
+			}
+
+			if (directory.endsWith(StringPool.SLASH)) {
+				directory = directory.substring(0, directory.length() - 1);
+			}
+
+			String className = directory.replace(
+				StringPool.SLASH, StringPool.PERIOD);
+
+			if (directories.get(directory) != null) {
+				sb.append(delimiter);
+				sb.append(className);
+
+				delimiter = StringPool.COMMA;
+			}
+		}
+
+		return sb.toString();
+	}
+
 	private Manifest _calculateManifest(URL url, Manifest manifest) {
 		Analyzer analyzer = new Analyzer();
 
@@ -636,7 +687,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			analyzer.setProperty(
 				Analyzer.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
 
-			String exportPackage = analyzer.calculateExportsFromContents(jar);
+			String exportPackage = _calculateExportPackage(jar);
 
 			analyzer.setProperty(Analyzer.EXPORT_PACKAGE, exportPackage);
 
@@ -700,12 +751,16 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		return String.valueOf(level);
 	}
 
-	private String _getHashcode(String[] keys) {
+	private String _getHashcode(String[]... keys) {
 		try {
 			CacheKeyGenerator cacheKeyGenerator = new JavaMD5CacheKeyGenerator(
 				128);
 
-			return String.valueOf(cacheKeyGenerator.getCacheKey(keys));
+			for (String[] key : keys) {
+				cacheKeyGenerator.append(key);
+			}
+
+			return String.valueOf(cacheKeyGenerator.finish());
 		}
 		catch (NoSuchAlgorithmException nsae) {
 			throw new RuntimeException(nsae);
@@ -717,11 +772,15 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 		Class<?> beanClass = bean.getClass();
 
+		interfaces.add(beanClass);
+
 		for (Class<?> interfaceClass : beanClass.getInterfaces()) {
 			interfaces.add(interfaceClass);
 		}
 
 		while ((beanClass = beanClass.getSuperclass()) != null) {
+			interfaces.add(beanClass);
+
 			for (Class<?> interfaceClass : beanClass.getInterfaces()) {
 				if (!interfaces.contains(interfaceClass)) {
 					interfaces.add(interfaceClass);
@@ -736,7 +795,9 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		String[] systemPackagesExtra =
 			PropsValues.MODULE_FRAMEWORK_SYSTEM_PACKAGES_EXTRA;
 
-		String hashcode = _getHashcode(systemPackagesExtra);
+		String hashcode = _getHashcode(
+			systemPackagesExtra,
+			PropsValues.MODULE_FRAMEWORK_SYSTEM_BUNDLE_IGNORED_FRAGMENTS);
 
 		File coreDir = new File(
 			PropsValues.LIFERAY_WEB_PORTAL_CONTEXT_TEMPDIR, "osgi");
@@ -747,11 +808,32 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		if (cacheFile.exists() && hashcodeFile.exists() &&
 			_hasMatchingHashcode(hashcodeFile, hashcode)) {
 
+			ObjectInputStream objectInputStream = null;
+
 			try {
-				return FileUtil.read(cacheFile);
+				objectInputStream = new ObjectInputStream(
+					new FileInputStream(cacheFile));
+
+				_extraPackageMap =
+					(Map<String, List<URL>>)objectInputStream.readObject();
+
+				return (String)objectInputStream.readObject();
 			}
 			catch (IOException ioe) {
 				_log.error(ioe, ioe);
+			}
+			catch (ClassNotFoundException cnfe) {
+				_log.error(cnfe, cnfe);
+			}
+			finally {
+				if (objectInputStream != null) {
+					try {
+						objectInputStream.close();
+					}
+					catch (IOException ioe) {
+						_log.error(ioe, ioe);
+					}
+				}
 			}
 		}
 
@@ -815,12 +897,33 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 					"packages:\n" +s);
 		}
 
+		if (!coreDir.exists()) {
+			coreDir.mkdir();
+		}
+
+		ObjectOutputStream objectOutputStream = null;
+
 		try {
-			FileUtil.write(cacheFile, sb.toString());
+			objectOutputStream = new ObjectOutputStream(
+				new FileOutputStream(cacheFile));
+
+			objectOutputStream.writeObject(_extraPackageMap);
+			objectOutputStream.writeObject(sb.toString());
+
 			FileUtil.write(hashcodeFile, hashcode);
 		}
 		catch (IOException ioe) {
 			_log.error(ioe, ioe);
+		}
+		finally {
+			if (objectOutputStream != null) {
+				try {
+					objectOutputStream.close();
+				}
+				catch (IOException ioe) {
+					_log.error(ioe, ioe);
+				}
+			}
 		}
 
 		return sb.toString();
@@ -965,6 +1068,22 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		return true;
 	}
 
+	private boolean _isIgnoredInterface(String interfaceClassName) {
+		for (String ignoredClass :
+				PropsValues.MODULE_FRAMEWORK_SERVICES_IGNORED_INTERFACES) {
+
+			if (ignoredClass.equals(interfaceClassName) ||
+				(ignoredClass.endsWith(StringPool.STAR) &&
+				 interfaceClassName.startsWith(
+					 ignoredClass.substring(0, ignoredClass.length() - 1)))) {
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private void _processURL(
 		StringBundler sb, URL url, String[] ignoredFragments) {
 
@@ -1091,14 +1210,11 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		List<String> names = new ArrayList<String>(interfaces.size());
 
 		for (Class<?> interfaceClass : interfaces) {
-			if (ArrayUtil.contains(
-					PropsValues.MODULE_FRAMEWORK_SERVICES_IGNORED_INTERFACES,
-					interfaceClass.getName())) {
+			String interfaceClassName = interfaceClass.getName();
 
-				continue;
+			if (!_isIgnoredInterface(interfaceClassName)) {
+				names.add(interfaceClassName);
 			}
-
-			names.add(interfaceClass.getName());
 		}
 
 		if (names.isEmpty()) {
@@ -1106,6 +1222,13 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		}
 
 		Hashtable<String, Object> properties = new Hashtable<String, Object>();
+
+		Map<String, Object> osgiBeanProperties =
+			OSGiBeanProperties.Convert.fromObject(bean);
+
+		if (osgiBeanProperties != null) {
+			properties.putAll(osgiBeanProperties);
+		}
 
 		properties.put(ServicePropsKeys.BEAN_ID, beanName);
 		properties.put(ServicePropsKeys.ORIGINAL_BEAN, Boolean.TRUE);

@@ -15,7 +15,6 @@
 package com.liferay.portlet.wiki.trash;
 
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -24,20 +23,22 @@ import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.util.test.RandomTestUtil;
+import com.liferay.portal.util.test.ServiceContextTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.trash.BaseTrashHandlerTestCase;
+import com.liferay.portlet.trash.service.TrashVersionLocalServiceUtil;
 import com.liferay.portlet.trash.util.TrashUtil;
 import com.liferay.portlet.wiki.asset.WikiPageAssetRenderer;
 import com.liferay.portlet.wiki.model.WikiNode;
 import com.liferay.portlet.wiki.model.WikiPage;
 import com.liferay.portlet.wiki.service.WikiNodeLocalServiceUtil;
 import com.liferay.portlet.wiki.service.WikiPageLocalServiceUtil;
-import com.liferay.portlet.wiki.util.WikiTestUtil;
+import com.liferay.portlet.wiki.util.test.WikiTestUtil;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,15 +63,37 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	public void setUp() throws Exception {
 		super.setUp();
 
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		_node = (WikiNode)getParentBaseModel(group, serviceContext);
 	}
 
 	@Test
-	@Transactional
-	public void testMoveExplicitlyChildPageAndParentPageWithRedirectPageToTrash()
+	public void testAddPageWithSameTitleAsImplicitlyDeletedPageVersion()
+		throws Exception {
+
+		WikiPage[] pages = WikiTestUtil.addPageWithChangedParentPage(
+			group.getGroupId(), _node.getNodeId());
+
+		WikiPage childPage = pages[0];
+		WikiPage parentPage = pages[1];
+
+		String childPageTitle = childPage.getTitle();
+
+		WikiPageLocalServiceUtil.movePageToTrash(
+			TestPropsValues.getUserId(), parentPage);
+
+		WikiPage page = WikiTestUtil.addPage(
+			TestPropsValues.getUserId(), group.getGroupId(), _node.getNodeId(),
+			childPageTitle, true);
+
+		Assert.assertNotNull(page);
+	}
+
+	@Test
+	public void
+			testMoveExplicitlyChildPageAndParentPageWithRedirectPageToTrash()
 		throws Exception {
 
 		WikiPage[] pages =
@@ -90,7 +113,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveExplicitlyChildPageWithChildPageAndParentPageToTrash()
 		throws Exception {
 
@@ -118,7 +140,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveExplicitlyChildPageWithChildPageToTrash()
 		throws Exception {
 
@@ -146,7 +167,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveExplicitlyPageAndRedirectPageToTrash()
 		throws Exception {
 
@@ -162,7 +182,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveExplicitlyParentPageAndChildPageAndRedirectPageToTrash()
 		throws Exception {
 
@@ -183,7 +202,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveExplicitlyParentPageAndChildPagePageWithChildToTrash()
 		throws Exception {
 
@@ -212,7 +230,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveExplicitlyParentPageAndChildPageToTrash()
 		throws Exception {
 
@@ -228,7 +245,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveExplicitlyParentPageAndRedirectPageToTrash()
 		throws Exception {
 
@@ -249,7 +265,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveInitialParentPageToTrash() throws Exception {
 		int initialBaseModelsCount = getNotInTrashBaseModelsCount(_node);
 		int initialTrashEntriesCount = getTrashEntriesCount(group.getGroupId());
@@ -283,7 +298,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMovePageWithRedirectPageToTrash() throws Exception {
 		WikiPage[] pages = WikiTestUtil.addTrashedPageWithRedirectPage(
 			group.getGroupId(), _node.getNodeId(), false);
@@ -297,7 +311,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveParentPageToTrash() throws Exception {
 		WikiPage[] pages = WikiTestUtil.addTrashedPageWithChildPage(
 			group.getGroupId(), _node.getNodeId(), false);
@@ -311,8 +324,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testMoveParentPageWithRedirectAndChildPageAndgrandchildPageToTrash()
+	public void
+			testMoveParentPageWithRedirectAndChildPageAndgrandchildPageToTrash()
 		throws Exception {
 
 		int initialBaseModelsCount = getNotInTrashBaseModelsCount(_node);
@@ -355,7 +368,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testMoveParentPageWithRedirectPageToTrash() throws Exception {
 		WikiPage[] pages = WikiTestUtil.addTrashedParentPageWithRedirectPage(
 			group.getGroupId(), _node.getNodeId(), false, false);
@@ -373,8 +385,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedChildPageAndPageWithRedirectFromTrash()
+	public void
+			testRestoreExplicitlyTrashedChildPageAndPageWithRedirectFromTrash()
 		throws Exception {
 
 		WikiPage[] pages = WikiTestUtil.addTrashedParentPageWithRedirectPage(
@@ -396,8 +408,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedChildPageAndParentPageWithRedirectPageFromTrash()
+	public void
+			testRestoreExplicitlyTrashedChildPageAndParentPageWithRedirectPageFromTrash()
 		throws Exception {
 
 		WikiPage[] pages = WikiTestUtil.addTrashedParentPageWithRedirectPage(
@@ -419,7 +431,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testRestoreExplicitlyTrashedChildPageWithChildPageFromTrash()
 		throws Exception {
 
@@ -453,8 +464,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedChildPageWithTrashedParentFromTrash()
+	public void
+			testRestoreExplicitlyTrashedChildPageWithTrashedParentFromTrash()
 		throws Exception {
 
 		int initialBaseModelsCount = getNotInTrashBaseModelsCount(_node);
@@ -488,7 +499,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testRestoreExplicitlyTrashedPageWithRedirectPageFromTrash()
 		throws Exception {
 
@@ -510,8 +520,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedParentPageAndChildPageAndRedirectPageFromTrash()
+	public void
+			testRestoreExplicitlyTrashedParentPageAndChildPageAndRedirectPageFromTrash()
 		throws Exception {
 
 		WikiPage[] pages = WikiTestUtil.addTrashedParentPageWithRedirectPage(
@@ -538,7 +548,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testRestoreExplicitlyTrashedParentPageAndChildPageFromTrash()
 		throws Exception {
 
@@ -560,7 +569,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testRestoreExplicitlyTrashedParentPageAndRedirectFromTrash()
 		throws Exception {
 
@@ -584,7 +592,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testRestoreExplicitlyTrashedParentPageFromTrash()
 		throws Exception {
 
@@ -607,8 +614,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedParentPageWitExplicitlyTrashedChildPageFromTrash()
+	public void
+			testRestoreExplicitlyTrashedParentPageWitExplicitlyTrashedChildPageFromTrash()
 		throws Exception {
 
 		WikiPage[] pages = WikiTestUtil.addTrashedPageWithChildPage(
@@ -630,8 +637,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedParentPageWithChildPageAndgrandchildPageFromTrash()
+	public void
+			testRestoreExplicitlyTrashedParentPageWithChildPageAndgrandchildPageFromTrash()
 		throws Exception {
 
 		int initialBaseModelsCount = getNotInTrashBaseModelsCount(_node);
@@ -664,8 +671,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedParentPageWithRedirectPageFromTrash()
+	public void
+			testRestoreExplicitlyTrashedParentPageWithRedirectPageFromTrash()
 		throws Exception {
 
 		WikiPage[] pages = WikiTestUtil.addTrashedParentPageWithRedirectPage(
@@ -695,7 +702,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testRestoreExplicitlyTrashedParentPageWithRedirectPageToTrash()
 		throws Exception {
 
@@ -724,8 +730,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreExplicitlyTrashedRedirectPageWithRestoredPageFromTrash()
+	public void
+			testRestoreExplicitlyTrashedRedirectPageWithRestoredPageFromTrash()
 		throws Exception {
 
 		WikiPage[] pages = WikiTestUtil.addTrashedPageWithRedirectPage(
@@ -746,8 +752,36 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
-	public void testRestoreParentPageWithExplicitlyTrashedRrdirectPageFromTrash()
+	public void testRestorePageWithParentPageInTrash() throws Exception {
+		WikiPage[] pages = WikiTestUtil.addTrashedPageWithChildPage(
+			group.getGroupId(), _node.getNodeId(), false);
+
+		WikiPage childPage = pages[1];
+
+		WikiPage newParentPage = WikiTestUtil.addPage(
+			group.getGroupId(), _node.getNodeId(), true);
+
+		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
+			getBaseModelClassName());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		trashHandler.moveEntry(
+			TestPropsValues.getUserId(), childPage.getResourcePrimKey(),
+			newParentPage.getResourcePrimKey(), serviceContext);
+
+		childPage = WikiPageLocalServiceUtil.getPage(
+			childPage.getResourcePrimKey());
+
+		Assert.assertTrue(childPage.isApproved());
+		Assert.assertEquals(
+			newParentPage.getTitle(), childPage.getParentTitle());
+	}
+
+	@Test
+	public void
+			testRestoreParentPageWithExplicitlyTrashedRrdirectPageFromTrash()
 		throws Exception {
 
 		WikiPage[] pages = WikiTestUtil.addTrashedParentPageWithRedirectPage(
@@ -775,7 +809,6 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	}
 
 	@Test
-	@Transactional
 	public void testRestoreRedirectPageWithParentPageFromTrash()
 		throws Exception {
 
@@ -886,6 +919,40 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 	public void testTrashRecentBaseModel() throws Exception {
 	}
 
+	@Test
+	public void testTrashVersionCreationWhenMovingToTrash()
+		throws Exception {
+
+		int initialTrashVersionsCount =
+			TrashVersionLocalServiceUtil.getTrashVersionsCount();
+
+		WikiTestUtil.addTrashedParentPageWithRedirectPage(
+			group.getGroupId(), _node.getNodeId(), false, false);
+
+		Assert.assertEquals(
+			initialTrashVersionsCount + 3,
+			TrashVersionLocalServiceUtil.getTrashVersionsCount());
+	}
+
+	@Test
+	public void testTrashVersionDeletionWhenRestoringFromTrash()
+		throws Exception {
+
+		int initialTrashVersionCount =
+			TrashVersionLocalServiceUtil.getTrashVersionsCount();
+
+		WikiPage[] pages = WikiTestUtil.addTrashedParentPageWithRedirectPage(
+			group.getGroupId(), _node.getNodeId(), false, false);
+
+		WikiPage parentPage = pages[0];
+
+		restoreTrashEntry(parentPage);
+
+		Assert.assertEquals(
+			initialTrashVersionCount,
+			TrashVersionLocalServiceUtil.getTrashVersionsCount());
+	}
+
 	@Ignore()
 	@Override
 	@Test
@@ -910,7 +977,7 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 		String title = getSearchKeywords();
 
-		title += ServiceTestUtil.randomString(
+		title += RandomTestUtil.randomString(
 			_PAGE_TITLE_MAX_LENGTH - title.length());
 
 		return WikiTestUtil.addPage(
@@ -960,8 +1027,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 		return WikiNodeLocalServiceUtil.addNode(
 			TestPropsValues.getUserId(),
-			ServiceTestUtil.randomString(_NODE_NAME_MAX_LENGTH),
-			ServiceTestUtil.randomString(), serviceContext);
+			RandomTestUtil.randomString(_NODE_NAME_MAX_LENGTH),
+			RandomTestUtil.randomString(), serviceContext);
 	}
 
 	@Override
@@ -1011,12 +1078,12 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 			TestPropsValues.getUserId(), primaryKey);
 	}
 
-	protected void restoreTrashEntry(WikiPage childPage) throws Exception {
+	protected void restoreTrashEntry(WikiPage page) throws Exception {
 		TrashHandler trashHandler = TrashHandlerRegistryUtil.getTrashHandler(
 			getBaseModelClassName());
 
 		trashHandler.restoreTrashEntry(
-			TestPropsValues.getUserId(), getTrashEntryClassPK(childPage));
+			TestPropsValues.getUserId(), getTrashEntryClassPK(page));
 	}
 
 	@Override
@@ -1030,8 +1097,8 @@ public class WikiPageTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 		return WikiPageLocalServiceUtil.updatePage(
 			TestPropsValues.getUserId(), page.getNodeId(), page.getTitle(),
-			page.getVersion(), ServiceTestUtil.randomString(),
-			ServiceTestUtil.randomString(), false, page.getFormat(),
+			page.getVersion(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), false, page.getFormat(),
 			page.getParentTitle(), page.getRedirectTitle(), serviceContext);
 	}
 

@@ -197,7 +197,7 @@ create index IX_F147CF3F on DLFileEntryTypes_DDMStructures (structureId);
 create index IX_5BB6AD6C on DLFileEntryTypes_DLFolders (fileEntryTypeId);
 create index IX_6E00A2EC on DLFileEntryTypes_DLFolders (folderId);
 
-create unique index IX_38F0315 on DLFileRank (companyId, userId, fileEntryId);
+create index IX_38F0315 on DLFileRank (companyId, userId, fileEntryId);
 create index IX_A65A1F8B on DLFileRank (fileEntryId);
 create index IX_4E96195B on DLFileRank (groupId, userId, active_);
 create index IX_EED06670 on DLFileRank (userId);
@@ -685,8 +685,12 @@ create unique index IX_D1C44A6E on UserIdMapper (userId, type_);
 
 create unique index IX_8B6E3ACE on UserNotificationDelivery (userId, portletId, classNameId, notificationType, deliveryType);
 
+create index IX_5CE95F03 on UserNotificationEvent (userId, actionRequired, archived);
 create index IX_3DBB361A on UserNotificationEvent (userId, archived);
-create index IX_24F1BF0 on UserNotificationEvent (userId, delivered);
+create index IX_E32CC19 on UserNotificationEvent (userId, delivered, actionRequired);
+create index IX_C4EFBD45 on UserNotificationEvent (userId, deliveryType, actionRequired, archived);
+create index IX_A87A585C on UserNotificationEvent (userId, deliveryType, archived);
+create index IX_A6F83617 on UserNotificationEvent (userId, deliveryType, delivered, actionRequired);
 create index IX_A6BAFDFE on UserNotificationEvent (uuid_, companyId);
 
 create index IX_29BA1CF5 on UserTracker (companyId);

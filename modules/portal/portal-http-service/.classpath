@@ -14,7 +14,6 @@
 	<classpathentry kind="lib" path="/portal-master/lib/development/jsp-api.jar" />
 	<classpathentry kind="lib" path="/portal-master/lib/development/mail.jar" />
 	<classpathentry kind="lib" path="/portal-master/lib/development/servlet-api.jar" />
-	<classpathentry kind="lib" path="/portal-master/lib/global/portal-settings-shared.jar" />
 	<classpathentry kind="lib" path="/portal-master/lib/global/portlet.jar" />
 	<classpathentry kind="lib" path="/portal-master/lib/portal/axis.jar" />
 	<classpathentry kind="lib" path="/portal-master/lib/portal/commons-io.jar" />
@@ -25,6 +24,8 @@
 	<classpathentry kind="lib" path="/portal-master/util-bridges/util-bridges.jar" />
 	<classpathentry kind="lib" path="/portal-master/util-java/util-java.jar" />
 	<classpathentry kind="lib" path="/portal-master/util-taglib/util-taglib.jar" />
+	<classpathentry kind="lib" path="lib/org.apache.felix.eventadmin.jar" />
+	<classpathentry kind="lib" path="lib/org.eclipse.equinox.http.servlet.jar" />
 	<classpathentry kind="lib" path="lib/org.osgi.compendium.jar" />
 	<classpathentry kind="lib" path="lib/org.osgi.core.jar" />
 	<classpathentry kind="output" path="bin" />

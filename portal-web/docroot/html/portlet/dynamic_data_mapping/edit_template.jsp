@@ -33,6 +33,7 @@ long groupId = BeanParamUtil.getLong(template, request, "groupId", scopeGroupId)
 long classNameId = BeanParamUtil.getLong(template, request, "classNameId");
 long classPK = BeanParamUtil.getLong(template, request, "classPK");
 
+boolean cacheable = BeanParamUtil.getBoolean(template, request, "cacheable", true);
 boolean smallImage = BeanParamUtil.getBoolean(template, request, "smallImage");
 
 DDMStructure structure = (DDMStructure)request.getAttribute(WebKeys.DYNAMIC_DATA_MAPPING_STRUCTURE);
@@ -58,12 +59,6 @@ if (Validator.isNull(script)) {
 	else if (!type.equals(DDMTemplateConstants.TEMPLATE_TYPE_FORM)) {
 		script = ContentUtil.get(PropsUtil.get(PropsKeys.DYNAMIC_DATA_MAPPING_TEMPLATE_LANGUAGE_CONTENT, new Filter(language)));
 	}
-}
-
-JSONArray scriptJSONArray = null;
-
-if (type.equals(DDMTemplateConstants.TEMPLATE_TYPE_FORM) && Validator.isNotNull(script)) {
-	scriptJSONArray = DDMXSDUtil.getJSONArray(script);
 }
 
 String structureAvailableFields = ParamUtil.getString(request, "structureAvailableFields");
@@ -138,14 +133,14 @@ if (Validator.isNotNull(structureAvailableFields)) {
 		<liferay-ui:panel-container cssClass="lfr-structure-entry-details-container" extended="<%= false %>" id="templateDetailsPanelContainer" persistState="<%= true %>">
 			<liferay-ui:panel collapsible="<%= true %>" defaultState="closed" extended="<%= false %>" id="templateDetailsSectionPanel" persistState="<%= true %>" title="details">
 				<c:if test="<%= ddmDisplay.isShowStructureSelector() %>">
-					<div class="control-group">
+					<div class="form-group">
 						<aui:input helpMessage="structure-help" name="structure" type="resource" value="<%= (structure != null) ? structure.getName(locale) : StringPool.BLANK %>" />
 
 						<c:if test="<%= ((template == null) || (template.getClassPK() == 0)) %>">
 							<liferay-ui:icon
 								iconCssClass="icon-search"
 								label="<%= true %>"
-								linkCssClass="btn"
+								linkCssClass="btn btn-default"
 								message="select"
 								url='<%= "javascript:" + renderResponse.getNamespace() + "openDDMStructureSelector();" %>'
 							/>
@@ -160,7 +155,7 @@ if (Validator.isNotNull(structureAvailableFields)) {
 						for (String curLangType : ddmDisplay.getTemplateLanguageTypes()) {
 							StringBundler sb = new StringBundler(6);
 
-							sb.append(LanguageUtil.get(pageContext, curLangType + "[stands-for]"));
+							sb.append(LanguageUtil.get(request, curLangType + "[stands-for]"));
 							sb.append(StringPool.SPACE);
 							sb.append(StringPool.OPEN_PARENTHESIS);
 							sb.append(StringPool.PERIOD);
@@ -175,6 +170,10 @@ if (Validator.isNotNull(structureAvailableFields)) {
 						%>
 
 					</aui:select>
+				</c:if>
+
+				<c:if test="<%= !PropsValues.DYNAMIC_DATA_MAPPING_TEMPLATE_FORCE_AUTOGENERATE_KEY %>">
+					<aui:input disabled="<%= (template != null) ? true : false %>" name="templateKey" />
 				</c:if>
 
 				<aui:input name="description" />
@@ -197,6 +196,10 @@ if (Validator.isNotNull(structureAvailableFields)) {
 						</aui:select>
 					</c:when>
 					<c:otherwise>
+						<c:if test="<%= Validator.equals(ddmDisplay.getPortletId(), PortletKeys.JOURNAL) || Validator.equals(ddmDisplay.getPortletId(), PortletKeys.JOURNAL_CONTENT) %>">
+							<aui:input helpMessage="journal-template-cacheable-help" name="cacheable" value="<%= cacheable %>" />
+						</c:if>
+
 						<div id="<portlet:namespace />smallImageContainer">
 							<div class="lfr-ddm-small-image-header">
 								<aui:input name="smallImage" />
@@ -206,7 +209,7 @@ if (Validator.isNotNull(structureAvailableFields)) {
 								<aui:row>
 									<c:if test="<%= smallImage && (template != null) %>">
 										<aui:col width="<%= 50 %>">
-											<img alt="<liferay-ui:message key="preview" />" class="lfr-ddm-small-image-preview" src="<%= Validator.isNotNull(template.getSmallImageURL()) ? HtmlUtil.escapeHREF(template.getSmallImageURL()) : themeDisplay.getPathImage() + "/template?img_id=" + template.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(template.getSmallImageId()) %>" />
+											<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="preview" />" class="lfr-ddm-small-image-preview" src='<%= Validator.isNotNull(template.getSmallImageURL()) ? HtmlUtil.escapeHREF(template.getSmallImageURL()) : themeDisplay.getPathImage() + "/template?img_id=" + template.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(template.getSmallImageId()) %>' />
 										</aui:col>
 									</c:if>
 
@@ -242,145 +245,67 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	</aui:fieldset>
 </aui:form>
 
-<c:choose>
-	<c:when test="<%= type.equals(DDMTemplateConstants.TEMPLATE_TYPE_FORM) %>">
-		<%@ include file="/html/portlet/dynamic_data_mapping/form_builder.jspf" %>
+<c:if test="<%= type.equals(DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY) %>">
+	<aui:script use="aui-toggler">
+		var container = A.one('#<portlet:namespace />smallImageContainer');
 
-		<aui:script>
-			Liferay.provide(
-				window,
-				'<portlet:namespace />attachValueChange',
-				function(mode) {
-					var A = AUI();
+		var types = container.all('.lfr-ddm-small-image-type');
+		var values = container.all('.lfr-ddm-small-image-value');
 
-					A.one('#<portlet:namespace />mode').on(
-						'change',
-						function(event) {
-							var currentTarget = event.currentTarget;
+		var selectSmallImageType = function(index) {
+			types.attr('checked', false);
 
-							<portlet:namespace />toggleMode(currentTarget.get('value'));
-						}
-					);
-				},
-				['aui-base']
-			);
+			types.item(index).attr('checked', true);
 
-			Liferay.on(
-				'<portlet:namespace />formBuilderLoaded',
-				function(event) {
-					<portlet:namespace />attachValueChange();
+			values.attr('disabled', true);
 
-					<portlet:namespace />toggleMode('<%= HtmlUtil.escape(mode) %>');
-				}
-			);
+			values.item(index).attr('disabled', false);
+		};
 
-			Liferay.provide(
-				window,
-				'<portlet:namespace />setFieldsHiddenAttributes',
-				function(item, index, collection, mode) {
-					var A = AUI();
+		container.delegate(
+			'change',
+			function(event) {
+				var index = types.indexOf(event.currentTarget);
 
-					var hiddenAttributesMap = window.<portlet:namespace />formBuilder.MAP_HIDDEN_FIELD_ATTRS;
-					var hiddenAttributes = hiddenAttributesMap[item.get('type')] || hiddenAttributesMap.DEFAULT;
+				selectSmallImageType(index);
+			},
+			'.lfr-ddm-small-image-type'
+		);
 
-					hiddenAttributes = A.Array(hiddenAttributes);
+		new A.Toggler(
+			{
+				animated: true,
+				content: '#<portlet:namespace />smallImageContainer .lfr-ddm-small-image-content',
+				expanded: <%= smallImage %>,
+				header: '#<portlet:namespace />smallImageContainer .lfr-ddm-small-image-header',
+				on: {
+					animatingChange: function(event) {
+						var instance = this;
 
-					if (mode === '<%= DDMTemplateConstants.TEMPLATE_MODE_EDIT %>') {
-						A.Array.removeItem(hiddenAttributes, 'readOnly');
-					}
+						var expanded = !instance.get('expanded');
 
-					item.set('hiddenAttributes', hiddenAttributes);
-				},
-				['aui-base']
-			);
+						A.one('#<portlet:namespace />smallImage').attr('checked', expanded);
 
-			Liferay.provide(
-				window,
-				'<portlet:namespace />toggleMode',
-				function(mode) {
-					var A = AUI();
-
-					var modeEdit = (mode === '<%= DDMTemplateConstants.TEMPLATE_MODE_EDIT %>');
-
-					window.<portlet:namespace />formBuilder.set('allowRemoveRequiredFields', modeEdit);
-
-					window.<portlet:namespace />formBuilder.get('fields').each(A.rbind('<portlet:namespace />setFieldsHiddenAttributes', window, mode));
-
-					A.Array.each(window.<portlet:namespace />formBuilder.get('availableFields'), A.rbind('<portlet:namespace />setFieldsHiddenAttributes', window, mode));
-
-					var editingField = window.<portlet:namespace />formBuilder.editingField;
-
-					if (editingField) {
-						window.<portlet:namespace />formBuilder.propertyList.set('data', window.<portlet:namespace />formBuilder.getFieldProperties(editingField));
-					}
-				},
-				['aui-base']
-			);
-		</aui:script>
-	</c:when>
-	<c:otherwise>
-		<aui:script use="aui-toggler">
-			var container = A.one('#<portlet:namespace />smallImageContainer');
-
-			var types = container.all('.lfr-ddm-small-image-type');
-			var values = container.all('.lfr-ddm-small-image-value');
-
-			var selectSmallImageType = function(index) {
-				types.set('checked', false);
-
-				types.item(index).set('checked', true);
-
-				values.set('disabled', true);
-
-				values.item(index).set('disabled', false);
-			};
-
-			container.delegate(
-				'change',
-				function(event) {
-					var index = types.indexOf(event.currentTarget);
-
-					selectSmallImageType(index);
-				},
-				'.lfr-ddm-small-image-type'
-			);
-
-			new A.Toggler(
-				{
-					animated: true,
-					content: '#<portlet:namespace />smallImageContainer .lfr-ddm-small-image-content',
-					expanded: <%= smallImage %>,
-					header: '#<portlet:namespace />smallImageContainer .lfr-ddm-small-image-header',
-					on: {
-						animatingChange: function(event) {
-							var instance = this;
-
-							var expanded = !instance.get('expanded');
-
-							A.one('#<portlet:namespace />smallImage').set('value', expanded);
-							A.one('#<portlet:namespace />smallImageCheckbox').set('checked', expanded);
-
-							if (expanded) {
-								types.each(
-									function(item, index, collection) {
-										if (item.get('checked')) {
-											values.item(index).set('disabled', false);
-										}
+						if (expanded) {
+							types.each(
+								function(item, index) {
+									if (item.get('checked')) {
+										values.item(index).attr('disabled', false);
 									}
-								);
-							}
-							else {
-								values.set('disabled', true);
-							}
+								}
+							);
+						}
+						else {
+							values.attr('disabled', true);
 						}
 					}
 				}
-			);
+			}
+		);
 
-			selectSmallImageType('<%= (template != null) && Validator.isNotNull(template.getSmallImageURL()) ? 0 : 1 %>');
-		</aui:script>
-	</c:otherwise>
-</c:choose>
+		selectSmallImageType('<%= (template != null) && Validator.isNotNull(template.getSmallImageURL()) ? 0 : 1 %>');
+	</aui:script>
+</c:if>
 
 <c:if test="<%= ddmDisplay.isShowStructureSelector() && ((template == null) || (template.getClassPK() == 0)) %>">
 	<aui:script>
@@ -395,10 +320,10 @@ if (Validator.isNotNull(structureAvailableFields)) {
 					refererPortletName: '<%= PortletKeys.JOURNAL %>',
 					showAncestorScopes: true,
 					struts_action: '/dynamic_data_mapping/select_structure',
-					title: '<%= UnicodeLanguageUtil.get(pageContext, "structures") %>'
+					title: '<%= UnicodeLanguageUtil.get(request, "structures") %>'
 				},
 				function(event) {
-					if (confirm('<%= UnicodeLanguageUtil.get(pageContext, "selecting-a-new-structure-will-change-the-available-input-fields-and-available-templates") %>') && (document.<portlet:namespace />fm.<portlet:namespace />classPK.value != event.ddmstructureid)) {
+					if (confirm('<%= UnicodeLanguageUtil.get(request, "selecting-a-new-structure-will-change-the-available-input-fields-and-available-templates") %>') && (document.<portlet:namespace />fm.<portlet:namespace />classPK.value != event.ddmstructureid)) {
 						document.<portlet:namespace />fm.<portlet:namespace />classPK.value = event.ddmstructureid;
 
 						Liferay.fire('<portlet:namespace />refreshEditor');
@@ -429,9 +354,9 @@ if (Validator.isNotNull(structureAvailableFields)) {
 	String taglibOnClick = "Liferay.fire('" + liferayPortletResponse.getNamespace() + "saveTemplate');";
 	%>
 
-	<aui:button onClick="<%= taglibOnClick %>" primary="<%= true %>" value='<%= LanguageUtil.get(pageContext, "save") %>' />
+	<aui:button onClick="<%= taglibOnClick %>" primary="<%= true %>" value='<%= LanguageUtil.get(request, "save") %>' />
 
-	<aui:button onClick='<%= renderResponse.getNamespace() + "saveAndContinueTemplate();" %>' value='<%= LanguageUtil.get(pageContext, "save-and-continue") %>' />
+	<aui:button onClick='<%= renderResponse.getNamespace() + "saveAndContinueTemplate();" %>' value='<%= LanguageUtil.get(request, "save-and-continue") %>' />
 
 	<aui:button href="<%= redirect %>" type="cancel" />
 </aui:button-row>

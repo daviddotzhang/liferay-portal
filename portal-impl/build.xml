@@ -225,6 +225,26 @@ public class Creole10Parser]]></replacevalue>
 		<ant dir="../portal-web" target="build-css" />
 	</target>
 
+	<target name="build-ehcache-xsd">
+		<get dest="ehcache.xsd" src="http://ehcache.org/ehcache.xsd" />
+
+		<xmltask dest="src/ehcache/ehcache.xsd" source="ehcache.xsd">
+			<replace path="/xs:schema/xs:element[@name='ehcache']/xs:complexType/xs:attribute[@name='name']/@use" withText="required" />
+		</xmltask>
+
+		<replace file="src/ehcache/ehcache.xsd">
+			<replacefilter>
+				<replacetoken><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?>]]></replacetoken>
+				<replacevalue><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!-- @generated -->
+]]></replacevalue>
+			</replacefilter>
+		</replace>
+
+		<delete file="ehcache.xsd" />
+	</target>
+
 	<target name="build-db">
 		<ant dir="../sql" target="build-db" />
 	</target>
@@ -583,8 +603,8 @@ public class Creole10Parser]]></replacevalue>
 
 	<target name="build-selenium-java-jar">
 		<get
-			dest="selenium-firefox-driver-2.33.0-sources.jar"
-			src="http://search.maven.org/remotecontent?filepath=org/seleniumhq/selenium/selenium-firefox-driver/2.33.0/selenium-firefox-driver-2.33.0-sources.jar"
+			dest="selenium-firefox-driver-2.42.2-sources.jar"
+			src="http://search.maven.org/remotecontent?filepath=org/seleniumhq/selenium/selenium-firefox-driver/2.42.2/selenium-firefox-driver-2.42.2-sources.jar"
 		/>
 
 		<tstamp>
@@ -593,14 +613,14 @@ public class Creole10Parser]]></replacevalue>
 
 		<unzip
 			dest="${tstamp.value}"
-			src="selenium-firefox-driver-2.33.0-sources.jar"
+			src="selenium-firefox-driver-2.42.2-sources.jar"
 		>
 			<patternset>
 				<include name="**/FirefoxDriver.java" />
 			</patternset>
 		</unzip>
 
-		<delete file="selenium-firefox-driver-2.33.0-sources.jar" />
+		<delete file="selenium-firefox-driver-2.42.2-sources.jar" />
 
 		<replace file="${tstamp.value}/org/openqa/selenium/firefox/FirefoxDriver.java">
 			<replacefilter token="localhost" value="127.0.0.1" />

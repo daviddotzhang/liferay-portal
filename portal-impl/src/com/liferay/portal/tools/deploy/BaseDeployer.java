@@ -14,11 +14,6 @@
 
 package com.liferay.portal.tools.deploy;
 
-import com.liferay.portal.ant.CopyTask;
-import com.liferay.portal.ant.DeleteTask;
-import com.liferay.portal.ant.ExpandTask;
-import com.liferay.portal.ant.UpToDateTask;
-import com.liferay.portal.ant.WarTask;
 import com.liferay.portal.deploy.DeployUtil;
 import com.liferay.portal.kernel.deploy.Deployer;
 import com.liferay.portal.kernel.deploy.auto.AutoDeployException;
@@ -66,6 +61,11 @@ import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.webserver.DynamicResourceServlet;
+import com.liferay.util.ant.CopyTask;
+import com.liferay.util.ant.DeleteTask;
+import com.liferay.util.ant.ExpandTask;
+import com.liferay.util.ant.UpToDateTask;
+import com.liferay.util.ant.WarTask;
 import com.liferay.util.xml.DocUtil;
 import com.liferay.util.xml.XMLFormatter;
 
@@ -862,7 +862,13 @@ public class BaseDeployer implements AutoDeployer, Deployer {
 
 		File srcFile = autoDeploymentContext.getFile();
 
-		PluginPackage pluginPackage = readPluginPackage(srcFile);
+		PluginPackage pluginPackage = autoDeploymentContext.getPluginPackage();
+
+		if (pluginPackage == null) {
+			pluginPackage = readPluginPackage(srcFile);
+
+			autoDeploymentContext.setPluginPackage(pluginPackage);
+		}
 
 		if (_log.isInfoEnabled()) {
 			_log.info("Deploying " + srcFile.getName());

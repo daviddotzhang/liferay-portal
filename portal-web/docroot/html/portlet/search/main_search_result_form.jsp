@@ -76,6 +76,8 @@ if (assetRendererFactory != null) {
 		viewFullContentURLString = HttpUtil.setParameter(viewFullContentURLString, "redirect", currentURL);
 
 		viewURL = assetRenderer.getURLViewInContext(liferayPortletRequest, liferayPortletResponse, viewFullContentURLString);
+
+		viewURL = AssetUtil.checkViewURL(assetEntry, viewInContext, viewURL, currentURL, themeDisplay);
 	}
 	else {
 		viewURL = viewFullContentURL.toString();
@@ -125,6 +127,15 @@ if (summary != null) {
 	<span class="asset-entry">
 		<span class="asset-entry-type">
 			<%= ResourceActionsUtil.getModelResource(themeDisplay.getLocale(), className) %>
+
+			<c:if test="<%= locale != summary.getLocale() %>">
+
+				<%
+				Locale summaryLocale = summary.getLocale();
+				%>
+
+				<liferay-ui:icon image='<%= "../language/" + LocaleUtil.toLanguageId(summaryLocale) %>' message='<%= LanguageUtil.format(locale, "this-result-comes-from-the-x-version-of-this-content", summaryLocale.getDisplayLanguage(locale), false) %>' />
+			</c:if>
 		</span>
 
 		<span class="asset-entry-title">
@@ -136,7 +147,7 @@ if (summary != null) {
 				<liferay-ui:icon
 					iconCssClass="icon-download-alt"
 					label="<%= false %>"
-					message='<%= LanguageUtil.format(pageContext, "download-x", HtmlUtil.escape(summary.getTitle()), false) %>'
+					message='<%= LanguageUtil.format(request, "download-x", HtmlUtil.escape(summary.getTitle()), false) %>'
 					url="<%= downloadURL %>"
 				/>
 			</c:if>
@@ -188,6 +199,12 @@ if (summary != null) {
 					<div class="asset-entry-categories">
 
 						<%
+						Locale assetCategoryLocale = locale;
+
+						if (locale != summary.getLocale()) {
+							assetCategoryLocale = summary.getLocale();
+						}
+
 						for (int i = 0; i < assetCategoryIds.length; i++) {
 							long assetCategoryId = GetterUtil.getLong(assetCategoryIds[i]);
 
@@ -212,13 +229,11 @@ if (summary != null) {
 
 							<c:if test="<%= i == 0 %>">
 								<div class="taglib-asset-categories-summary">
-									<span class="asset-vocabulary">
-										<%= HtmlUtil.escape(assetVocabulary.getTitle(locale)) %>:
-									</span>
+									<%= HtmlUtil.escape(assetVocabulary.getTitle(assetCategoryLocale)) %>:
 							</c:if>
 
 							<a class="asset-category" href="<%= categoryURL.toString() %>">
-								<%= _buildAssetCategoryPath(assetCategory, locale) %>
+								<%= _buildAssetCategoryPath(assetCategory, assetCategoryLocale) %>
 							</a>
 
 							<c:if test="<%= (i + 1) == assetCategoryIds.length %>">

@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.social.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,19 +22,20 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.social.NoSuchActivityLimitException;
 import com.liferay.portlet.social.model.SocialActivityLimit;
@@ -45,23 +45,41 @@ import com.liferay.portlet.social.service.SocialActivityLimitLocalServiceUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class SocialActivityLimitPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -73,25 +91,13 @@ public class SocialActivityLimitPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<SocialActivityLimit> iterator = _socialActivityLimits.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<SocialActivityLimit> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -100,7 +106,7 @@ public class SocialActivityLimitPersistenceTest {
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityLimit socialActivityLimit = _persistence.create(pk);
 
@@ -127,27 +133,27 @@ public class SocialActivityLimitPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityLimit newSocialActivityLimit = _persistence.create(pk);
 
-		newSocialActivityLimit.setGroupId(ServiceTestUtil.nextLong());
+		newSocialActivityLimit.setGroupId(RandomTestUtil.nextLong());
 
-		newSocialActivityLimit.setCompanyId(ServiceTestUtil.nextLong());
+		newSocialActivityLimit.setCompanyId(RandomTestUtil.nextLong());
 
-		newSocialActivityLimit.setUserId(ServiceTestUtil.nextLong());
+		newSocialActivityLimit.setUserId(RandomTestUtil.nextLong());
 
-		newSocialActivityLimit.setClassNameId(ServiceTestUtil.nextLong());
+		newSocialActivityLimit.setClassNameId(RandomTestUtil.nextLong());
 
-		newSocialActivityLimit.setClassPK(ServiceTestUtil.nextLong());
+		newSocialActivityLimit.setClassPK(RandomTestUtil.nextLong());
 
-		newSocialActivityLimit.setActivityType(ServiceTestUtil.nextInt());
+		newSocialActivityLimit.setActivityType(RandomTestUtil.nextInt());
 
-		newSocialActivityLimit.setActivityCounterName(ServiceTestUtil.randomString());
+		newSocialActivityLimit.setActivityCounterName(RandomTestUtil.randomString());
 
-		newSocialActivityLimit.setValue(ServiceTestUtil.randomString());
+		newSocialActivityLimit.setValue(RandomTestUtil.randomString());
 
-		_persistence.update(newSocialActivityLimit);
+		_socialActivityLimits.add(_persistence.update(newSocialActivityLimit));
 
 		SocialActivityLimit existingSocialActivityLimit = _persistence.findByPrimaryKey(newSocialActivityLimit.getPrimaryKey());
 
@@ -174,7 +180,7 @@ public class SocialActivityLimitPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -186,7 +192,7 @@ public class SocialActivityLimitPersistenceTest {
 	@Test
 	public void testCountByUserId() {
 		try {
-			_persistence.countByUserId(ServiceTestUtil.nextLong());
+			_persistence.countByUserId(RandomTestUtil.nextLong());
 
 			_persistence.countByUserId(0L);
 		}
@@ -198,8 +204,8 @@ public class SocialActivityLimitPersistenceTest {
 	@Test
 	public void testCountByC_C() {
 		try {
-			_persistence.countByC_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByC_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByC_C(0L, 0L);
 		}
@@ -211,9 +217,9 @@ public class SocialActivityLimitPersistenceTest {
 	@Test
 	public void testCountByG_U_C_C_A_A() {
 		try {
-			_persistence.countByG_U_C_C_A_A(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt(),
+			_persistence.countByG_U_C_C_A_A(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt(),
 				StringPool.BLANK);
 
 			_persistence.countByG_U_C_C_A_A(0L, 0L, 0L, 0L, 0, StringPool.NULL);
@@ -236,7 +242,7 @@ public class SocialActivityLimitPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -259,7 +265,7 @@ public class SocialActivityLimitPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<SocialActivityLimit> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("SocialActivityLimit",
 			"activityLimitId", true, "groupId", true, "companyId", true,
 			"userId", true, "classNameId", true, "classPK", true,
@@ -277,11 +283,93 @@ public class SocialActivityLimitPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityLimit missingSocialActivityLimit = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingSocialActivityLimit);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		SocialActivityLimit newSocialActivityLimit1 = addSocialActivityLimit();
+		SocialActivityLimit newSocialActivityLimit2 = addSocialActivityLimit();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialActivityLimit1.getPrimaryKey());
+		primaryKeys.add(newSocialActivityLimit2.getPrimaryKey());
+
+		Map<Serializable, SocialActivityLimit> socialActivityLimits = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, socialActivityLimits.size());
+		Assert.assertEquals(newSocialActivityLimit1,
+			socialActivityLimits.get(newSocialActivityLimit1.getPrimaryKey()));
+		Assert.assertEquals(newSocialActivityLimit2,
+			socialActivityLimits.get(newSocialActivityLimit2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, SocialActivityLimit> socialActivityLimits = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(socialActivityLimits.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		SocialActivityLimit newSocialActivityLimit = addSocialActivityLimit();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialActivityLimit.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, SocialActivityLimit> socialActivityLimits = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, socialActivityLimits.size());
+		Assert.assertEquals(newSocialActivityLimit,
+			socialActivityLimits.get(newSocialActivityLimit.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, SocialActivityLimit> socialActivityLimits = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(socialActivityLimits.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		SocialActivityLimit newSocialActivityLimit = addSocialActivityLimit();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialActivityLimit.getPrimaryKey());
+
+		Map<Serializable, SocialActivityLimit> socialActivityLimits = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, socialActivityLimits.size());
+		Assert.assertEquals(newSocialActivityLimit,
+			socialActivityLimits.get(newSocialActivityLimit.getPrimaryKey()));
 	}
 
 	@Test
@@ -332,7 +420,7 @@ public class SocialActivityLimitPersistenceTest {
 				SocialActivityLimit.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("activityLimitId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<SocialActivityLimit> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -373,7 +461,7 @@ public class SocialActivityLimitPersistenceTest {
 				"activityLimitId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("activityLimitId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -409,33 +497,33 @@ public class SocialActivityLimitPersistenceTest {
 
 	protected SocialActivityLimit addSocialActivityLimit()
 		throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityLimit socialActivityLimit = _persistence.create(pk);
 
-		socialActivityLimit.setGroupId(ServiceTestUtil.nextLong());
+		socialActivityLimit.setGroupId(RandomTestUtil.nextLong());
 
-		socialActivityLimit.setCompanyId(ServiceTestUtil.nextLong());
+		socialActivityLimit.setCompanyId(RandomTestUtil.nextLong());
 
-		socialActivityLimit.setUserId(ServiceTestUtil.nextLong());
+		socialActivityLimit.setUserId(RandomTestUtil.nextLong());
 
-		socialActivityLimit.setClassNameId(ServiceTestUtil.nextLong());
+		socialActivityLimit.setClassNameId(RandomTestUtil.nextLong());
 
-		socialActivityLimit.setClassPK(ServiceTestUtil.nextLong());
+		socialActivityLimit.setClassPK(RandomTestUtil.nextLong());
 
-		socialActivityLimit.setActivityType(ServiceTestUtil.nextInt());
+		socialActivityLimit.setActivityType(RandomTestUtil.nextInt());
 
-		socialActivityLimit.setActivityCounterName(ServiceTestUtil.randomString());
+		socialActivityLimit.setActivityCounterName(RandomTestUtil.randomString());
 
-		socialActivityLimit.setValue(ServiceTestUtil.randomString());
+		socialActivityLimit.setValue(RandomTestUtil.randomString());
 
-		_persistence.update(socialActivityLimit);
+		_socialActivityLimits.add(_persistence.update(socialActivityLimit));
 
 		return socialActivityLimit;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SocialActivityLimitPersistenceTest.class);
+	private List<SocialActivityLimit> _socialActivityLimits = new ArrayList<SocialActivityLimit>();
 	private ModelListener<SocialActivityLimit>[] _modelListeners;
-	private SocialActivityLimitPersistence _persistence = (SocialActivityLimitPersistence)PortalBeanLocatorUtil.locate(SocialActivityLimitPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private SocialActivityLimitPersistence _persistence = SocialActivityLimitUtil.getPersistence();
 }

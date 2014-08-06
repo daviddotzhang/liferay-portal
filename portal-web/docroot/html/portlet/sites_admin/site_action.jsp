@@ -35,8 +35,13 @@ else {
 
 	GroupSearchTerms searchTerms = (GroupSearchTerms)request.getAttribute("view_tree.jspf-searchTerms");
 
-	organizationUser = SitesUtil.isOrganizationUser(company.getCompanyId(), group, user, new ArrayList<String>());
-	userGroupUser = SitesUtil.isUserGroupUser(company.getCompanyId(), group, user, new ArrayList<String>());
+	List<String> organizationNames = SitesUtil.getOrganizationNames(group, user);
+
+	organizationUser = !organizationNames.isEmpty();
+
+	List<String> userGroupNames = SitesUtil.getUserGroupNames(group, user);
+
+	userGroupUser = !userGroupNames.isEmpty();
 }
 
 boolean hasUpdatePermission = GroupPermissionUtil.contains(permissionChecker, group, ActionKeys.UPDATE);
@@ -48,7 +53,7 @@ if (row == null) {
 }
 %>
 
-<liferay-ui:icon-menu direction="down" extended="<%= false %>" icon="<%= StringPool.BLANK %>" message="<%= StringPool.BLANK %>" showExpanded="<%= view %>" showWhenSingleIcon="<%= true %>" triggerCssClass="btn">
+<liferay-ui:icon-menu direction="down" extended="<%= false %>" icon="<%= StringPool.BLANK %>" message="<%= StringPool.BLANK %>" showExpanded="<%= view %>" showWhenSingleIcon="<%= true %>" triggerCssClass="btn btn-default">
 
 	<%
 	ThemeDisplay siteThemeDisplay = (ThemeDisplay)themeDisplay.clone();
@@ -115,7 +120,7 @@ if (row == null) {
 		</liferay-portlet:renderURL>
 
 		<%
-		String taglibExportURL = "javascript:Liferay.Util.openWindow({id: '" + renderResponse.getNamespace() + "exportDialog', title: '" + HtmlUtil.escapeJS(LanguageUtil.get(pageContext, "export")) + "', uri: '" + HtmlUtil.escapeJS(exportURL.toString()) + "'});";
+		String taglibExportURL = "javascript:Liferay.Util.openWindow({id: '" + renderResponse.getNamespace() + "exportDialog', title: '" + HtmlUtil.escapeJS(LanguageUtil.get(request, "export")) + "', uri: '" + HtmlUtil.escapeJS(exportURL.toString()) + "'});";
 		%>
 
 		<liferay-ui:icon
@@ -132,7 +137,7 @@ if (row == null) {
 		</liferay-portlet:renderURL>
 
 		<%
-		String taglibImportURL = "javascript:Liferay.Util.openWindow({id: '" + renderResponse.getNamespace() + "importDialog', title: '" + HtmlUtil.escapeJS(LanguageUtil.get(pageContext, "import")) + "', uri: '" + HtmlUtil.escapeJS(importURL.toString()) + "'});";
+		String taglibImportURL = "javascript:Liferay.Util.openWindow({id: '" + renderResponse.getNamespace() + "importDialog', title: '" + HtmlUtil.escapeJS(LanguageUtil.get(request, "import")) + "', uri: '" + HtmlUtil.escapeJS(importURL.toString()) + "'});";
 		%>
 
 		<liferay-ui:icon
@@ -141,7 +146,7 @@ if (row == null) {
 			url="<%= taglibImportURL %>"
 		/>
 
-		<liferay-staging:menu extended="<%= true %>" groupId="<%= group.getGroupId() %>" onlyActions="<%= true %>" showManageBranches="<%= false %>" />
+		<liferay-staging:menu extended="<%= true %>" onlyActions="<%= true %>" showManageBranches="<%= false %>" />
 	</c:if>
 
 	<c:if test="<%= group.getPublicLayoutsPageCount() > 0 %>">

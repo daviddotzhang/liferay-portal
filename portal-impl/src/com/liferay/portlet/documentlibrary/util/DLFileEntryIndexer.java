@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
@@ -31,6 +30,7 @@ import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.BooleanQueryFactoryUtil;
 import com.liferay.portal.kernel.search.Document;
+import com.liferay.portal.kernel.search.DocumentHelper;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Indexer;
@@ -212,7 +212,7 @@ public class DLFileEntryIndexer extends BaseIndexer {
 			Validator.isNotNull(ddmStructureFieldValue)) {
 
 			String[] ddmStructureFieldNameParts = StringUtil.split(
-				ddmStructureFieldName, StringPool.SLASH);
+				ddmStructureFieldName, StringPool.DOUBLE_UNDERLINE);
 
 			DDMStructure structure = DDMStructureLocalServiceUtil.getStructure(
 				GetterUtil.getLong(ddmStructureFieldNameParts[1]));
@@ -282,9 +282,17 @@ public class DLFileEntryIndexer extends BaseIndexer {
 		}
 	}
 
+	@Override
+	public void updateFullQuery(SearchContext searchContext) {
+		if (searchContext.isIncludeAttachments()) {
+			searchContext.addFullQueryEntryClassName(
+				DLFileEntry.class.getName());
+		}
+	}
+
 	protected void addFileEntryTypeAttributes(
 			Document document, DLFileVersion dlFileVersion)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<DLFileEntryMetadata> dlFileEntryMetadatas =
 			DLFileEntryMetadataLocalServiceUtil.
@@ -337,28 +345,14 @@ public class DLFileEntryIndexer extends BaseIndexer {
 		InputStream is = null;
 
 		try {
-			if (PropsValues.DL_FILE_INDEXING_MAX_SIZE == 0) {
+			String[] ignoreExtensions = PrefsPropsUtil.getStringArray(
+				PropsKeys.DL_FILE_INDEXING_IGNORE_EXTENSIONS, StringPool.COMMA);
+
+			if (ArrayUtil.contains(
+					ignoreExtensions,
+					StringPool.PERIOD + dlFileEntry.getExtension())) {
+
 				indexContent = false;
-			}
-			else if (PropsValues.DL_FILE_INDEXING_MAX_SIZE != -1) {
-				if (dlFileEntry.getSize() >
-						PropsValues.DL_FILE_INDEXING_MAX_SIZE) {
-
-					indexContent = false;
-				}
-			}
-
-			if (indexContent) {
-				String[] ignoreExtensions = PrefsPropsUtil.getStringArray(
-					PropsKeys.DL_FILE_INDEXING_IGNORE_EXTENSIONS,
-					StringPool.COMMA);
-
-				if (ArrayUtil.contains(
-						ignoreExtensions,
-						StringPool.PERIOD + dlFileEntry.getExtension())) {
-
-					indexContent = false;
-				}
 			}
 
 			if (indexContent) {
@@ -378,7 +372,8 @@ public class DLFileEntryIndexer extends BaseIndexer {
 				if (is != null) {
 					try {
 						document.addFile(
-							Field.CONTENT, is, dlFileEntry.getTitle());
+							Field.CONTENT, is, dlFileEntry.getTitle(),
+							PropsValues.DL_FILE_INDEXING_MAX_SIZE);
 					}
 					catch (IOException ioe) {
 						throw new SearchException(
@@ -437,11 +432,13 @@ public class DLFileEntryIndexer extends BaseIndexer {
 				if (indexer != null) {
 					indexer.addRelatedEntryFields(document, obj);
 
-					document.addKeyword(
-						Field.CLASS_NAME_ID,
-						PortalUtil.getClassNameId(dlFileEntry.getClassName()));
-					document.addKeyword(
-						Field.CLASS_PK, dlFileEntry.getClassPK());
+					DocumentHelper documentHelper = new DocumentHelper(
+						document);
+
+					documentHelper.setAttachmentOwnerKey(
+						PortalUtil.getClassNameId(dlFileEntry.getClassName()),
+						dlFileEntry.getClassPK());
+
 					document.addKeyword(Field.RELATED_ENTRY, true);
 				}
 			}
@@ -589,7 +586,7 @@ public class DLFileEntryIndexer extends BaseIndexer {
 
 	protected void reindexFileEntries(
 			long companyId, final long groupId, final long dataRepositoryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		final ActionableDynamicQuery actionableDynamicQuery =
 			DLFileEntryLocalServiceUtil.getActionableDynamicQuery();
@@ -632,9 +629,7 @@ public class DLFileEntryIndexer extends BaseIndexer {
 		actionableDynamicQuery.performActions();
 	}
 
-	protected void reindexFolders(final long companyId)
-		throws PortalException, SystemException {
-
+	protected void reindexFolders(final long companyId) throws PortalException {
 		ActionableDynamicQuery actionableDynamicQuery =
 			DLFolderLocalServiceUtil.getActionableDynamicQuery();
 
@@ -665,9 +660,7 @@ public class DLFileEntryIndexer extends BaseIndexer {
 		actionableDynamicQuery.performActions();
 	}
 
-	protected void reindexRoot(final long companyId)
-		throws PortalException, SystemException {
-
+	protected void reindexRoot(final long companyId) throws PortalException {
 		ActionableDynamicQuery actionableDynamicQuery =
 			GroupLocalServiceUtil.getActionableDynamicQuery();
 

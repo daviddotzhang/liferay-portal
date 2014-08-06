@@ -237,6 +237,7 @@ create table BlogsEntry (
 	createDate DATE null,
 	modifiedDate DATE null,
 	title VARCHAR(150) null,
+	subtitle STRING null,
 	urlTitle VARCHAR(150) null,
 	description STRING null,
 	content TEXT null,
@@ -496,7 +497,7 @@ create table DDMContent (
 	modifiedDate DATE null,
 	name STRING null,
 	description STRING null,
-	xml TEXT null
+	data_ TEXT null
 );
 
 create table DDMStorageLink (
@@ -521,7 +522,7 @@ create table DDMStructure (
 	structureKey VARCHAR(75) null,
 	name STRING null,
 	description STRING null,
-	xsd TEXT null,
+	definition TEXT null,
 	storageType VARCHAR(75) null,
 	type_ INTEGER
 );
@@ -1155,7 +1156,7 @@ create table Lock_ (
 	createDate DATE null,
 	className VARCHAR(75) null,
 	key_ VARCHAR(200) null,
-	owner VARCHAR(255) null,
+	owner VARCHAR(1024) null,
 	inheritable BOOLEAN,
 	expirationDate DATE null
 );
@@ -2002,7 +2003,7 @@ create table ShoppingOrder (
 create table ShoppingOrderItem (
 	orderItemId LONG not null primary key,
 	orderId LONG,
-	itemId VARCHAR(75) null,
+	itemId TEXT null,
 	sku VARCHAR(75) null,
 	name VARCHAR(200) null,
 	description STRING null,
@@ -2311,6 +2312,7 @@ create table UserNotificationEvent (
 	deliverBy LONG,
 	delivered BOOLEAN,
 	payload TEXT null,
+	actionRequired BOOLEAN,
 	archived BOOLEAN
 );
 

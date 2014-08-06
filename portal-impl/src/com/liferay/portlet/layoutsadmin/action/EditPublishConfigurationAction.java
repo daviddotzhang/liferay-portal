@@ -16,7 +16,6 @@ package com.liferay.portlet.layoutsadmin.action;
 
 import com.liferay.portal.NoSuchGroupException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.exportimportconfiguration.ExportImportConfigurationConstants;
 import com.liferay.portal.kernel.lar.exportimportconfiguration.ExportImportConfigurationHelper;
 import com.liferay.portal.kernel.lar.exportimportconfiguration.ExportImportConfigurationSettingsMapFactory;
@@ -24,6 +23,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
+import com.liferay.portal.kernel.staging.StagingUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -92,14 +92,11 @@ public class EditPublishConfigurationAction
 				deleteExportImportConfiguration(actionRequest, true);
 			}
 			else if (cmd.equals(Constants.PUBLISH_TO_LIVE)) {
-				ExportImportConfigurationHelper.
-					publishLocalLayoutByExportImportConfiguration(
-						themeDisplay.getUserId(), exportImportConfigurationId);
+				StagingUtil.publishLayouts(
+					themeDisplay.getUserId(), exportImportConfigurationId);
 			}
 			else if (cmd.equals(Constants.PUBLISH_TO_REMOTE)) {
-				ExportImportConfigurationHelper.
-					publishRemoteLayoutByExportImportConfiguration(
-						exportImportConfigurationId);
+				StagingUtil.copyRemoteLayouts(exportImportConfigurationId);
 			}
 			else if (cmd.equals(Constants.RELAUNCH)) {
 				relaunchPublishLayoutConfiguration(
@@ -172,16 +169,20 @@ public class EditPublishConfigurationAction
 	protected void addSessionMessages(ActionRequest actionRequest)
 		throws Exception {
 
+		String portletId = PortalUtil.getPortletId(actionRequest);
 		long exportImportConfigurationId = ParamUtil.getLong(
 			actionRequest, "exportImportConfigurationId");
 
 		SessionMessages.add(
-			actionRequest,
-			PortalUtil.getPortletId(actionRequest) +
-				"exportImportConfigurationId",
+			actionRequest, portletId + "exportImportConfigurationId",
 			exportImportConfigurationId);
 
-		long groupId = ParamUtil.getLong(actionRequest, "groupId");
+		String name = ParamUtil.getString(actionRequest, "name");
+		String description = ParamUtil.getString(actionRequest, "description");
+
+		SessionMessages.add(actionRequest, portletId + "name", name);
+		SessionMessages.add(
+			actionRequest, portletId + "description", description);
 
 		int exportImportConfigurationType =
 			ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_REMOTE;
@@ -194,19 +195,19 @@ public class EditPublishConfigurationAction
 				ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_LOCAL;
 		}
 
+		long groupId = ParamUtil.getLong(actionRequest, "groupId");
+
 		Map<String, Serializable> settingsMap =
 			ExportImportConfigurationSettingsMapFactory.buildSettingsMap(
 				actionRequest, groupId, exportImportConfigurationType);
 
 		SessionMessages.add(
-			actionRequest,
-			PortalUtil.getPortletId(actionRequest) + "settingsMap",
-			settingsMap);
+			actionRequest, portletId + "settingsMap", settingsMap);
 	}
 
 	protected void relaunchPublishLayoutConfiguration(
 			long userId, ActionRequest actionRequest)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		long backgroundTaskId = ParamUtil.getLong(
 			actionRequest, "backgroundTaskId");
@@ -226,18 +227,13 @@ public class EditPublishConfigurationAction
 		if (exportImportConfiguration.getType() ==
 				ExportImportConfigurationConstants.TYPE_PUBLISH_LAYOUT_LOCAL) {
 
-			ExportImportConfigurationHelper.
-				publishLocalLayoutByExportImportConfiguration(
-					userId,
-					exportImportConfiguration.getExportImportConfigurationId());
+			StagingUtil.publishLayouts(userId, exportImportConfiguration);
 		}
 		else if (exportImportConfiguration.getType() ==
 					ExportImportConfigurationConstants.
 						TYPE_PUBLISH_LAYOUT_REMOTE) {
 
-			ExportImportConfigurationHelper.
-				publishRemoteLayoutByExportImportConfiguration(
-					exportImportConfiguration.getExportImportConfigurationId());
+			StagingUtil.copyRemoteLayouts(exportImportConfiguration);
 		}
 	}
 

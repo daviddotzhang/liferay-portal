@@ -40,7 +40,7 @@
 </tr>
 <tr>
 	<td>CANCEL_BUTTON</td>
-	<td>//button[contains(.,'Cancel')]</td>
+	<td>//a[contains(@class,'btn-cancel')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -51,6 +51,11 @@
 <tr>
 	<td>PUBLIC_DISPLAY_PAGE_SELECTION</td>
 	<td>//li[contains(@id,'treeContainerPublicPages')]/div/span/a[contains(.,'${key_displayPageSelection}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PUBLIC_DISPLAY_PAGE_ITEM</td>
+	<td>//span[contains(@id,'displayPageNameInput')]</td>
 	<td></td>
 </tr>
 </tbody>

@@ -250,18 +250,28 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
+		<execute macro="WikiPage#gotoPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
+			<var name="wikiPageRevision" value="1.0" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
+			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
 		<execute macro="WikiPage#viewPG">
-			<var name="wikiPageContent" value="${wikiPageContent}" />
-			<var name="wikiPageRevision" value="1.1" />
-			<var name="wikiPageTitle" value="FrontPage" />
+			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent}" />
+			<var name="wikiPageRevision" value="1.0" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 			<var name="wikiPageUsername" value="${userFirstName} ${userMiddleName} ${userLastName}" />
 		</execute>
 
 		<execute macro="WikiPage#viewPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent}" />
-			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
-			<var name="wikiPageUsername" value="${userFirstName} ${userMiddleName} ${userLastName}" />
 		</execute>
 	</command>
 
@@ -446,11 +456,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="${wikiPageRevision}" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -469,6 +484,7 @@
 	<command name="AddSOWikiFrontPageComment" priority="4">
 		<var name="commentBody" value="Wiki FrontPage Comment Body" />
 		<var name="wikiPageContent" value="Wiki FrontPage Content" />
+		<var name="wikiPageTitle" value="FrontPage" />
 
 		<execute macro="Page#gotoPG">
 			<var name="siteName" value="${siteName}" />
@@ -484,8 +500,11 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
+		<execute macro="WikiPage#gotoPG" />
+
 		<execute macro="WikiPage#addCommentPG">
 			<var name="commentBody" value="${commentBody}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -612,11 +631,83 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+	</command>
+
+	<command name="AddSOWikiPageCommentSOUser" priority="5">
+		<var name="commentBody" value="Wiki Page Comment Body" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userScreenName" value="socialoffice01" />
+		<var name="wikiPageContent" value="Wiki Page Content" />
+		<var name="wikiPageTitle" value="Wiki Page Title" />
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="password" value="${password}" />
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#addPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOSite#joinSitePG">
+			<var name="siteName" value="${siteName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG" />
+
+		<execute macro="WikiPage#addCommentPG">
+			<var name="commentBody" value="${commentBody}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="WikiPage#viewCommentPG">
+			<var name="commentBody" value="${commentBody}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -647,12 +738,17 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent1}${wikiPageContent2}" />
-			<var name="wikiPageContentGeneric" value="true" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent1}${wikiPageContent2}" />
+			<var name="wikiPageContentGeneric" value="true" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -681,12 +777,17 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
-			<var name="wikiPageContentGeneric" value="true" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageContentGeneric" value="true" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -718,12 +819,17 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
-			<var name="wikiPageContentGeneric" value="true" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageContentGeneric" value="true" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -760,7 +866,7 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPage1Content}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPage1Title}" />
@@ -768,6 +874,11 @@
 		</execute>
 
 		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPage1Content}" />
+			<var name="wikiPageTitle" value="${wikiPage1Title}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPage2Content}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPage2Title}" />
@@ -775,10 +886,20 @@
 		</execute>
 
 		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPage2Content}" />
+			<var name="wikiPageTitle" value="${wikiPage2Title}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPage3Content}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPage3Title}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPage3Content}" />
+			<var name="wikiPageTitle" value="${wikiPage3Title}" />
 		</execute>
 	</command>
 
@@ -815,11 +936,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContentEdit}" />
 			<var name="wikiPageRevision" value="${wikiPageVersionNew}" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContentEdit}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -884,11 +1010,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -896,11 +1027,83 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContentCopy}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitleCopy}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContentCopy}" />
+			<var name="wikiPageTitle" value="${wikiPageTitleCopy}" />
+		</execute>
+	</command>
+
+	<command name="DeleteSOWikiPageCommentSOUser" priority="5">
+		<var name="commentBody" value="Wiki Page Comment Body" />
+		<var name="permissionsDefinitionKey" value="DELETE_DISCUSSION" />
+		<var name="roleName" value="Site Member" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userScreenName" value="socialoffice01" />
+		<var name="wikiPageContent" value="Wiki Page Content" />
+		<var name="wikiPageTitle" value="Wiki Page Title" />
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="password" value="${password}" />
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#addPG">
+			<var name="pageAddPermissions" value="true" />
+			<var name="permissionsDefinitionKey" value="${permissionsDefinitionKey}" />
+			<var name="roleName" value="${roleName}" />
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOSite#joinSitePG">
+			<var name="siteName" value="${siteName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG" />
+
+		<execute macro="WikiPage#addCommentPG">
+			<var name="commentBody" value="${commentBody}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="WikiPage#deleteCommentPG">
+			<var name="soPage" value="true" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -999,7 +1202,7 @@
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContentEdit}" />
 			<var name="wikiPageRevision" value="1.2" />
 			<var name="wikiPageTitle" value="FrontPage" />
@@ -1007,10 +1210,20 @@
 		</execute>
 
 		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContentEdit}" />
+			<var name="wikiPageTitle" value="FrontPage" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContentEdit}" />
 			<var name="wikiPageRevision" value="1.1" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 			<var name="wikiPageUsername" value="${userFirstName} ${userMiddleName} ${userLastName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContentEdit}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 	</command>
 
@@ -1035,11 +1248,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent1}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent1}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="WikiPage#editPagePG">
@@ -1048,11 +1266,16 @@
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent2}" />
 			<var name="wikiPageRevision" value="1.1 (Minor Edit)" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent2}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="WikiPage#editPagePG">
@@ -1060,11 +1283,90 @@
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent3}" />
 			<var name="wikiPageRevision" value="1.2" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent3}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+	</command>
+
+	<command name="EditSOWikiPageCommentSOUser" priority="5">
+		<var name="commentBody" value="Wiki Page Comment Body" />
+		<var name="commentBodyEdit" value="Wiki Page Comment Body Edit" />
+		<var name="permissionsDefinitionKey" value="UPDATE_DISCUSSION" />
+		<var name="roleName" value="Site Member" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userScreenName" value="socialoffice01" />
+		<var name="wikiPageContent" value="Wiki Page Content" />
+		<var name="wikiPageTitle" value="Wiki Page Title" />
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="password" value="${password}" />
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#addPG">
+			<var name="pageAddPermissions" value="true" />
+			<var name="permissionsDefinitionKey" value="${permissionsDefinitionKey}" />
+			<var name="roleName" value="${roleName}" />
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOSite#joinSitePG">
+			<var name="siteName" value="${siteName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG" />
+
+		<execute macro="WikiPage#addCommentPG">
+			<var name="commentBody" value="${commentBody}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="WikiPage#editCommentPG">
+			<var name="commentBody" value="${commentBody}" />
+			<var name="commentBodyEdit" value="${commentBodyEdit}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="WikiPage#viewCommentPG">
+			<var name="commentBody" value="${commentBodyEdit}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -1085,6 +1387,7 @@
 		<var name="wikiChildPageTitle1" value="Wiki FrontPage Child Page1 Title" />
 		<var name="wikiChildPageTitle2" value="Wiki FrontPage Child Page2 Title" />
 		<var name="wikiPageContent" value="Wiki FrontPage Content" />
+		<var name="wikiPageTitle" value="FrontPage" />
 
 		<execute macro="SOUser#addUserWithSORole">
 			<var name="adminEmailAddress" value="test@liferay.com" />
@@ -1114,8 +1417,11 @@
 			<var name="wikiPageTitle" value="FrontPage" />
 		</execute>
 
+		<execute macro="WikiPage#gotoPG" />
+
 		<execute macro="WikiPage#addCommentPG">
 			<var name="commentBody" value="${commentBody}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1180,7 +1486,7 @@
 			<var name="wikiPageTitle" value="${wikiChildPageTitle2}" />
 		</execute>
 
-		<execute macro="LAR#exportSiteCP">
+		<execute macro="LAR#configureExportSiteCP">
 			<var name="exportPermissions" value="true" />
 			<var name="larFileName" value="${larFileName}" />
 			<var name="siteName" value="${siteName}" />
@@ -1212,11 +1518,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.1" />
 			<var name="wikiPageTitle" value="FrontPage" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="FrontPage" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1243,11 +1554,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1255,11 +1571,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent2}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle2}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent2}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle2}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1305,7 +1626,7 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
@@ -1313,10 +1634,20 @@
 		</execute>
 
 		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent2}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle2}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent2}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle2}" />
 		</execute>
 
 		<execute macro="User#logoutAndLoginPG">
@@ -1329,11 +1660,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.1" />
 			<var name="wikiPageTitle" value="FrontPage" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="FrontPage" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1360,11 +1696,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
 		</execute>
 
 		<execute action="PGWiki#assertTextNotPresent" value1="${wikiChildPageTitle2}" />
@@ -1407,19 +1748,21 @@
 			<var name="wikiPageTitle" value="${wikiPage1Title}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
-			<var name="viewOutgoingLinks" value="true" />
-			<var name="wikiPageContent" value="${wikiPage1Content} Link to ${wikiPage2Title}" />
-			<var name="wikiPageContentOutgoingLink" value="${wikiPage2Content}" />
-			<var name="wikiPageRevision" value="1.1" />
-			<var name="wikiPageRevisionOutgoingLink" value="1.0" />
-			<var name="wikiPageTitle" value="${wikiPage1Title}" />
-			<var name="wikiPageTitleOutgoingLink" value="${wikiPage2Title}" />
+		<execute macro="WikiPage#gotoPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
+			<var name="wikiPageRevision" value="1.0" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
 			<var name="wikiPageUsername" value="${adminName}" />
-			<var name="wikiPageUsernameOutgoingLink" value="${adminName}" />
 		</execute>
 
 		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPage1Content} Link to ${wikiPage2Title}" />
+			<var name="wikiPageRevision" value="1.1" />
+			<var name="wikiPageTitle" value="${wikiPage1Title}" />
+			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG">
 			<var name="viewIncomingLinks" value="true" />
 			<var name="wikiPageContent" value="${wikiPage2Content}" />
 			<var name="wikiPageContentIncomingLink" value="${wikiPage1Content} Link to ${wikiPage2Title}" />
@@ -1428,6 +1771,16 @@
 			<var name="wikiPageTitle" value="${wikiPage2Title}" />
 			<var name="wikiPageTitleIncomingLink" value="${wikiPage1Title}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+			<var name="wikiPageUsernameIncomingLink" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="viewIncomingLinks" value="true" />
+			<var name="wikiPageContent" value="${wikiPage2Content}" />
+			<var name="wikiPageContentIncomingLink" value="${wikiPage1Content} Link to ${wikiPage2Title}" />
+			<var name="wikiPageRevisionIncomingLink" value="1.1" />
+			<var name="wikiPageTitle" value="${wikiPage2Title}" />
+			<var name="wikiPageTitleIncomingLink" value="${wikiPage1Title}" />
 			<var name="wikiPageUsernameIncomingLink" value="${adminName}" />
 		</execute>
 	</command>
@@ -1490,11 +1843,16 @@
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent}" />
 			<var name="wikiPageRevision" value="1.1" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
 		<execute macro="WikiPage#viewPageWithoutChildPage">
@@ -1521,11 +1879,16 @@
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent}" />
 			<var name="wikiPageRevision" value="1.2" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
 		<execute macro="WikiPage#viewPageWithoutChildPage">
@@ -1588,17 +1951,29 @@
 			<var name="wikiPageUsername" value="${adminName}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.1" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
 		</execute>
 
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
 		<execute macro="WikiPage#moveWikiPagePG">
 			<var name="newParentPageTitle" value="None" />
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
+		<execute macro="WikiPage#gotoPG">
+			<var name="wikiPageContent" value="${wikiParentPageContent}" />
+			<var name="wikiPageRevision" value="1.0" />
+			<var name="wikiPageTitle" value="${wikiParentPageTitle}" />
+			<var name="wikiPageUsername" value="${adminName}" />
 		</execute>
 
 		<execute macro="WikiPage#viewPageWithoutChildPage">
@@ -1610,11 +1985,16 @@
 			<var name="wikiPageUsername" value="${adminName}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.2" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -1695,11 +2075,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitleRename}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitleRename}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1707,11 +2092,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPage2Content}" />
 			<var name="wikiPageRevision" value="1.1" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPage2Content}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -1747,11 +2137,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContentEdit}" />
 			<var name="wikiPageRevision" value="${wikiPageRevision}" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContentEdit}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -1772,11 +2167,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="${wikiPageRevisionNew}" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 	</command>
 
@@ -1843,11 +2243,16 @@
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent}" />
 			<var name="wikiPageRevision" value="1.1" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
 		<execute macro="WikiPage#viewPageWithoutChildPage">
@@ -1876,11 +2281,16 @@
 			<var name="wikiVersionSummary" value="Reverted to 1.0" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent}" />
 			<var name="wikiPageRevision" value="1.2" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle}" />
 		</execute>
 
 		<execute macro="WikiPage#viewPageWithChildPage">
@@ -2124,6 +2534,99 @@
 		</execute>
 	</command>
 
+	<command name="SubscribeToWikiFrontPageAndViewEntryInGmail" priority="5">
+		<property name="custom.properties" value="pop.server.notifications.enabled=true{line.separator}pop.server.subdomain=" />
+
+		<var name="userEmailAddress" property-value="email.address.2" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userScreenName" value="socialoffice01" />
+		<var name="wikiFrontPageContent" value="Wiki FrontPage Content" />
+		<var name="wikiFrontPageTitle" value="FrontPage" />
+		<var name="wikiNodeName" value="Main" />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Server Administration" />
+		</execute>
+
+		<execute macro="ServerAdministration#configureMailServerSettings">
+			<var name="userName" property-value="email.address.1" />
+			<var name="userPassword" property-value="email.password.1" />
+		</execute>
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOSite#joinSitePG">
+			<var name="siteName" value="${siteName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#subscribeToPagePG">
+			<var name="wikiPageTitle" value="${wikiFrontPageTitle}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="WikiPage#addFrontPagePG">
+			<var name="wikiPageContent" value="${wikiFrontPageContent}" />
+		</execute>
+
+		<execute action="BaseLiferay#pause" locator1="30000" />
+
+		<execute macro="Gmail#login">
+			<var name="userEmailAddress" property-value="email.address.2" />
+			<var name="userPassword" property-value="email.password.2" />
+		</execute>
+
+		<execute macro="Gmail#gotoHtmlMode" />
+
+		<execute macro="Gmail#viewMail">
+			<var name="emailFromUserName" value="Joe Bloggs" />
+			<var name="gmailAssetType" value="Wiki" />
+			<var name="gmailMailTableMessageTitle" value="[Wiki Main] Updated Page: ${wikiFrontPageTitle}" />
+			<var name="gmailMessageBody" value="${wikiFrontPageContent}" />
+			<var name="gmailMessageBodyClosing" value="View Page (${wikiFrontPageTitle}) | View Changes" />
+			<var name="gmailMessageBodyGreeting" value="By ${adminName}" />
+			<var name="gmailMessageTitle" value="[Wiki ${wikiNodeName}] Updated Page: ${wikiFrontPageTitle}" />
+		</execute>
+
+		<execute macro="Gmail#tearDown">
+			<var name="userEmailAddress" property-value="email.address.2" />
+			<var name="userPassword" property-value="email.address.2" />
+		</execute>
+
+		<execute action="Home#open" locator1="http://localhost:8080" />
+	</command>
+
 	<command known-issues="LPS-45435" name="ViewSOWikiFrontPageChildPageAsGuest" priority="4">
 		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
 		<var name="userFirstName" value="Social01" />
@@ -2198,11 +2701,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="wikiPageContent" value="${wikiChildPageContent1}" />
+			<var name="wikiPageTitle" value="${wikiChildPageTitle1}" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -2251,13 +2759,18 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
-			<var name="viewCountNumber" value="0" />
-			<var name="viewViewCount" value="true" />
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="viewCountNumber" value="0" />
+			<var name="viewViewCount" value="true" />
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="User#logoutAndLoginPG">
@@ -2270,13 +2783,18 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="WikiPage#viewPG">
-			<var name="viewCountNumber" value="1" />
-			<var name="viewViewCount" value="true" />
+		<execute macro="WikiPage#gotoPG">
 			<var name="wikiPageContent" value="${wikiPageContent}" />
 			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 			<var name="wikiPageUsername" value="${adminName}" />
+		</execute>
+
+		<execute macro="WikiPage#viewPG">
+			<var name="viewCountNumber" value="1" />
+			<var name="viewViewCount" value="true" />
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
 		</execute>
 
 		<execute macro="User#logoutAndLoginPG">
@@ -2289,13 +2807,16 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
+		<execute macro="WikiPage#gotoPG">
+			<var name="wikiPageContent" value="${wikiPageContent}" />
+			<var name="wikiPageTitle" value="${wikiPageTitle}" />
+		</execute>
+
 		<execute macro="WikiPage#viewPG">
 			<var name="viewCountNumber" value="2" />
 			<var name="viewViewCount" value="true" />
 			<var name="wikiPageContent" value="${wikiPageContent}" />
-			<var name="wikiPageRevision" value="1.0" />
 			<var name="wikiPageTitle" value="${wikiPageTitle}" />
-			<var name="wikiPageUsername" value="${adminName}" />
 		</execute>
 	</command>
 </definition>

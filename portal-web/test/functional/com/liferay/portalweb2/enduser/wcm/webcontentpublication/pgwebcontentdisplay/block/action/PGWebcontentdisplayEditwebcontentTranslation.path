@@ -39,13 +39,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>SUMMARY_FIELD</td>
+	<td>//textarea[contains(@id,'_15_description') and contains(@id,'${key_lowercaseLanguageCode}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>SAVE_BUTTON</td>
 	<td>//button[@id='_15_translateButton']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>CANCEL_BUTTON</td>
-	<td>//button[contains(.,'Cancel')]</td>
+	<td>//a[contains(@class,'btn-cancel')]</td>
 	<td></td>
 </tr>
 </tbody>

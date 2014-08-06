@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BasePortletDataHandler;
 import com.liferay.portal.kernel.lar.DataLevel;
 import com.liferay.portal.kernel.lar.PortletDataContext;
@@ -27,9 +26,11 @@ import com.liferay.portal.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.lar.xstream.XStreamAliasRegistryUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.Team;
+import com.liferay.portal.model.impl.RoleImpl;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -56,9 +57,11 @@ public class RolesAdminPortletDataHandler extends BasePortletDataHandler {
 					new PortletDataHandlerBoolean(
 						NAMESPACE, "system-roles", true, false)
 				},
-				Role.class.getName()
+				Role.class.getName(), StagedModelType.REFERRER_CLASS_NAME_ALL
 			));
 		setSupportsDataStrategyCopyAsNew(false);
+
+		XStreamAliasRegistryUtil.register(RoleImpl.class, "Role");
 	}
 
 	@Override
@@ -140,8 +143,7 @@ public class RolesAdminPortletDataHandler extends BasePortletDataHandler {
 	}
 
 	protected ActionableDynamicQuery getRoleActionableDynamicQuery(
-			final PortletDataContext portletDataContext, final boolean export)
-		throws SystemException {
+		final PortletDataContext portletDataContext, final boolean export) {
 
 		ActionableDynamicQuery actionableDynamicQuery =
 			RoleLocalServiceUtil.getExportActionableDynamicQuery(
@@ -173,7 +175,7 @@ public class RolesAdminPortletDataHandler extends BasePortletDataHandler {
 
 				@Override
 				public void performAction(Object object)
-					throws PortalException, SystemException {
+					throws PortalException {
 
 					if (!export) {
 						return;

@@ -46,7 +46,7 @@
 	</command>
 
 	<command name="assertTextClickAtAddApplication">
-		<execute argument1="//script[contains(@src,'/html/js/liferay/dockbar_add_application.js')]" selenium="waitForElementPresent" />
+		<execute argument1="//script[contains(@src,'/html/js/liferay/dockbar_add_application.js')] | //script[contains(@src,'/html/js/liferay/dockbar_add_page.js')]" selenium="waitForElementPresent" />
 
 		<execute argument1="1000" selenium="pause" />
 
@@ -85,16 +85,6 @@
 		<execute function="AssertClick#assertTextClickAt" />
 	</command>
 
-	<command name="assertTextClickAtClickSidebar">
-		<execute argument1="1000" selenium="pause" />
-
-		<execute argument1="//ul[@class='nav nav-add-controls']" selenium="clickAt" />
-
-		<execute argument1="//script[contains(@src,'/html/js/liferay/node.js')]" selenium="waitForElementPresent" />
-
-		<execute function="AssertClick#assertTextClickAt" />
-	</command>
-
 	<command name="assertTextClickAtNavigation">
 		<execute argument1="1000" selenium="pause" />
 
@@ -112,6 +102,20 @@
 		</if>
 
 		<execute function="AssertClick#assertTextClickAt" />
+	</command>
+
+	<command name="assertTextClickAtViewHistory">
+		<execute argument1="//div[@id='_15_articleToolbar']//div/button[contains(.,'View History')]" selenium="waitForVisible" />
+
+		<execute argument1="1000" selenium="pause" />
+
+		<execute function="AssertClick#assertTextClickAt" />
+	</command>
+
+	<command name="assertTextClickNoMouseOver">
+		<execute function="AssertTextEquals#assertText" />
+
+		<execute selenium="click" />
 	</command>
 
 	<command name="assertTextClickTagSelector">
@@ -172,8 +176,6 @@
 	</command>
 
 	<command name="pauseMakeVisibleAssertTextEqualsClickAt">
-		<execute selenium="mouseOver" />
-
 		<execute selenium="makeVisible" />
 
 		<execute selenium="waitForVisible" />
@@ -184,13 +186,19 @@
 
 		<execute argument1="1000" selenium="pause" />
 
-		<execute selenium="click" />
+		<execute selenium="mouseUp" />
 	</command>
 
 	<command name="waitForDMHomeAssertTextEqualsClick">
 		<execute argument1="//a[contains(@class,'browse-folder')]" selenium="waitForElementPresent" />
 
 		<execute argument1="1500" selenium="pause" />
+
+		<execute function="AssertClick#assertTextClickAt" />
+	</command>
+
+	<command name="waitForNodeScriptAssertTextEqualsClick">
+		<execute argument1="//script[contains(@src,'/html/js/liferay/node.js')]" selenium="waitForElementPresent" />
 
 		<execute function="AssertClick#assertTextClickAt" />
 	</command>
