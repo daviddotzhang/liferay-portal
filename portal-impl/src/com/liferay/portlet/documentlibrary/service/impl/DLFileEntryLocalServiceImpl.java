@@ -2142,10 +2142,6 @@ public class DLFileEntryLocalServiceImpl
 		long lastSize = lastDLFileVersion.getSize();
 		long latestSize = latestDLFileVersion.getSize();
 
-		if ((lastSize == 0) && (latestSize >= 0)) {
-			return true;
-		}
-
 		if (lastSize != latestSize) {
 			return false;
 		}
@@ -2360,10 +2356,6 @@ public class DLFileEntryLocalServiceImpl
 			// File version
 
 			String version = dlFileVersion.getVersion();
-
-			if (size == 0) {
-				size = dlFileVersion.getSize();
-			}
 
 			updateFileVersion(
 				user, dlFileVersion, sourceFileName, fileName, extension,
