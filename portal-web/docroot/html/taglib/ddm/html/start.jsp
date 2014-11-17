@@ -63,7 +63,7 @@
 						ddmStructureId = ddmTemplate.getClassPK();
 					}
 
-					DDMStructure ddmStructure = DDMStructureServiceUtil.getStructure(ddmStructureId);
+					DDMStructure ddmStructure = DDMStructureLocalServiceUtil.getStructure(ddmStructureId);
 
 					DDMFormValues ddmFormValues = null;
 
