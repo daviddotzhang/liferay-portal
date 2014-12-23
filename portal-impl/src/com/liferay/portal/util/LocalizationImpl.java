@@ -259,8 +259,8 @@ public class LocalizationImpl implements Localization {
 
 			// Find specified language and/or default language
 
-			String priorityValue = null;
-			String defaultLocalizationValue = null;
+			String priorityValue = StringPool.BLANK;;
+			String defaultLocalizationValue = StringPool.BLANK;;
 
 			while (xmlStreamReader.hasNext()) {
 				int event = xmlStreamReader.next();
@@ -537,7 +537,7 @@ public class LocalizationImpl implements Localization {
 		PortletPreferences preferences, PortletRequest portletRequest,
 		String parameter, String prefix, String defaultValue) {
 
-		String xml = null;
+		String xml = StringPool.BLANK;
 
 		Locale[] locales = LanguageUtil.getAvailableLocales();
 		Locale defaultLocale = LocaleUtil.getDefault();
@@ -558,12 +558,12 @@ public class LocalizationImpl implements Localization {
 				portletRequest, prefixedLocalizedKey,
 				preferences.getValue(localizedKey, null));
 
-			if (value != null) {
+			if (Validator.isNotNull(value)) {
 				xml = updateLocalization(xml, parameter, value, languageId);
 			}
 		}
 
-		if (getLocalization(xml, defaultLanguageId, true, null) == null) {
+		if (Validator.isNull(getLocalization(xml, defaultLanguageId))) {
 			String oldValue = PrefsParamUtil.getString(
 				preferences, portletRequest, parameter, defaultValue);
 
