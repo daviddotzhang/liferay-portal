@@ -14,6 +14,7 @@
 
 package com.liferay.portal.zip;
 
+import com.liferay.portal.kernel.io.unsync.UnsyncBufferedOutputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -87,8 +88,9 @@ public class ZipWriterImpl implements ZipWriter {
 
 		FileUtil.mkdirs(getPath());
 
-		try (OutputStream outputStream = new FileOutputStream(
-				new File(getPath() + StringPool.SLASH + name))) {
+		try (OutputStream outputStream = new UnsyncBufferedOutputStream(
+				new FileOutputStream(
+					new File(getPath() + StringPool.SLASH + name)))) {
 
 			File.cat(inputStream, outputStream);
 		}
