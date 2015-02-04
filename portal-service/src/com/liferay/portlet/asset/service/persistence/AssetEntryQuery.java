@@ -60,7 +60,8 @@ public class AssetEntryQuery {
 		if (ArrayUtil.contains(ORDER_BY_COLUMNS, orderByCol) ||
 			((orderByCol != null) &&
 			 orderByCol.startsWith(
-				DDMIndexer.DDM_FIELD_NAMESPACE + StringPool.FORWARD_SLASH))) {
+				DDMIndexer.DDM_FIELD_NAMESPACE +
+					StringPool.DOUBLE_UNDERLINE))) {
 
 			return orderByCol;
 		}
@@ -387,7 +388,7 @@ public class AssetEntryQuery {
 
 	public void setAttributes(Map<String, Serializable> attributes) {
 		if (_attributes == null) {
-			_attributes = new HashMap<String, Serializable>();
+			_attributes = new HashMap<>();
 		}
 		else {
 			_attributes = attributes;
@@ -646,7 +647,7 @@ public class AssetEntryQuery {
 	}
 
 	private long[] _flattenTagIds(long[][] tagIdsArray) {
-		List<Long> tagIdsList = new ArrayList<Long>();
+		List<Long> tagIdsList = new ArrayList<>();
 
 		for (int i = 0; i < tagIdsArray.length; i++) {
 			long[] tagIds = tagIdsArray[i];
@@ -686,7 +687,8 @@ public class AssetEntryQuery {
 		return leftRightIds;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(AssetEntryQuery.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		AssetEntryQuery.class);
 
 	private long[] _allCategoryIds = new long[0];
 	private long[] _allTagIds = new long[0];
@@ -694,8 +696,7 @@ public class AssetEntryQuery {
 	private boolean _andOperator;
 	private long[] _anyCategoryIds = new long[0];
 	private long[] _anyTagIds = new long[0];
-	private Map<String, Serializable> _attributes =
-		new HashMap<String, Serializable>();
+	private Map<String, Serializable> _attributes = new HashMap<>();
 	private long[] _classNameIds = new long[0];
 	private long[] _classTypeIds = new long[0];
 	private String _description;
@@ -707,7 +708,7 @@ public class AssetEntryQuery {
 	private String _keywords;
 	private Layout _layout;
 	private long _linkedAssetEntryId = 0;
-	private boolean _listable;
+	private boolean _listable = true;
 	private long[] _notAllCategoryIds = new long[0];
 	private long[] _notAllTagIds = new long[0];
 	private long[][] _notAllTagIdsArray = new long[0][];

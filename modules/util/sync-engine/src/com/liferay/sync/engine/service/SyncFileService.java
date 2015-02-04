@@ -254,7 +254,7 @@ public class SyncFileService {
 	public static SyncFile fetchSyncFileByFileKey(
 		String fileKey, long syncAccountId) {
 
-		if ((fileKey == null) || fileKey.equals("")) {
+		if ((fileKey == null) || fileKey.isEmpty()) {
 			return null;
 		}
 
@@ -440,7 +440,7 @@ public class SyncFileService {
 	}
 
 	public static SyncFile resyncFolder(SyncFile syncFile) throws Exception {
-		setStatuses(syncFile, SyncFile.STATE_SYNCED, SyncFile.UI_EVENT_DEFAULT);
+		setStatuses(syncFile, SyncFile.STATE_SYNCED, SyncFile.UI_EVENT_NONE);
 
 		// Remote
 
@@ -478,8 +478,7 @@ public class SyncFileService {
 				SyncFile.STATE_UNSYNCED, 0, null);
 		}
 
-		setStatuses(
-			syncFile, SyncFile.STATE_UNSYNCED, SyncFile.UI_EVENT_DEFAULT);
+		setStatuses(syncFile, SyncFile.STATE_UNSYNCED, SyncFile.UI_EVENT_NONE);
 
 		return syncFile;
 	}
@@ -535,7 +534,7 @@ public class SyncFileService {
 		String sourceVersion = syncFile.getVersion();
 		String targetChecksum = FileUtil.getChecksum(filePath);
 
-		if (!sourceChecksum.equals(targetChecksum) &&
+		if (!FileUtil.checksumsEqual(sourceChecksum, targetChecksum) &&
 			!IODeltaUtil.isIgnoredFilePatchingExtension(syncFile)) {
 
 			deltaFilePath = Files.createTempFile(

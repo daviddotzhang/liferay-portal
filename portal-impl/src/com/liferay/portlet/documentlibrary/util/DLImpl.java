@@ -175,7 +175,7 @@ public class DLImpl implements DL {
 
 		portletURL.setParameter("struts_action", "/document_library/view");
 
-		Map<String, Object> data = new HashMap<String, Object>();
+		Map<String, Object> data = new HashMap<>();
 
 		data.put("direction-right", Boolean.TRUE.toString());
 
@@ -243,7 +243,7 @@ public class DLImpl implements DL {
 			portletURL.setParameter(
 				"folderId", String.valueOf(ancestorFolder.getFolderId()));
 
-			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<>();
 
 			data.put("direction-right", Boolean.TRUE.toString());
 			data.put("folder-id", ancestorFolder.getFolderId());
@@ -265,7 +265,7 @@ public class DLImpl implements DL {
 
 			Folder unescapedFolder = folder.toUnescapedModel();
 
-			Map<String, Object> data = new HashMap<String, Object>();
+			Map<String, Object> data = new HashMap<>();
 
 			data.put("direction-right", Boolean.TRUE.toString());
 			data.put("folder-id", folderId);
@@ -514,8 +514,7 @@ public class DLImpl implements DL {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Map<String, String> definitionTerms =
-			new LinkedHashMap<String, String>();
+		Map<String, String> definitionTerms = new LinkedHashMap<>();
 
 		definitionTerms.put(
 			"[$COMPANY_ID$]",
@@ -563,8 +562,11 @@ public class DLImpl implements DL {
 
 		definitionTerms.put("[$PORTAL_URL$]", company.getVirtualHostname());
 
+		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
+
 		definitionTerms.put(
-			"[$PORTLET_NAME$]", PortalUtil.getPortletTitle(portletRequest));
+			"[$PORTLET_NAME$]", HtmlUtil.escape(portletDisplay.getTitle()));
+
 		definitionTerms.put(
 			"[$SITE_NAME$]",
 			LanguageUtil.get(
@@ -591,8 +593,7 @@ public class DLImpl implements DL {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		Map<String, String> definitionTerms =
-			new LinkedHashMap<String, String>();
+		Map<String, String> definitionTerms = new LinkedHashMap<>();
 
 		definitionTerms.put(
 			"[$COMPANY_ID$]",
@@ -623,7 +624,8 @@ public class DLImpl implements DL {
 			LanguageUtil.get(
 				themeDisplay.getLocale(), "the-user-who-added-the-document"));
 		definitionTerms.put(
-			"[$PORTLET_NAME$]", PortalUtil.getPortletTitle(portletRequest));
+			"[$PORTLET_NAME$]",
+			HtmlUtil.escape(PortalUtil.getPortletTitle(portletRequest)));
 		definitionTerms.put(
 			"[$SITE_NAME$]",
 			LanguageUtil.get(
@@ -635,7 +637,7 @@ public class DLImpl implements DL {
 
 	@Override
 	public List<Object> getEntries(Hits hits) {
-		List<Object> entries = new ArrayList<Object>();
+		List<Object> entries = new ArrayList<>();
 
 		for (Document document : hits.getDocs()) {
 			String entryClassName = GetterUtil.getString(
@@ -675,7 +677,7 @@ public class DLImpl implements DL {
 
 	@Override
 	public List<FileEntry> getFileEntries(Hits hits) {
-		List<FileEntry> entries = new ArrayList<FileEntry>();
+		List<FileEntry> entries = new ArrayList<>();
 
 		for (Document document : hits.getDocs()) {
 			long fileEntryId = GetterUtil.getLong(
@@ -720,7 +722,7 @@ public class DLImpl implements DL {
 			SubscriptionLocalServiceUtil.getUserSubscriptions(
 				userId, DLFileEntryType.class.getName());
 
-		Set<Long> classPKs = new HashSet<Long>(subscriptions.size());
+		Set<Long> classPKs = new HashSet<>(subscriptions.size());
 
 		for (Subscription subscription : subscriptions) {
 			classPKs.add(subscription.getClassPK());
@@ -940,24 +942,22 @@ public class DLImpl implements DL {
 		OrderByComparator<T> orderByComparator = null;
 
 		if (orderByCol.equals("creationDate")) {
-			orderByComparator = new RepositoryModelCreateDateComparator<T>(
+			orderByComparator = new RepositoryModelCreateDateComparator<>(
 				orderByAsc);
 		}
 		else if (orderByCol.equals("downloads")) {
-			orderByComparator = new RepositoryModelReadCountComparator<T>(
+			orderByComparator = new RepositoryModelReadCountComparator<>(
 				orderByAsc);
 		}
 		else if (orderByCol.equals("modifiedDate")) {
-			orderByComparator = new RepositoryModelModifiedDateComparator<T>(
+			orderByComparator = new RepositoryModelModifiedDateComparator<>(
 				orderByAsc);
 		}
 		else if (orderByCol.equals("size")) {
-			orderByComparator = new RepositoryModelSizeComparator<T>(
-				orderByAsc);
+			orderByComparator = new RepositoryModelSizeComparator<>(orderByAsc);
 		}
 		else {
-			orderByComparator = new RepositoryModelNameComparator<T>(
-				orderByAsc);
+			orderByComparator = new RepositoryModelNameComparator<>(orderByAsc);
 		}
 
 		return orderByComparator;
@@ -1304,7 +1304,7 @@ public class DLImpl implements DL {
 			boolean recursive)
 		throws PortalException {
 
-		List<Long> ancestorFolderIds = new ArrayList<Long>();
+		List<Long> ancestorFolderIds = new ArrayList<>();
 
 		if (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			Folder folder = DLAppLocalServiceUtil.getFolder(folderId);
@@ -1354,8 +1354,7 @@ public class DLImpl implements DL {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		Map<String, Serializable> workflowContext =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> workflowContext = new HashMap<>();
 
 		workflowContext.put(
 			WorkflowConstants.CONTEXT_URL,
@@ -1467,13 +1466,12 @@ public class DLImpl implements DL {
 
 	private static final String _STRUCTURE_KEY_PREFIX = "AUTO_";
 
-	private static Log _log = LogFactoryUtil.getLog(DLImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(DLImpl.class);
 
-	private static Set<String> _allMediaGalleryMimeTypes =
-		new TreeSet<String>();
-	private static Set<String> _fileIcons = new HashSet<String>();
-	private static Map<String, String> _genericNames =
-		new HashMap<String, String>();
+	private static final Set<String> _allMediaGalleryMimeTypes =
+		new TreeSet<>();
+	private static final Set<String> _fileIcons = new HashSet<>();
+	private static final Map<String, String> _genericNames = new HashMap<>();
 
 	static {
 		_allMediaGalleryMimeTypes.addAll(

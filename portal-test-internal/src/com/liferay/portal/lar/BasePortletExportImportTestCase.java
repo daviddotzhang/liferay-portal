@@ -21,6 +21,8 @@ import com.liferay.portal.kernel.lar.ExportImportDateUtil;
 import com.liferay.portal.kernel.lar.PortletDataHandler;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.portal.kernel.template.TemplateHandler;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -32,10 +34,8 @@ import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
+import com.liferay.portal.test.util.LayoutTestUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.test.GroupTestUtil;
-import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetLink;
@@ -113,8 +113,7 @@ public abstract class BasePortletExportImportTestCase
 
 		Assert.assertNotNull(importedStagedModel);
 
-		Map<String, String[]> exportParameterMap =
-			new LinkedHashMap<String, String[]>();
+		Map<String, String[]> exportParameterMap = new LinkedHashMap<>();
 
 		exportParameterMap.put(
 			PortletDataHandlerKeys.DELETIONS,
@@ -128,8 +127,7 @@ public abstract class BasePortletExportImportTestCase
 
 		Assert.assertNotNull(importedStagedModel);
 
-		Map<String, String[]> importParameterMap =
-			new LinkedHashMap<String, String[]>();
+		Map<String, String[]> importParameterMap = new LinkedHashMap<>();
 
 		importParameterMap.put(
 			PortletDataHandlerKeys.DELETIONS,
@@ -219,8 +217,7 @@ public abstract class BasePortletExportImportTestCase
 
 		portletPreferences.store();
 
-		Map<String, String[]> exportParameterMap =
-			new LinkedHashMap<String, String[]>();
+		Map<String, String[]> exportParameterMap = new LinkedHashMap<>();
 
 		exportParameterMap.put(
 			PortletDataHandlerKeys.UPDATE_LAST_PUBLISH_DATE,
@@ -229,8 +226,7 @@ public abstract class BasePortletExportImportTestCase
 			"range",
 			new String[] {ExportImportDateUtil.RANGE_FROM_LAST_PUBLISH_DATE});
 
-		Map<String, String[]> importParameterMap =
-			new LinkedHashMap<String, String[]>();
+		Map<String, String[]> importParameterMap = new LinkedHashMap<>();
 
 		Date startDate = new Date(
 			stagedModelCreationDate.getTime() + Time.MINUTE);
@@ -401,7 +397,7 @@ public abstract class BasePortletExportImportTestCase
 		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
 			displayStyleGroupId, PortalUtil.getClassNameId(className), 0);
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		String displayStyle =
 			PortletDisplayTemplate.DISPLAY_STYLE_PREFIX + ddmTemplate.getUuid();

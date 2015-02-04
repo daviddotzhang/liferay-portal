@@ -67,7 +67,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public SyncFile fetchByFilePathName(String filePathName)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("filePathName", filePathName);
 
@@ -83,7 +83,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public SyncFile fetchByFK_S(String fileKey, long syncAccountId)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("fileKey", fileKey);
 		fieldValues.put("syncAccountId", syncAccountId);
@@ -101,7 +101,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 			long repositoryId, long syncAccountId, long typePK)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("repositoryId", repositoryId);
 		fieldValues.put("syncAccountId", syncAccountId);
@@ -131,7 +131,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 
 		filePathName = StringUtils.replace(filePathName, "\\", "\\\\");
 
-		where.like("filePathName", new SelectArg(filePathName + "%"));
+		where.like("filePathName", new SelectArg(filePathName + "/%"));
 
 		where.and();
 
@@ -139,11 +139,11 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 
 		where.and();
 
-		where.ne("type", SyncFile.TYPE_SYSTEM);
+		where.eq("state", SyncFile.STATE_SYNCED);
 
 		where.and();
 
-		where.ne("uiEvent", SyncFile.UI_EVENT_DOWNLOADING);
+		where.ne("type", SyncFile.TYPE_SYSTEM);
 
 		return query(queryBuilder.prepare());
 	}
@@ -151,7 +151,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public List<SyncFile> findByP_S(long parentFolderId, long syncAccountId)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("parentFolderId", parentFolderId);
 		fieldValues.put("syncAccountId", syncAccountId);
@@ -162,7 +162,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public List<SyncFile> findByR_S(long repositoryId, long syncAccountId)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("repositoryId", repositoryId);
 		fieldValues.put("syncAccountId", syncAccountId);
@@ -173,7 +173,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public List<SyncFile> findByS_U(long syncAccountId, int uiEvent)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("syncAccountId", syncAccountId);
 		fieldValues.put("uiEvent", uiEvent);

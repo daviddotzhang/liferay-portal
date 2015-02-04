@@ -467,13 +467,13 @@ public class UserImpl extends UserBaseImpl {
 	}
 
 	@Override
-	public Group getGroup() throws PortalException {
+	public Group getGroup() {
 		return GroupLocalServiceUtil.fetchUserGroup(
 			getCompanyId(), getUserId());
 	}
 
 	@Override
-	public long getGroupId() throws PortalException {
+	public long getGroupId() {
 		Group group = getGroup();
 
 		return group.getGroupId();
@@ -641,6 +641,11 @@ public class UserImpl extends UserBaseImpl {
 	}
 
 	@Override
+	public String getOriginalEmailAddress() {
+		return super.getOriginalEmailAddress();
+	}
+
+	@Override
 	public boolean getPasswordModified() {
 		return _passwordModified;
 	}
@@ -688,7 +693,7 @@ public class UserImpl extends UserBaseImpl {
 
 	@Override
 	public Set<String> getReminderQueryQuestions() throws PortalException {
-		Set<String> questions = new TreeSet<String>();
+		Set<String> questions = new TreeSet<>();
 
 		List<Organization> organizations =
 			OrganizationLocalServiceUtil.getUserOrganizations(getUserId());
@@ -1000,14 +1005,14 @@ public class UserImpl extends UserBaseImpl {
 			});
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(UserImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(UserImpl.class);
 
 	private Locale _locale;
 	private boolean _passwordModified;
 	private PasswordPolicy _passwordPolicy;
 	private String _passwordUnencrypted;
-	private transient Map<String, RemotePreference> _remotePreferences =
-		new HashMap<String, RemotePreference>();
+	private final transient Map<String, RemotePreference> _remotePreferences =
+		new HashMap<>();
 	private TimeZone _timeZone;
 
 }

@@ -24,24 +24,18 @@
 <#list entries as entry>
 	<#assign assetRenderer = entry.getAssetRenderer() />
 
-	<#assign ddmReader = assetRenderer.getDDMFieldReader() />
+	<#assign ddmFormValuesReader = assetRenderer.getDDMFormValuesReader() />
 
-	<#assign fields = ddmReader.getFields("geolocation") />
+	<#assign ddmFormFieldValues = ddmFormValuesReader.getDDMFormFieldValues("ddm-geolocation") />
 
 	<#assign coordinatesJSONObjects = [] />
 
-	<#list fields.iterator() as field>
-		<#if (field.isRepeatable())>
-			<#list field.getValue() as value >
-				<#assign coordinatesJSONObject = jsonFactoryUtil.createJSONObject(value) />
+	<#list ddmFormFieldValues as ddmFormFieldValue>
+		<#assign value = ddmFormFieldValue.getValue() />
 
-				<#assign coordinatesJSONObjects = coordinatesJSONObjects + [coordinatesJSONObject] />
-			</#list>
-		<#else>
-			<#assign coordinatesJSONObject = jsonFactoryUtil.createJSONObject(field.getValue()) />
+		<#assign coordinatesJSONObject = jsonFactoryUtil.createJSONObject(value.getString(locale)) />
 
-			<#assign coordinatesJSONObjects = coordinatesJSONObjects + [coordinatesJSONObject] />
-		</#if>
+		<#assign coordinatesJSONObjects = coordinatesJSONObjects + [coordinatesJSONObject] />
 	</#list>
 
 	<#list coordinatesJSONObjects as coordinatesJSONObject>
@@ -104,12 +98,16 @@
 	}
 
 	#<@liferay_portlet.namespace />assetEntryAbstract .asset-entry-abstract-image {
+		display: block;
 		float: left;
+		height: 128px;
+		margin-right: 1em;
+		text-align: center;
 	}
 
 	#<@liferay_portlet.namespace />assetEntryAbstract .asset-entry-abstract-image img {
 		display: block;
-		margin-right: 2em;
+		margin: 0 auto;
 	}
 
 	#<@liferay_portlet.namespace />assetEntryAbstract .taglib-icon {
@@ -160,7 +158,7 @@
 		<#if showEditURL && assetRenderer.hasEditPermission(permissionChecker)>
 			<#assign redirectURL = renderResponse.createLiferayPortletURL(themeDisplay.getPlid(), themeDisplay.getPortletDisplay().getId(), "RENDER_PHASE", false) />
 
-			${redirectURL.setParameter("struts_action", "/asset_publisher/add_asset_redirect")}
+			${redirectURL.setParameter("mvcPath", "/html/portlet/asset_publisher/add_asset_redirect.jsp")}
 
 			<#assign editPortletURL = assetRenderer.getURLEdit(renderRequest, renderResponse, windowStateFactory.getWindowState("POP_UP"), redirectURL) />
 

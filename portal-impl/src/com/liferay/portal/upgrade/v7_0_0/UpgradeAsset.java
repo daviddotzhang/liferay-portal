@@ -139,7 +139,7 @@ public class UpgradeAsset extends UpgradeProcess {
 				long classPK = rs.getLong("resourcePrimKey");
 
 				runSQL(
-					"update AssetEntry set listable = FALSE where " +
+					"update AssetEntry set listable = [$FALSE$] where " +
 						"classNameId = " + classNameId + " and classPK = " +
 							classPK);
 			}
@@ -238,6 +238,6 @@ public class UpgradeAsset extends UpgradeProcess {
 		return vocabularySettingsHelper.toString();
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(UpgradeAsset.class);
+	private static final Log _log = LogFactoryUtil.getLog(UpgradeAsset.class);
 
 }

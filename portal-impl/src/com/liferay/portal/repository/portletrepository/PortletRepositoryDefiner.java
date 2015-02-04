@@ -14,6 +14,7 @@
 
 package com.liferay.portal.repository.portletrepository;
 
+import com.liferay.portal.kernel.repository.DocumentRepository;
 import com.liferay.portal.kernel.repository.RepositoryFactory;
 import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
 import com.liferay.portal.kernel.repository.capabilities.WorkflowCapability;
@@ -28,9 +29,11 @@ import com.liferay.portal.repository.capabilities.MinimalWorkflowCapability;
  */
 public class PortletRepositoryDefiner extends BaseRepositoryDefiner {
 
+	public static final String CLASS_NAME = PortletRepository.class.getName();
+
 	@Override
 	public String getClassName() {
-		return PortletRepository.class.getName();
+		return CLASS_NAME;
 	}
 
 	@Override
@@ -39,7 +42,9 @@ public class PortletRepositoryDefiner extends BaseRepositoryDefiner {
 	}
 
 	@Override
-	public void registerCapabilities(CapabilityRegistry capabilityRegistry) {
+	public void registerCapabilities(
+		CapabilityRegistry<DocumentRepository> capabilityRegistry) {
+
 		capabilityRegistry.addSupportedCapability(
 			WorkflowCapability.class, _workflowCapability);
 

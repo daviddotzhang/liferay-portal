@@ -15,6 +15,8 @@
 package com.liferay.sync.engine.filesystem;
 
 import com.liferay.sync.engine.SyncEngine;
+import com.liferay.sync.engine.documentlibrary.util.BatchEvent;
+import com.liferay.sync.engine.documentlibrary.util.BatchEventManager;
 import com.liferay.sync.engine.documentlibrary.util.FileEventUtil;
 import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
@@ -56,7 +58,8 @@ public class SyncWatchEventProcessor implements Runnable {
 				public void onUpdate(
 					SyncFile syncFile, Map<String, Object> originalValues) {
 
-					if ((syncFile.getTypePK() == 0) ||
+					if ((syncFile.getSyncAccountId() != _syncAccountId) ||
+						(syncFile.getTypePK() == 0) ||
 						!originalValues.containsKey("typePK")) {
 
 						return;
@@ -104,6 +107,10 @@ public class SyncWatchEventProcessor implements Runnable {
 		catch (Exception e) {
 			_logger.error(e.getMessage(), e);
 		}
+
+		BatchEvent batchEvent = BatchEventManager.getBatchEvent(_syncAccountId);
+
+		batchEvent.fireBatchEvent();
 	}
 
 	protected void addFile(SyncWatchEvent syncWatchEvent) throws Exception {
@@ -169,7 +176,7 @@ public class SyncWatchEventProcessor implements Runnable {
 				return;
 			}
 
-			if (FileUtil.hasFileChanged(syncFile)) {
+			if (FileUtil.isModified(syncFile)) {
 				SyncFileService.updateFileSyncFile(
 					targetFilePath, _syncAccountId, syncFile);
 			}
@@ -467,7 +474,7 @@ public class SyncWatchEventProcessor implements Runnable {
 
 			return;
 		}
-		else if (!FileUtil.hasFileChanged(syncFile)) {
+		else if (!FileUtil.isModified(syncFile)) {
 			return;
 		}
 
@@ -541,7 +548,7 @@ public class SyncWatchEventProcessor implements Runnable {
 			_dependentSyncWatchEventsMaps.get(filePathName);
 
 		if (syncWatchEvents == null) {
-			syncWatchEvents = new ArrayList<SyncWatchEvent>();
+			syncWatchEvents = new ArrayList<>();
 
 			_dependentSyncWatchEventsMaps.put(filePathName, syncWatchEvents);
 		}
@@ -556,10 +563,9 @@ public class SyncWatchEventProcessor implements Runnable {
 		SyncEngine.getEventProcessorExecutorService();
 
 	private final Map<String, List<SyncWatchEvent>>
-		_dependentSyncWatchEventsMaps =
-			new HashMap<String, List<SyncWatchEvent>>();
-	private final Set<Long> _pendingTypePKSyncFileIds = new HashSet<Long>();
-	private final Set<Long> _processedSyncWatchEventIds = new HashSet<Long>();
+		_dependentSyncWatchEventsMaps = new HashMap<>();
+	private final Set<Long> _pendingTypePKSyncFileIds = new HashSet<>();
+	private final Set<Long> _processedSyncWatchEventIds = new HashSet<>();
 	private final long _syncAccountId;
 
 }
