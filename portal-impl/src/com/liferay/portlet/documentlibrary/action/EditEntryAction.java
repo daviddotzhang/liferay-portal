@@ -42,6 +42,7 @@ import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
+import com.liferay.portlet.trash.service.TrashEntryServiceUtil;
 import com.liferay.portlet.trash.util.TrashUtil;
 
 import java.util.ArrayList;
@@ -95,6 +96,9 @@ public class EditEntryAction extends PortletAction {
 			}
 			else if (cmd.equals(Constants.MOVE_TO_TRASH)) {
 				deleteEntries(actionRequest, true);
+			}
+			else if (cmd.equals(Constants.RESTORE)) {
+				restoreTrashEntries(actionRequest);
 			}
 
 			WindowState windowState = actionRequest.getWindowState();
@@ -232,7 +236,7 @@ public class EditEntryAction extends PortletAction {
 		long[] deleteFolderIds = StringUtil.split(
 			ParamUtil.getString(actionRequest, "folderIds"), 0L);
 
-		List<TrashedModel> trashedModels = new ArrayList<TrashedModel>();
+		List<TrashedModel> trashedModels = new ArrayList<>();
 
 		for (int i = 0; i < deleteFolderIds.length; i++) {
 			long deleteFolderId = deleteFolderIds[i];
@@ -329,6 +333,17 @@ public class EditEntryAction extends PortletAction {
 			DLAppServiceUtil.updateFileShortcut(
 				fileShortcutId, newFolderId, fileShortcut.getToFileEntryId(),
 				serviceContext);
+		}
+	}
+
+	protected void restoreTrashEntries(ActionRequest actionRequest)
+		throws Exception {
+
+		long[] restoreTrashEntryIds = StringUtil.split(
+			ParamUtil.getString(actionRequest, "restoreTrashEntryIds"), 0L);
+
+		for (long restoreTrashEntryId : restoreTrashEntryIds) {
+			TrashEntryServiceUtil.restoreEntry(restoreTrashEntryId);
 		}
 	}
 

@@ -19,6 +19,7 @@ import com.thoughtworks.selenium.Selenium;
 /**
  * @author Brian Wing Shun Chan
  */
+@SuppressWarnings("deprecation")
 public interface LiferaySelenium extends Selenium {
 
 	public void antCommand(String fileName, String target) throws Exception;
@@ -76,6 +77,8 @@ public interface LiferaySelenium extends Selenium {
 	public void assertNotValue(String locator, String pattern) throws Exception;
 
 	public void assertNotVisible(String locator) throws Exception;
+
+	public void assertPartialConfirmation(String pattern) throws Exception;
 
 	public void assertPartialText(String locator, String pattern)
 		throws Exception;
@@ -267,8 +270,6 @@ public interface LiferaySelenium extends Selenium {
 	public void startLogger();
 
 	public void stopLogger();
-
-	public void tap(String locator);
 
 	public void typeAceEditor(String locator, String value);
 

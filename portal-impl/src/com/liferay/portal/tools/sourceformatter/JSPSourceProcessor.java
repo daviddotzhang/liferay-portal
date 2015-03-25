@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.io.unsync.UnsyncBufferedReader;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringReader;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -474,7 +476,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 	protected void format() throws Exception {
 		_moveFrequentlyUsedImportsToCommonInit = GetterUtil.getBoolean(
 			getProperty("move.frequently.used.imports.to.common.init"));
-		_unusedVariablesExclusions = getPropertyList(
+		_unusedVariablesExclusionFiles = getPropertyList(
 			"jsp.unused.variables.excludes.files");
 
 		String[] excludes = new String[] {"**\\null.jsp", "**\\tools\\**"};
@@ -609,8 +611,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				}
 
 				if (javaSource && portalSource &&
-					!isExcluded(
-						_unusedVariablesExclusions, absolutePath, lineCount) &&
+					!isExcludedFile(
+						_unusedVariablesExclusionFiles, absolutePath,
+						lineCount) &&
 					!_jspContents.isEmpty() &&
 					hasUnusedVariable(fileName, trimmedLine)) {
 
@@ -1423,6 +1426,32 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		}
 	}
 
+	@Override
+	protected String sortHTMLAttributes(
+		String line, String value, String attributeAndValue) {
+
+		if (!value.matches("([-a-z]+ )+[-a-z]+")) {
+			return line;
+		}
+
+		List<String> htmlAttributes = ListUtil.fromArray(
+			StringUtil.split(value, StringPool.SPACE));
+
+		Collections.sort(htmlAttributes);
+
+		String newValue = StringUtil.merge(htmlAttributes, StringPool.SPACE);
+
+		if (value.equals(newValue)) {
+			return line;
+		}
+
+		String newAttributeAndValue = StringUtil.replace(
+			attributeAndValue, value, newValue);
+
+		return StringUtil.replace(
+			line, attributeAndValue, newAttributeAndValue);
+	}
+
 	protected String stripJSPImports(String fileName, String content)
 		throws IOException {
 
@@ -1534,7 +1563,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 	private Pattern _taglibLanguageKeyPattern3 = Pattern.compile(
 		"(liferay-ui:)(?:input-resource) .*id=\"([^<=%\\[\\s]+)\"(?!.*title=" +
 			"(?:'|\").+(?:'|\"))");
-	private List<String> _unusedVariablesExclusions;
+	private List<String> _unusedVariablesExclusionFiles;
 	private String _utilTaglibDirName;
 	private Pattern _xssPattern = Pattern.compile(
 		"\\s+([^\\s]+)\\s*=\\s*(Bean)?ParamUtil\\.getString\\(");

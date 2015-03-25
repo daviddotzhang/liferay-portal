@@ -147,7 +147,7 @@ public class InstanceWrapperBuilder {
 				sb.append("> ");
 			}
 
-			sb.append(_getTypeGenericsName(javaMethod.getReturns()));
+			sb.append(_getTypeGenericsName(javaMethod.getReturnType()));
 			sb.append(" ");
 			sb.append(methodName);
 			sb.append(StringPool.OPEN_PARENTHESIS);
@@ -176,7 +176,7 @@ public class InstanceWrapperBuilder {
 
 			Type[] thrownExceptions = javaMethod.getExceptions();
 
-			Set<String> newExceptions = new LinkedHashSet<String>();
+			Set<String> newExceptions = new LinkedHashSet<>();
 
 			for (int j = 0; j < thrownExceptions.length; j++) {
 				Type thrownException = thrownExceptions[j];
@@ -197,7 +197,7 @@ public class InstanceWrapperBuilder {
 
 			sb.append("{\n");
 
-			if (!javaMethod.getReturns().getValue().equals("void")) {
+			if (!javaMethod.getReturnType().getValue().equals("void")) {
 				sb.append("return ");
 			}
 

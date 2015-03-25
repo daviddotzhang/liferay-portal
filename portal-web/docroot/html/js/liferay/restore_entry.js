@@ -7,30 +7,23 @@ AUI.add(
 
 		var RESPONSE_DATA = 'responseData';
 
-		var STR_RESTORE_ENTRY_URL = 'restoreEntryURL';
+		var STR_CHECK_ENTRY_URL = 'checkEntryURL';
 
 		var RestoreEntry = A.Component.create(
 			{
 				ATTRS: {
+					checkEntryURL: {
+						validator: isString
+					},
+
 					duplicateEntryURL: {
 						validator: isString
 					},
 
 					namespace: {
 						validator: isString
-					},
-
-					overrideMessage:{
-						validator:isString
-					},
-
-					renameMessage:{
-						validator: isString
-					},
-
-					restoreEntryURL: {
-						validator: isString
 					}
+
 				},
 
 				AUGMENTS: [Liferay.PortletBase],
@@ -79,8 +72,7 @@ AUI.add(
 								{
 									duplicateEntryId: responseData.duplicateEntryId,
 									oldName: responseData.oldName,
-									overrideMessage: instance.get('overrideMessage'),
-									renameMessage: instance.get('renameMessage'),
+									overridable: responseData.overridable,
 									trashEntryId: responseData.trashEntryId
 								}
 							);
@@ -104,10 +96,22 @@ AUI.add(
 							submitForm(form);
 						}
 						else {
-							var newName = instance.byId('newName');
-							var messageContainer = instance.byId('messageContainer');
+							var errorMessageContainer = instance.byId('errorMessageContainer');
+							var errorMessage = responseData.errorMessage;
 
-							messageContainer.html(Lang.sub(Liferay.Language.get('an-entry-with-name-x-already-exists'), [newName.val()]));
+							if (errorMessage) {
+								errorMessageContainer.html(Liferay.Language.get(responseData.errorMessage));
+
+								errorMessageContainer.show();
+							}
+							else {
+								errorMessageContainer.hide();
+
+								var newName = instance.byId('newName');
+								var messageContainer = instance.byId('messageContainer');
+
+								messageContainer.html(Lang.sub(Liferay.Language.get('an-entry-with-name-x-already-exists'), [newName.val()]));
+							}
 						}
 					},
 
@@ -117,7 +121,7 @@ AUI.add(
 						var uri = event.uri;
 
 						A.io.request(
-							instance.get(STR_RESTORE_ENTRY_URL),
+							instance.get(STR_CHECK_ENTRY_URL),
 							{
 								after: {
 									failure: A.rbind('_afterCheckEntryFailure', instance),
@@ -203,7 +207,7 @@ AUI.add(
 						}
 						else {
 							A.io.request(
-								instance.get(STR_RESTORE_ENTRY_URL),
+								instance.get(STR_CHECK_ENTRY_URL),
 								{
 									after: {
 										failure: A.rbind('_afterPopupCheckEntryFailure', instance),
@@ -212,8 +216,8 @@ AUI.add(
 									'arguments': form,
 									data: instance.ns(
 										{
-											trashEntryId: trashEntryId.val(),
-											newName: newName.val()
+											newName: newName.val(),
+											trashEntryId: trashEntryId.val()
 										}
 									),
 									dataType: 'JSON'

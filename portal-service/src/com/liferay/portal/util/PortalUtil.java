@@ -68,6 +68,8 @@ import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
 import javax.portlet.PreferencesValidator;
 import javax.portlet.RenderRequest;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 import javax.portlet.ValidatorException;
 import javax.portlet.WindowState;
 
@@ -711,10 +713,54 @@ public class PortalUtil {
 		return getPortal().getCurrentAndAncestorSiteGroupIds(groupId);
 	}
 
+	public static long[] getCurrentAndAncestorSiteGroupIds(
+			long groupId, boolean checkContentSharingWithChildrenEnabled)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroupIds(
+			groupId, checkContentSharingWithChildrenEnabled);
+	}
+
+	public static long[] getCurrentAndAncestorSiteGroupIds(long[] groupIds)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroupIds(groupIds);
+	}
+
+	public static long[] getCurrentAndAncestorSiteGroupIds(
+			long[] groupIds, boolean checkContentSharingWithChildrenEnabled)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroupIds(
+			groupIds, checkContentSharingWithChildrenEnabled);
+	}
+
 	public static List<Group> getCurrentAndAncestorSiteGroups(long groupId)
 		throws PortalException {
 
 		return getPortal().getCurrentAndAncestorSiteGroups(groupId);
+	}
+
+	public static List<Group> getCurrentAndAncestorSiteGroups(
+			long groupId, boolean checkContentSharingWithChildrenEnabled)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroups(
+			groupId, checkContentSharingWithChildrenEnabled);
+	}
+
+	public static List<Group> getCurrentAndAncestorSiteGroups(long[] groupIds)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroups(groupIds);
+	}
+
+	public static List<Group> getCurrentAndAncestorSiteGroups(
+			long[] groupIds, boolean checkContentSharingWithChildrenEnabled)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroups(
+			groupIds, checkContentSharingWithChildrenEnabled);
 	}
 
 	public static String getCurrentCompleteURL(HttpServletRequest request) {
@@ -1308,9 +1354,7 @@ public class PortalUtil {
 	 * @deprecated As of 6.2.0 renamed to {@link #getSiteGroupId(long)}
 	 */
 	@Deprecated
-	public static long getParentGroupId(long scopeGroupId)
-		throws PortalException {
-
+	public static long getParentGroupId(long scopeGroupId) {
 		return getPortal().getParentGroupId(scopeGroupId);
 	}
 
@@ -1813,9 +1857,7 @@ public class PortalUtil {
 		return getPortal().getSiteDefaultLocale(groupId);
 	}
 
-	public static long getSiteGroupId(long scopeGroupId)
-		throws PortalException {
-
+	public static long getSiteGroupId(long scopeGroupId) {
 		return getPortal().getSiteGroupId(scopeGroupId);
 	}
 
@@ -2034,6 +2076,15 @@ public class PortalUtil {
 
 		getPortal().invokeTaglibDiscussion(
 			portletConfig, actionRequest, actionResponse);
+	}
+
+	public static void invokeTaglibDiscussionPagination(
+			PortletConfig portletConfig, ResourceRequest resourceRequest,
+			ResourceResponse resourceResponse)
+		throws IOException, PortletException {
+
+		getPortal().invokeTaglibDiscussionPagination(
+			portletConfig, resourceRequest, resourceResponse);
 	}
 
 	/**
@@ -2398,7 +2449,7 @@ public class PortalUtil {
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             #removePortalInetSocketAddressEventListener(
+	 *             #removePortalEventListener(
 	 *             PortalInetSocketAddressEventListener)}
 	 */
 	@Deprecated

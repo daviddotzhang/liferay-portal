@@ -18,6 +18,8 @@ import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.HitsOpenSearchImpl;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.security.permission.ActionKeys;
@@ -28,7 +30,6 @@ import com.liferay.portal.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleConstants;
 import com.liferay.portlet.journal.model.JournalContentSearch;
@@ -43,11 +44,15 @@ import javax.portlet.PortletURL;
  * @author Brian Wing Shun Chan
  * @author Wesley Gong
  */
+@OSGiBeanProperties
 public class JournalOpenSearchImpl extends HitsOpenSearchImpl {
 
-	public static final String SEARCH_PATH = "/c/journal/open_search";
-
 	public static final String TITLE = "Liferay Journal Search: ";
+
+	@Override
+	public String getClassName() {
+		return JournalArticle.class.getName();
+	}
 
 	@Override
 	public Indexer getIndexer() {
@@ -55,13 +60,8 @@ public class JournalOpenSearchImpl extends HitsOpenSearchImpl {
 	}
 
 	@Override
-	public String getPortletId() {
-		return PortletKeys.JOURNAL;
-	}
-
-	@Override
 	public String getSearchPath() {
-		return SEARCH_PATH;
+		return StringPool.BLANK;
 	}
 
 	@Override
@@ -155,7 +155,8 @@ public class JournalOpenSearchImpl extends HitsOpenSearchImpl {
 			return layoutURL;
 		}
 
-		portletURL.setParameter("struts_action", "/journal/view_article");
+		portletURL.setParameter(
+			"mvcPath", "/html/portlet/journal/view_article.jsp");
 		portletURL.setParameter("groupId", String.valueOf(groupId));
 		portletURL.setParameter("articleId", articleId);
 

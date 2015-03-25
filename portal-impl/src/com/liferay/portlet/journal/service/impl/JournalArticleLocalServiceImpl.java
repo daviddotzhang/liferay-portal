@@ -15,7 +15,6 @@
 package com.liferay.portlet.journal.service.impl;
 
 import com.liferay.portal.LocaleException;
-import com.liferay.portal.NoSuchImageException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
@@ -164,25 +163,6 @@ import javax.portlet.PortletPreferences;
  * Provides the local service for accessing, adding, deleting, and updating web
  * content articles.
  *
- * <p>
- * The web content articles hold HTML content wrapped in XML. The XML lets you
- * specify the article's default locale and available locales. Here is a content
- * example:
- * </p>
- *
- * <p>
- * <pre>
- * <code>
- * &lt;?xml version='1.0' encoding='UTF-8'?&gt;
- * &lt;root default-locale="en_US" available-locales="en_US"&gt;
- * 	&lt;static-content language-id="en_US"&gt;
- * 		&lt;![CDATA[&lt;p&gt;&lt;b&gt;&lt;i&gt;test&lt;i&gt; content&lt;b&gt;&lt;/p&gt;]]&gt;
- * 	&lt;/static-content&gt;
- * &lt;/root&gt;
- * </code>
- * </pre>
- * </p>
- *
  * @author Brian Wing Shun Chan
  * @author Raymond Augé
  * @author Bruno Farache
@@ -194,6 +174,25 @@ public class JournalArticleLocalServiceImpl
 
 	/**
 	 * Adds a web content article with additional parameters.
+	 *
+	 * <p>
+	 * The web content articles hold HTML content wrapped in XML. The XML lets
+	 * you specify the article's default locale and available locales. Here is a
+	 * content example:
+	 * </p>
+	 *
+	 * <p>
+	 * <pre>
+	 * <code>
+	 * &lt;?xml version='1.0' encoding='UTF-8'?&gt;
+	 * &lt;root default-locale="en_US" available-locales="en_US"&gt;
+	 * 	&lt;static-content language-id="en_US"&gt;
+	 * 		&lt;![CDATA[&lt;p&gt;&lt;b&gt;&lt;i&gt;test&lt;i&gt; content&lt;b&gt;&lt;/p&gt;]]&gt;
+	 * 	&lt;/static-content&gt;
+	 * &lt;/root&gt;
+	 * </code>
+	 * </pre>
+	 * </p>
 	 *
 	 * @param  userId the primary key of the web content article's creator/owner
 	 * @param  groupId the primary key of the web content article's group
@@ -213,9 +212,7 @@ public class JournalArticleLocalServiceImpl
 	 * @param  titleMap the web content article's locales and localized titles
 	 * @param  descriptionMap the web content article's locales and localized
 	 *         descriptions
-	 * @param  content the HTML content wrapped in XML. For more information,
-	 *         see the content example in the class description for {@link
-	 *         JournalArticleLocalServiceImpl}.
+	 * @param  content the HTML content wrapped in XML
 	 * @param  ddmStructureKey the primary key of the web content article's DDM
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
@@ -487,8 +484,11 @@ public class JournalArticleLocalServiceImpl
 	 * @param  descriptionMap the web content article's locales and localized
 	 *         descriptions
 	 * @param  content the HTML content wrapped in XML. For more information,
-	 *         see the content example in the class description for {@link
-	 *         JournalArticleLocalServiceImpl}.
+	 *         see the content example in the {@link #addArticle(long, long,
+	 *         long, long, long, String, boolean, double, Map, Map, String,
+	 *         String, String, String, int, int, int, int, int, int, int, int,
+	 *         int, int, boolean, int, int, int, int, int, boolean, boolean,
+	 *         boolean, String, File, Map, String, ServiceContext)} description.
 	 * @param  ddmStructureKey the primary key of the web content article's DDM
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
@@ -881,7 +881,8 @@ public class JournalArticleLocalServiceImpl
 	@Override
 	@SystemEvent(
 		action = SystemEventConstants.ACTION_SKIP, send = false,
-		type = SystemEventConstants.TYPE_DELETE)
+		type = SystemEventConstants.TYPE_DELETE
+	)
 	public JournalArticle deleteArticle(JournalArticle article)
 		throws PortalException {
 
@@ -907,7 +908,8 @@ public class JournalArticleLocalServiceImpl
 	@Override
 	@SystemEvent(
 		action = SystemEventConstants.ACTION_SKIP, send = false,
-		type = SystemEventConstants.TYPE_DELETE)
+		type = SystemEventConstants.TYPE_DELETE
+	)
 	public JournalArticle deleteArticle(
 			JournalArticle article, String articleURL,
 			ServiceContext serviceContext)
@@ -1134,8 +1136,7 @@ public class JournalArticleLocalServiceImpl
 	public void deleteArticles(long groupId) throws PortalException {
 		SystemEventHierarchyEntryThreadLocal.push(JournalArticle.class);
 
-		List<JournalArticleResource> articleResources =
-			new ArrayList<JournalArticleResource>();
+		List<JournalArticleResource> articleResources = new ArrayList<>();
 
 		try {
 			JournalArticleResource articleResource = null;
@@ -1201,8 +1202,7 @@ public class JournalArticleLocalServiceImpl
 
 		SystemEventHierarchyEntryThreadLocal.push(JournalArticle.class);
 
-		List<JournalArticleResource> articleResources =
-			new ArrayList<JournalArticleResource>();
+		List<JournalArticleResource> articleResources = new ArrayList<>();
 
 		try {
 			JournalArticleResource articleResource = null;
@@ -1346,6 +1346,23 @@ public class JournalArticleLocalServiceImpl
 		}
 	}
 
+	@Override
+	public JournalArticle fetchArticle(long groupId, String articleId) {
+
+		// Get the latest article that is approved, if none are approved, get
+		// the latest unapproved article
+
+		JournalArticle article = fetchLatestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
+
+		if (article != null) {
+			return article;
+		}
+
+		return fetchLatestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_ANY);
+	}
+
 	/**
 	 * Returns the web content article matching the group, article ID, and
 	 * version.
@@ -1363,6 +1380,46 @@ public class JournalArticleLocalServiceImpl
 
 		return journalArticlePersistence.fetchByG_A_V(
 			groupId, articleId, version);
+	}
+
+	@Override
+	public JournalArticle fetchArticleByUrlTitle(
+		long groupId, String urlTitle) {
+
+		JournalArticle article = fetchLatestArticleByUrlTitle(
+			groupId, urlTitle, WorkflowConstants.STATUS_APPROVED);
+
+		if (article != null) {
+			return article;
+		}
+
+		return fetchLatestArticleByUrlTitle(
+			groupId, urlTitle, WorkflowConstants.STATUS_PENDING);
+	}
+
+	@Override
+	public JournalArticle fetchDisplayArticle(long groupId, String articleId) {
+		List<JournalArticle> articles = journalArticlePersistence.findByG_A_ST(
+			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
+
+		if (articles.isEmpty()) {
+			return null;
+		}
+
+		Date now = new Date();
+
+		for (JournalArticle article : articles) {
+			Date displayDate = article.getDisplayDate();
+			Date expirationDate = article.getExpirationDate();
+
+			if (((displayDate == null) || displayDate.before(now)) &&
+				((expirationDate == null) || expirationDate.after(now))) {
+
+				return article;
+			}
+		}
+
+		return articles.get(0);
 	}
 
 	@Override
@@ -1470,6 +1527,31 @@ public class JournalArticleLocalServiceImpl
 			groupId, articleId, status, orderByComparator);
 	}
 
+	@Override
+	public JournalArticle fetchLatestArticleByUrlTitle(
+		long groupId, String urlTitle, int status) {
+
+		List<JournalArticle> articles = null;
+
+		OrderByComparator<JournalArticle> orderByComparator =
+			new ArticleVersionComparator();
+
+		if (status == WorkflowConstants.STATUS_ANY) {
+			articles = journalArticlePersistence.findByG_UT(
+				groupId, urlTitle, 0, 1, orderByComparator);
+		}
+		else {
+			articles = journalArticlePersistence.findByG_UT_ST(
+				groupId, urlTitle, status, 0, 1, orderByComparator);
+		}
+
+		if (articles.isEmpty()) {
+			return null;
+		}
+
+		return articles.get(0);
+	}
+
 	/**
 	 * Returns the latest indexable web content article matching the resource
 	 * primary key.
@@ -1529,14 +1611,15 @@ public class JournalArticleLocalServiceImpl
 		// Get the latest article that is approved, if none are approved, get
 		// the latest unapproved article
 
-		try {
-			return getLatestArticle(
-				groupId, articleId, WorkflowConstants.STATUS_APPROVED);
+		JournalArticle article = fetchLatestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
+
+		if (article != null) {
+			return article;
 		}
-		catch (NoSuchArticleException nsae) {
-			return getLatestArticle(
-				groupId, articleId, WorkflowConstants.STATUS_ANY);
-		}
+
+		return getLatestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_ANY);
 	}
 
 	/**
@@ -1613,14 +1696,15 @@ public class JournalArticleLocalServiceImpl
 		// Get the latest article that is approved, if none are approved, get
 		// the latest unapproved article
 
-		try {
-			return getLatestArticleByUrlTitle(
-				groupId, urlTitle, WorkflowConstants.STATUS_APPROVED);
+		JournalArticle article = fetchLatestArticleByUrlTitle(
+			groupId, urlTitle, WorkflowConstants.STATUS_APPROVED);
+
+		if (article != null) {
+			return article;
 		}
-		catch (NoSuchArticleException nsae) {
-			return getLatestArticleByUrlTitle(
-				groupId, urlTitle, WorkflowConstants.STATUS_PENDING);
-		}
+
+		return getLatestArticleByUrlTitle(
+			groupId, urlTitle, WorkflowConstants.STATUS_PENDING);
 	}
 
 	/**
@@ -2537,31 +2621,15 @@ public class JournalArticleLocalServiceImpl
 	public JournalArticle getDisplayArticle(long groupId, String articleId)
 		throws PortalException {
 
-		List<JournalArticle> articles = journalArticlePersistence.findByG_A_ST(
-			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
+		JournalArticle article = fetchDisplayArticle(groupId, articleId);
 
-		if (articles.isEmpty()) {
+		if (article == null) {
 			throw new NoSuchArticleException(
 				"No approved JournalArticle exists with the key {groupId=" +
 					groupId + ", " + "articleId=" + articleId + "}");
 		}
 
-		Date now = new Date();
-
-		for (int i = 0; i < articles.size(); i++) {
-			JournalArticle article = articles.get(i);
-
-			Date displayDate = article.getDisplayDate();
-			Date expirationDate = article.getExpirationDate();
-
-			if (((displayDate == null) || displayDate.before(now)) &&
-				((expirationDate == null) || expirationDate.after(now))) {
-
-				return article;
-			}
-		}
-
-		return articles.get(0);
+		return article;
 	}
 
 	/**
@@ -2610,6 +2678,39 @@ public class JournalArticleLocalServiceImpl
 		}
 
 		return articles.get(0);
+	}
+
+	@Override
+	public List<JournalArticle> getIndexableArticlesByDDMStructureKey(
+		String[] ddmStructureKeys) {
+
+		if (PropsValues.JOURNAL_ARTICLE_INDEX_ALL_VERSIONS) {
+			return getStructureArticles(ddmStructureKeys);
+		}
+
+		QueryDefinition<JournalArticle> approvedQueryDefinition =
+			new QueryDefinition<JournalArticle>(
+				WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, new ArticleVersionComparator());
+
+		List<JournalArticle> articles = new ArrayList<>();
+
+		articles.addAll(
+			journalArticleFinder.findByG_C_S(
+				0, JournalArticleConstants.CLASSNAME_ID_DEFAULT,
+				ddmStructureKeys, approvedQueryDefinition));
+
+		QueryDefinition<JournalArticle> trashQueryDefinition =
+			new QueryDefinition<JournalArticle>(
+				WorkflowConstants.STATUS_IN_TRASH, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, new ArticleVersionComparator());
+
+		articles.addAll(
+			journalArticleFinder.findByG_C_S(
+				0, JournalArticleConstants.CLASSNAME_ID_DEFAULT,
+				ddmStructureKeys, trashQueryDefinition));
+
+		return articles;
 	}
 
 	/**
@@ -2814,27 +2915,16 @@ public class JournalArticleLocalServiceImpl
 			long groupId, String urlTitle, int status)
 		throws PortalException {
 
-		List<JournalArticle> articles = null;
+		JournalArticle article = fetchLatestArticleByUrlTitle(
+			groupId, urlTitle, status);
 
-		OrderByComparator<JournalArticle> orderByComparator =
-			new ArticleVersionComparator();
-
-		if (status == WorkflowConstants.STATUS_ANY) {
-			articles = journalArticlePersistence.findByG_UT(
-				groupId, urlTitle, 0, 1, orderByComparator);
-		}
-		else {
-			articles = journalArticlePersistence.findByG_UT_ST(
-				groupId, urlTitle, status, 0, 1, orderByComparator);
-		}
-
-		if (articles.isEmpty()) {
+		if (article == null) {
 			throw new NoSuchArticleException(
 				"No JournalArticle exists with the key {groupId=" + groupId +
 					", urlTitle=" + urlTitle + ", status=" + status + "}");
 		}
 
-		return articles.get(0);
+		return article;
 	}
 
 	/**
@@ -2897,10 +2987,10 @@ public class JournalArticleLocalServiceImpl
 	 */
 	@Override
 	public int getNotInTrashArticlesCount(long groupId, long folderId) {
-		QueryDefinition<JournalArticle> queryDefinition =
-			new QueryDefinition<JournalArticle>(WorkflowConstants.STATUS_ANY);
+		QueryDefinition<JournalArticle> queryDefinition = new QueryDefinition<>(
+			WorkflowConstants.STATUS_ANY);
 
-		List<Long> folderIds = new ArrayList<Long>();
+		List<Long> folderIds = new ArrayList<>();
 
 		folderIds.add(folderId);
 
@@ -3138,13 +3228,7 @@ public class JournalArticleLocalServiceImpl
 		throws PortalException {
 
 		for (int i = 1;; i++) {
-			JournalArticle article = null;
-
-			try {
-				article = getArticleByUrlTitle(groupId, urlTitle);
-			}
-			catch (NoSuchArticleException nsae) {
-			}
+			JournalArticle article = fetchArticleByUrlTitle(groupId, urlTitle);
 
 			if ((article == null) || articleId.equals(article.getArticleId())) {
 				break;
@@ -3176,14 +3260,13 @@ public class JournalArticleLocalServiceImpl
 	 */
 	@Override
 	public boolean hasArticle(long groupId, String articleId) {
-		try {
-			getArticle(groupId, articleId);
+		JournalArticle article = fetchArticle(groupId, articleId);
 
+		if (article != null) {
 			return true;
 		}
-		catch (PortalException pe) {
-			return false;
-		}
+
+		return false;
 	}
 
 	/**
@@ -3260,6 +3343,31 @@ public class JournalArticleLocalServiceImpl
 	 * Moves the web content article matching the group and article ID to a new
 	 * folder.
 	 *
+	 * @param      groupId the primary key of the web content article's group
+	 * @param      articleId the primary key of the web content article
+	 * @param      newFolderId the primary key of the web content article's new
+	 *             folder
+	 * @return     the updated web content article, which was moved to a new
+	 *             folder
+	 * @throws     PortalException if a matching web content article could not
+	 *             be found
+	 * @deprecated As of 7.0.0, replaced by {@link #moveArticle(long, String,
+	 *             long, ServiceContext)}
+	 */
+	@Deprecated
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public JournalArticle moveArticle(
+			long groupId, String articleId, long newFolderId)
+		throws PortalException {
+
+		return moveArticle(groupId, articleId, newFolderId, null);
+	}
+
+	/**
+	 * Moves the web content article matching the group and article ID to a new
+	 * folder.
+	 *
 	 * @param  groupId the primary key of the web content article's group
 	 * @param  articleId the primary key of the web content article
 	 * @param  newFolderId the primary key of the web content article's new
@@ -3271,7 +3379,8 @@ public class JournalArticleLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public JournalArticle moveArticle(
-			long groupId, String articleId, long newFolderId)
+			long groupId, String articleId, long newFolderId,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		JournalArticle latestArticle = getLatestArticle(groupId, articleId);
@@ -3283,10 +3392,22 @@ public class JournalArticleLocalServiceImpl
 			groupId, articleId);
 
 		for (JournalArticle article : articles) {
+			if (serviceContext != null) {
+				notifySubscribers(
+					serviceContext.getUserId(), article, article.getUrlTitle(),
+					"move_from", serviceContext);
+			}
+
 			article.setFolderId(newFolderId);
 			article.setTreePath(article.buildTreePath());
 
 			journalArticlePersistence.update(article);
+
+			if (serviceContext != null) {
+				notifySubscribers(
+					serviceContext.getUserId(), article, article.getUrlTitle(),
+					"move_to", serviceContext);
+			}
 		}
 
 		return getArticle(groupId, articleId);
@@ -3348,7 +3469,8 @@ public class JournalArticleLocalServiceImpl
 			}
 		}
 
-		return moveArticle(groupId, article.getArticleId(), newFolderId);
+		return moveArticle(
+			groupId, article.getArticleId(), newFolderId, serviceContext);
 	}
 
 	/**
@@ -3387,7 +3509,7 @@ public class JournalArticleLocalServiceImpl
 			articleVersions, new ArticleVersionComparator());
 
 		List<ObjectValuePair<Long, Integer>> articleVersionStatusOVPs =
-			new ArrayList<ObjectValuePair<Long, Integer>>();
+			new ArrayList<>();
 
 		if ((articleVersions != null) && !articleVersions.isEmpty()) {
 			articleVersionStatusOVPs = getArticleVersionStatuses(
@@ -3682,8 +3804,8 @@ public class JournalArticleLocalServiceImpl
 	public List<JournalArticle> search(
 		long groupId, List<Long> folderIds, int status, int start, int end) {
 
-		QueryDefinition<JournalArticle> queryDefinition =
-			new QueryDefinition<JournalArticle>(status, start, end, null);
+		QueryDefinition<JournalArticle> queryDefinition = new QueryDefinition<>(
+			status, start, end, null);
 
 		return journalArticleFinder.findByG_F(
 			groupId, folderIds, queryDefinition);
@@ -3719,7 +3841,7 @@ public class JournalArticleLocalServiceImpl
 	public List<JournalArticle> search(
 		long groupId, long folderId, int status, int start, int end) {
 
-		List<Long> folderIds = new ArrayList<Long>();
+		List<Long> folderIds = new ArrayList<>();
 
 		folderIds.add(folderId);
 
@@ -3870,8 +3992,8 @@ public class JournalArticleLocalServiceImpl
 		boolean andOperator, int start, int end,
 		OrderByComparator<JournalArticle> obc) {
 
-		QueryDefinition<JournalArticle> queryDefinition =
-			new QueryDefinition<JournalArticle>(status, start, end, obc);
+		QueryDefinition<JournalArticle> queryDefinition = new QueryDefinition<>(
+			status, start, end, obc);
 
 		return journalArticleFinder.findByC_G_F_C_A_V_T_D_C_S_T_D_R(
 			companyId, groupId, folderIds, classNameId, articleId, version,
@@ -3952,8 +4074,8 @@ public class JournalArticleLocalServiceImpl
 		boolean andOperator, int start, int end,
 		OrderByComparator<JournalArticle> obc) {
 
-		QueryDefinition<JournalArticle> queryDefinition =
-			new QueryDefinition<JournalArticle>(status, start, end, obc);
+		QueryDefinition<JournalArticle> queryDefinition = new QueryDefinition<>(
+			status, start, end, obc);
 
 		return journalArticleFinder.findByC_G_F_C_A_V_T_D_C_S_T_D_R(
 			companyId, groupId, folderIds, classNameId, articleId, version,
@@ -4199,8 +4321,8 @@ public class JournalArticleLocalServiceImpl
 	 */
 	@Override
 	public int searchCount(long groupId, List<Long> folderIds, int status) {
-		QueryDefinition<JournalArticle> queryDefinition =
-			new QueryDefinition<JournalArticle>(status);
+		QueryDefinition<JournalArticle> queryDefinition = new QueryDefinition<>(
+			status);
 
 		return journalArticleFinder.countByG_F(
 			groupId, folderIds, queryDefinition);
@@ -4219,7 +4341,7 @@ public class JournalArticleLocalServiceImpl
 	 */
 	@Override
 	public int searchCount(long groupId, long folderId, int status) {
-		List<Long> folderIds = new ArrayList<Long>();
+		List<Long> folderIds = new ArrayList<>();
 
 		folderIds.add(folderId);
 
@@ -4724,8 +4846,11 @@ public class JournalArticleLocalServiceImpl
 	 * @param  descriptionMap the web content article's locales and localized
 	 *         descriptions
 	 * @param  content the HTML content wrapped in XML. For more information,
-	 *         see the content example in the class description for {@link
-	 *         JournalArticleLocalServiceImpl}.
+	 *         see the content example in the {@link #addArticle(long, long,
+	 *         long, long, long, String, boolean, double, Map, Map, String,
+	 *         String, String, String, int, int, int, int, int, int, int, int,
+	 *         int, int, boolean, int, int, int, int, int, boolean, boolean,
+	 *         boolean, String, File, Map, String, ServiceContext)} description.
 	 * @param  layoutUuid the unique string identifying the web content
 	 *         article's display page
 	 * @param  serviceContext the service context to be applied. Can set the
@@ -4860,8 +4985,11 @@ public class JournalArticleLocalServiceImpl
 	 * @param  descriptionMap the web content article's locales and localized
 	 *         descriptions
 	 * @param  content the HTML content wrapped in XML. For more information,
-	 *         see the content example in the class description for {@link
-	 *         JournalArticleLocalServiceImpl}.
+	 *         see the content example in the {@link #addArticle(long, long,
+	 *         long, long, long, String, boolean, double, Map, Map, String,
+	 *         String, String, String, int, int, int, int, int, int, int, int,
+	 *         int, int, boolean, int, int, int, int, int, boolean, boolean,
+	 *         boolean, String, File, Map, String, ServiceContext)} description.
 	 * @param  ddmStructureKey the primary key of the web content article's DDM
 	 *         structure, if the article is related to a DDM structure, or
 	 *         <code>null</code> otherwise
@@ -5039,6 +5167,8 @@ public class JournalArticleLocalServiceImpl
 			article.setResourcePrimKey(latestArticle.getResourcePrimKey());
 			article.setGroupId(latestArticle.getGroupId());
 			article.setCompanyId(latestArticle.getCompanyId());
+			article.setUserId(user.getUserId());
+			article.setUserName(user.getFullName());
 			article.setCreateDate(latestArticle.getCreateDate());
 			article.setClassNameId(latestArticle.getClassNameId());
 			article.setClassPK(latestArticle.getClassPK());
@@ -5055,8 +5185,6 @@ public class JournalArticleLocalServiceImpl
 			user, groupId, articleId, article.getVersion(), addNewVersion,
 			content, ddmStructureKey, images);
 
-		article.setUserId(user.getUserId());
-		article.setUserName(user.getFullName());
 		article.setModifiedDate(serviceContext.getModifiedDate(now));
 		article.setFolderId(folderId);
 		article.setTreePath(article.buildTreePath());
@@ -5164,8 +5292,11 @@ public class JournalArticleLocalServiceImpl
 	 * @param  articleId the primary key of the web content article
 	 * @param  version the web content article's version
 	 * @param  content the HTML content wrapped in XML. For more information,
-	 *         see the content example in the class description for {@link
-	 *         JournalArticleLocalServiceImpl}.
+	 *         see the content example in the {@link #addArticle(long, long,
+	 *         long, long, long, String, boolean, double, Map, Map, String,
+	 *         String, String, String, int, int, int, int, int, int, int, int,
+	 *         int, int, boolean, int, int, int, int, int, boolean, boolean,
+	 *         boolean, String, File, Map, String, ServiceContext)} description.
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         modification date, expando bridge attributes, asset category IDs,
 	 *         asset tag names, asset link entry IDs, workflow actions, the and
@@ -5223,8 +5354,11 @@ public class JournalArticleLocalServiceImpl
 	 * @param  title the translated web content article title
 	 * @param  description the translated web content article description
 	 * @param  content the HTML content wrapped in XML. For more information,
-	 *         see the content example in the class description for {@link
-	 *         JournalArticleLocalServiceImpl}.
+	 *         see the content example in the {@link #addArticle(long, long,
+	 *         long, long, long, String, boolean, double, Map, Map, String,
+	 *         String, String, String, int, int, int, int, int, int, int, int,
+	 *         int, int, boolean, int, int, int, int, int, boolean, boolean,
+	 *         boolean, String, File, Map, String, ServiceContext)} description.
 	 * @param  images the web content's images
 	 * @param  serviceContext the service context to be applied. Can set the
 	 *         modification date and "urlTitle" attribute for the web content
@@ -5428,8 +5562,11 @@ public class JournalArticleLocalServiceImpl
 	 * @param  articleId the primary key of the web content article
 	 * @param  version the web content article's version
 	 * @param  content the HTML content wrapped in XML. For more information,
-	 *         see the content example in the class description for {@link
-	 *         JournalArticleLocalServiceImpl}.
+	 *         see the content example in the {@link #addArticle(long, long,
+	 *         long, long, long, String, boolean, double, Map, Map, String,
+	 *         String, String, String, int, int, int, int, int, int, int, int,
+	 *         int, int, boolean, int, int, int, int, int, boolean, boolean,
+	 *         boolean, String, File, Map, String, ServiceContext)} description.
 	 * @return the updated web content article
 	 * @throws PortalException if a matching web content article could not be
 	 *         found
@@ -5677,10 +5814,16 @@ public class JournalArticleLocalServiceImpl
 
 			// Subscriptions
 
+			String action = "update";
+
+			if (article.getVersion() == 1.0) {
+				action = "add";
+			}
+
 			notifySubscribers(
-				article,
+				user.getUserId(), article,
 				(String)workflowContext.get(WorkflowConstants.CONTEXT_URL),
-				serviceContext);
+				action, serviceContext);
 		}
 
 		return article;
@@ -5815,8 +5958,7 @@ public class JournalArticleLocalServiceImpl
 
 		searchContext.setAndSearch(andSearch);
 
-		Map<String, Serializable> attributes =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> attributes = new HashMap<>();
 
 		attributes.put(Field.ARTICLE_ID, articleId);
 		attributes.put(Field.CLASS_NAME_ID, classNameId);
@@ -5929,7 +6071,7 @@ public class JournalArticleLocalServiceImpl
 			_log.debug("Expiring " + articles.size() + " articles");
 		}
 
-		Set<Long> companyIds = new HashSet<Long>();
+		Set<Long> companyIds = new HashSet<>();
 
 		for (JournalArticle article : articles) {
 			if (PropsValues.JOURNAL_ARTICLE_EXPIRE_ALL_VERSIONS) {
@@ -5980,32 +6122,49 @@ public class JournalArticleLocalServiceImpl
 	protected void checkArticlesByReviewDate(Date reviewDate)
 		throws PortalException {
 
+		List<JournalArticle> latestArticles = new ArrayList<>();
+
 		List<JournalArticle> articles = journalArticleFinder.findByReviewDate(
 			JournalArticleConstants.CLASSNAME_ID_DEFAULT, reviewDate,
 			_previousCheckDate);
 
-		if (_log.isDebugEnabled()) {
-			_log.debug(
-				"Sending review notifications for " + articles.size() +
-					" articles");
-		}
-
 		for (JournalArticle article : articles) {
-			String articleURL = StringPool.BLANK;
+			long groupId = article.getGroupId();
+			String articleId = article.getArticleId();
+			double version = article.getVersion();
 
-			long ownerId = article.getGroupId();
-			int ownerType = PortletKeys.PREFS_OWNER_TYPE_GROUP;
-			long plid = PortletKeys.PREFS_PLID_SHARED;
-			String portletId = PortletKeys.JOURNAL;
+			if (!journalArticleLocalService.isLatestVersion(
+					groupId, articleId, version)) {
 
-			PortletPreferences preferences =
-				portletPreferencesLocalService.getPreferences(
-					article.getCompanyId(), ownerId, ownerType, plid,
-					portletId);
+				article = journalArticleLocalService.getLatestArticle(
+					groupId, articleId);
+			}
 
-			sendEmail(
-				article, articleURL, preferences, "review",
-				new ServiceContext());
+			if (!latestArticles.contains(article)) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(
+						"Sending review notification for article " +
+							article.getId());
+				}
+
+				latestArticles.add(article);
+
+				String articleURL = StringPool.BLANK;
+
+				long ownerId = article.getGroupId();
+				int ownerType = PortletKeys.PREFS_OWNER_TYPE_GROUP;
+				long plid = PortletKeys.PREFS_PLID_SHARED;
+				String portletId = PortletKeys.JOURNAL;
+
+				PortletPreferences preferences =
+					portletPreferencesLocalService.getPreferences(
+						article.getCompanyId(), ownerId, ownerType, plid,
+						portletId);
+
+				sendEmail(
+					article, articleURL, preferences, "review",
+					new ServiceContext());
+			}
 		}
 	}
 
@@ -6013,10 +6172,6 @@ public class JournalArticleLocalServiceImpl
 		throws PortalException {
 
 		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
-			if (isPrivateDDMFormField(ddmFormField)) {
-				continue;
-			}
-
 			checkStructureField(ddmFormField, contentDocument.getRootElement());
 		}
 	}
@@ -6106,8 +6261,11 @@ public class JournalArticleLocalServiceImpl
 		for (Node imageNode : imageNodes) {
 			Element imageEl = (Element)imageNode;
 
-			String instanceId = imageEl.attributeValue("instance-id");
-			String name = imageEl.attributeValue("name");
+			String elInstanceId = imageEl.attributeValue("instance-id");
+			String elName = imageEl.attributeValue("name");
+			String elIndex = imageEl.attributeValue("index");
+
+			String name = elName + StringPool.UNDERLINE + elIndex;
 
 			List<Element> dynamicContentEls = imageEl.elements(
 				"dynamic-content");
@@ -6118,18 +6276,15 @@ public class JournalArticleLocalServiceImpl
 				String languageId = dynamicContentEl.attributeValue(
 					"language-id");
 
-				Image oldImage = null;
+				Image oldImage = imageLocalService.fetchImage(imageId);
 
-				try {
-					oldImage = imageLocalService.getImage(imageId);
-				}
-				catch (NoSuchImageException nsie) {
+				if (oldImage == null) {
 					continue;
 				}
 
 				imageId = journalArticleImageLocalService.getArticleImageId(
 					newArticle.getGroupId(), newArticle.getArticleId(),
-					newArticle.getVersion(), instanceId, name, languageId);
+					newArticle.getVersion(), elInstanceId, name, languageId);
 
 				imageLocalService.updateImage(imageId, oldImage.getTextObj());
 
@@ -6146,7 +6301,7 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	protected Map<String, String> createFieldsValuesMap(Element parentElement) {
-		Map<String, String> fieldsValuesMap = new HashMap<String, String>();
+		Map<String, String> fieldsValuesMap = new HashMap<>();
 
 		List<Element> dynamicElementElements = parentElement.elements(
 			"dynamic-element");
@@ -6203,7 +6358,7 @@ public class JournalArticleLocalServiceImpl
 				String elIndex = element.attributeValue(
 					"index", StringPool.BLANK);
 
-				String name = elName + "_" + elIndex;
+				String name = elName + StringPool.UNDERLINE + elIndex;
 
 				formatImage(
 					groupId, articleId, version, incrementVersion, element,
@@ -6691,7 +6846,7 @@ public class JournalArticleLocalServiceImpl
 		List<JournalArticle> articles) {
 
 		List<ObjectValuePair<Long, Integer>> articleVersionStatusOVPs =
-			new ArrayList<ObjectValuePair<Long, Integer>>(articles.size());
+			new ArrayList<>(articles.size());
 
 		for (JournalArticle article : articles) {
 			int status = article.getStatus();
@@ -6701,7 +6856,7 @@ public class JournalArticleLocalServiceImpl
 			}
 
 			ObjectValuePair<Long, Integer> articleVersionStatusOVP =
-				new ObjectValuePair<Long, Integer>(article.getId(), status);
+				new ObjectValuePair<>(article.getId(), status);
 
 			articleVersionStatusOVPs.add(articleVersionStatusOVP);
 		}
@@ -6768,14 +6923,8 @@ public class JournalArticleLocalServiceImpl
 				id, serviceContext.getScopeGroupId(), articleId, title);
 		}
 
-		JournalArticle urlTitleArticle = null;
-
-		try {
-			urlTitleArticle = getArticleByUrlTitle(
-				serviceContext.getScopeGroupId(), urlTitle);
-		}
-		catch (NoSuchArticleException nsae) {
-		}
+		JournalArticle urlTitleArticle = fetchArticleByUrlTitle(
+			serviceContext.getScopeGroupId(), urlTitle);
 
 		if ((urlTitleArticle != null) &&
 			!Validator.equals(
@@ -6789,31 +6938,12 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	protected boolean hasModifiedLatestApprovedVersion(
-			long groupId, String articleId, double version)
-		throws PortalException {
+		long groupId, String articleId, double version) {
 
-		double latestApprovedVersion;
+		JournalArticle article = fetchLatestArticle(
+			groupId, articleId, WorkflowConstants.STATUS_APPROVED);
 
-		try {
-			latestApprovedVersion = getLatestVersion(
-				groupId, articleId, WorkflowConstants.STATUS_APPROVED);
-
-			if (version >= latestApprovedVersion) {
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		catch (NoSuchArticleException nsae) {
-			return true;
-		}
-	}
-
-	protected boolean isPrivateDDMFormField(DDMFormField ddmFormField) {
-		String name = ddmFormField.getName();
-
-		if (name.startsWith(StringPool.UNDERLINE)) {
+		if ((article == null) || (article.getVersion() <= version)) {
 			return true;
 		}
 
@@ -6821,8 +6951,8 @@ public class JournalArticleLocalServiceImpl
 	}
 
 	protected void notifySubscribers(
-			JournalArticle article, String articleURL,
-			ServiceContext serviceContext)
+			long userId, JournalArticle article, String articleURL,
+			String action, ServiceContext serviceContext)
 		throws PortalException {
 
 		if (!article.isApproved() || Validator.isNull(articleURL)) {
@@ -6850,10 +6980,17 @@ public class JournalArticleLocalServiceImpl
 				defaultPreferences);
 		}
 
-		if ((article.getVersion() == 1.0) &&
+		if (action.equals("add") &&
 			JournalUtil.getEmailArticleAddedEnabled(preferences)) {
 		}
-		else if ((article.getVersion() != 1.0) &&
+		else if (action.equals("move_to") &&
+				 JournalUtil.getEmailArticleMovedToFolderEnabled(preferences)) {
+		}
+		else if (action.equals("move_from") &&
+				 JournalUtil.getEmailArticleMovedFromFolderEnabled(
+					 preferences)) {
+		}
+		else if (action.equals("update") &&
 				 JournalUtil.getEmailArticleUpdatedEnabled(preferences)) {
 		}
 		else {
@@ -6868,13 +7005,26 @@ public class JournalArticleLocalServiceImpl
 		Map<Locale, String> localizedSubjectMap = null;
 		Map<Locale, String> localizedBodyMap = null;
 
-		if (article.getVersion() == 1.0) {
+		if (action.equals("add")) {
 			localizedSubjectMap = JournalUtil.getEmailArticleAddedSubjectMap(
 				preferences);
 			localizedBodyMap = JournalUtil.getEmailArticleAddedBodyMap(
 				preferences);
 		}
-		else {
+		else if (action.equals("move_to")) {
+			localizedSubjectMap =
+				JournalUtil.getEmailArticleMovedToFolderSubjectMap(preferences);
+			localizedBodyMap = JournalUtil.getEmailArticleMovedToFolderBodyMap(
+				preferences);
+		}
+		else if (action.equals("move_from")) {
+			localizedSubjectMap =
+				JournalUtil.getEmailArticleMovedFromFolderSubjectMap(
+					preferences);
+			localizedBodyMap =
+				JournalUtil.getEmailArticleMovedFromFolderBodyMap(preferences);
+		}
+		else if (action.equals("update")) {
 			localizedSubjectMap = JournalUtil.getEmailArticleUpdatedSubjectMap(
 				preferences);
 			localizedBodyMap = JournalUtil.getEmailArticleUpdatedBodyMap(
@@ -6920,11 +7070,17 @@ public class JournalArticleLocalServiceImpl
 		subscriptionSender.setContextAttribute(
 			"[$ARTICLE_DIFFS$]", DiffHtmlUtil.replaceStyles(articleDiffs),
 			false);
+
+		JournalFolder folder = article.getFolder();
+
 		subscriptionSender.setContextAttributes(
 			"[$ARTICLE_ID$]", article.getArticleId(), "[$ARTICLE_TITLE$]",
 			articleTitle, "[$ARTICLE_URL$]", articleURL, "[$ARTICLE_VERSION$]",
-			article.getVersion());
-		subscriptionSender.setContextUserPrefix("ARTICLE");
+			article.getVersion(), "[$FOLDER_NAME$]", folder.getName());
+
+		subscriptionSender.setContextCreatorUserPrefix("ARTICLE");
+		subscriptionSender.setCreatorUserId(article.getUserId());
+		subscriptionSender.setCurrentUserId(userId);
 		subscriptionSender.setEntryTitle(articleTitle);
 		subscriptionSender.setEntryURL(articleURL);
 		subscriptionSender.setFrom(fromAddress, fromName);
@@ -6947,9 +7103,6 @@ public class JournalArticleLocalServiceImpl
 		subscriptionSender.setReplyToAddress(fromAddress);
 		subscriptionSender.setScopeGroupId(article.getGroupId());
 		subscriptionSender.setServiceContext(serviceContext);
-		subscriptionSender.setUserId(article.getUserId());
-
-		JournalFolder folder = article.getFolder();
 
 		subscriptionSender.addPersistedSubscribers(
 			JournalFolder.class.getName(), article.getGroupId());
@@ -7007,8 +7160,7 @@ public class JournalArticleLocalServiceImpl
 			List<JournalArticle> articles = JournalUtil.getArticles(hits);
 
 			if (articles != null) {
-				return new BaseModelSearchResult<JournalArticle>(
-					articles, hits.getLength());
+				return new BaseModelSearchResult<>(articles, hits.getLength());
 			}
 		}
 
@@ -7108,7 +7260,8 @@ public class JournalArticleLocalServiceImpl
 			article.getTitle(serviceContext.getLanguageId()), "[$ARTICLE_URL$]",
 			articleURL, "[$ARTICLE_USER_NAME$]", article.getUserName(),
 			"[$ARTICLE_VERSION$]", article.getVersion());
-		subscriptionSender.setContextUserPrefix("ARTICLE");
+		subscriptionSender.setContextCreatorUserPrefix("ARTICLE");
+		subscriptionSender.setCreatorUserId(article.getUserId());
 		subscriptionSender.setFrom(fromAddress, fromName);
 		subscriptionSender.setHtmlFormat(true);
 		subscriptionSender.setLocalizedBodyMap(localizedBodyMap);
@@ -7117,7 +7270,6 @@ public class JournalArticleLocalServiceImpl
 		subscriptionSender.setPortletId(PortletKeys.JOURNAL);
 		subscriptionSender.setScopeGroupId(article.getGroupId());
 		subscriptionSender.setServiceContext(serviceContext);
-		subscriptionSender.setUserId(article.getUserId());
 
 		subscriptionSender.addRuntimeSubscribers(toAddress, toName);
 
@@ -7128,8 +7280,7 @@ public class JournalArticleLocalServiceImpl
 			long userId, JournalArticle article, ServiceContext serviceContext)
 		throws PortalException {
 
-		Map<String, Serializable> workflowContext =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> workflowContext = new HashMap<>();
 
 		workflowContext.put(
 			WorkflowConstants.CONTEXT_URL,
@@ -7455,7 +7606,7 @@ public class JournalArticleLocalServiceImpl
 	private static final long _JOURNAL_ARTICLE_CHECK_INTERVAL =
 		PropsValues.JOURNAL_ARTICLE_CHECK_INTERVAL * Time.MINUTE;
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		JournalArticleLocalServiceImpl.class);
 
 	private Date _previousCheckDate;

@@ -19,37 +19,14 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 
-import java.net.InetAddress;
-
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author Shuyang Zhou
  * @author Raymond Augé
  */
 public class ClusterLinkUtil {
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             ClusterLink#CLUSTER_FORWARD_MESSAGE}
-	 */
-	@Deprecated
-	public static final String CLUSTER_FORWARD_MESSAGE =
-		ClusterLink.CLUSTER_FORWARD_MESSAGE;
-
 	public static Address getAddress(Message message) {
 		return (Address)message.get(_ADDRESS);
-	}
-
-	public static InetAddress getBindInetAddress() {
-		ClusterLink clusterLink = getClusterLink();
-
-		if (clusterLink == null) {
-			return null;
-		}
-
-		return clusterLink.getBindInetAddress();
 	}
 
 	public static ClusterLink getClusterLink() {
@@ -66,26 +43,6 @@ public class ClusterLinkUtil {
 		return _clusterLink;
 	}
 
-	public static List<Address> getLocalTransportAddresses() {
-		ClusterLink clusterLink = getClusterLink();
-
-		if (clusterLink == null) {
-			return Collections.emptyList();
-		}
-
-		return clusterLink.getLocalTransportAddresses();
-	}
-
-	public static List<Address> getTransportAddresses(Priority priority) {
-		ClusterLink clusterLink = getClusterLink();
-
-		if (clusterLink == null) {
-			return Collections.emptyList();
-		}
-
-		return clusterLink.getTransportAddresses(priority);
-	}
-
 	public static void initialize() {
 		ClusterLink clusterLink = getClusterLink();
 
@@ -94,10 +51,6 @@ public class ClusterLinkUtil {
 		}
 
 		clusterLink.initialize();
-	}
-
-	public static boolean isForwardMessage(Message message) {
-		return message.getBoolean(ClusterLink.CLUSTER_FORWARD_MESSAGE);
 	}
 
 	public static void sendMulticastMessage(
@@ -136,10 +89,6 @@ public class ClusterLinkUtil {
 		message.put(_ADDRESS, address);
 
 		return message;
-	}
-
-	public static void setForwardMessage(Message message) {
-		message.put(ClusterLink.CLUSTER_FORWARD_MESSAGE, true);
 	}
 
 	public void setClusterLink(ClusterLink clusterLink) {

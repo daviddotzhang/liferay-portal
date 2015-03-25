@@ -94,7 +94,7 @@ public class CopyInterfaceBuilder {
 
 		// Methods
 
-		Set<String> imports = new TreeSet<String>();
+		Set<String> imports = new TreeSet<>();
 
 		for (int i = 0; i < methods.length; i++) {
 			JavaMethod javaMethod = methods[i];
@@ -102,13 +102,13 @@ public class CopyInterfaceBuilder {
 			String methodName = javaMethod.getName();
 
 			if (javaMethod.isPublic()) {
-				String returnValueName = javaMethod.getReturns().getValue();
+				String returnValueName = javaMethod.getReturnType().getValue();
 
 				imports.add(returnValueName);
 
 				sb.append("public ");
-				sb.append(javaMethod.getReturns().getJavaClass().getName());
-				sb.append(_getDimensions(javaMethod.getReturns()));
+				sb.append(javaMethod.getReturnType().getJavaClass().getName());
+				sb.append(_getDimensions(javaMethod.getReturnType()));
 				sb.append(" ");
 				sb.append(methodName);
 				sb.append(StringPool.OPEN_PARENTHESIS);
@@ -135,7 +135,7 @@ public class CopyInterfaceBuilder {
 
 				Type[] thrownExceptions = javaMethod.getExceptions();
 
-				Set<String> newExceptions = new LinkedHashSet<String>();
+				Set<String> newExceptions = new LinkedHashSet<>();
 
 				for (int j = 0; j < thrownExceptions.length; j++) {
 					Type thrownException = thrownExceptions[j];

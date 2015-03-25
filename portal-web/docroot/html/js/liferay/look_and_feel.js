@@ -1,14 +1,7 @@
 AUI.add(
 	'liferay-look-and-feel',
 	function(A) {
-		var Browser = Liferay.Browser;
 		var Lang = A.Lang;
-
-		var REGEX_IGNORED_CLASSES = /boundary|draggable/;
-
-		var REGEX_IGNORED_CLASSES_PORTLET = /(?:^|\s)portlet(?=\s|$)/g;
-
-		var REGEX_VALID_CLASSES = /(?:([\w\d-]+)-)?portlet(?:-?([\w\d-]+-?))?/g;
 
 		var BACKGROUND_COLOR = 'backgroundColor';
 
@@ -68,8 +61,6 @@ AUI.add(
 
 		var ITALIC = 'italic';
 
-		var JSON = 'json';
-
 		var KEYUP = 'keyup';
 
 		var LETTER_SPACING = 'letterSpacing';
@@ -84,6 +75,12 @@ AUI.add(
 
 		var PX = 'px';
 
+		var REGEX_IGNORED_CLASSES = /boundary|draggable/;
+
+		var REGEX_IGNORED_CLASSES_PORTLET = /(?:^|\s)portlet(?=\s|$)/g;
+
+		var REGEX_VALID_CLASSES = /(?:([\w\d-]+)-)?portlet(?:-?([\w\d-]+-?))?/g;
+
 		var RESPONSE_DATA = 'responseData';
 
 		var SELECT = 'select';
@@ -91,6 +88,8 @@ AUI.add(
 		var SELECTED = 'selected';
 
 		var SHOW = 'show';
+
+		var STR_JSON = 'json';
 
 		var STYLE = 'style';
 
@@ -147,10 +146,6 @@ AUI.add(
 										modal: false,
 										on: {
 											visibleChange: function(event) {
-												if (!event.newVal && Browser.isIe() && Browser.getMajorVersion() == 6) {
-													window.location.reload(true);
-												}
-
 												instance._destroyColorPickers();
 											}
 										}
@@ -181,7 +176,8 @@ AUI.add(
 												doAsUserId: themeDisplay.getDoAsUserIdEncoded(),
 												p_l_id: themeDisplay.getPlid(),
 												p_p_id: 113,
-												p_p_state: EXCLUSIVE
+												p_p_state: EXCLUSIVE,
+												_113_portletResource: instance._portletId
 											},
 											showLoading: false,
 											uri: themeDisplay.getPathMain() + '/portal/render_portlet'
@@ -724,6 +720,21 @@ AUI.add(
 				}
 			},
 
+			_getCombo: function(input, selectBox) {
+				var instance = this;
+
+				var inputVal = input.val();
+				var selectVal = selectBox.val();
+
+				inputVal = instance._getSafeInteger(inputVal);
+
+				return {
+					both: inputVal + selectVal,
+					input: inputVal,
+					selectBox: selectVal
+				};
+			},
+
 			_getCSSClasses: function(portletBoundary, portlet) {
 				var instance = this;
 
@@ -751,21 +762,6 @@ AUI.add(
 				);
 
 				return '.' + boundaryClasses.join('.') + portletClasses;
-			},
-
-			_getCombo: function(input, selectBox) {
-				var instance = this;
-
-				var inputVal = input.val();
-				var selectVal = selectBox.val();
-
-				inputVal = instance._getSafeInteger(inputVal);
-
-				return {
-					both: inputVal + selectVal,
-					input: inputVal,
-					selectBox: selectVal
-				};
 			},
 
 			_getDefaultData: function() {
@@ -1246,7 +1242,7 @@ AUI.add(
 							p_l_id: themeDisplay.getPlid(),
 							portletId: instance._portletId
 						},
-						dataType: JSON,
+						dataType: STR_JSON,
 						on: {
 							success: function(event, id, obj) {
 								var objectData = this.get(RESPONSE_DATA);
@@ -1383,14 +1379,16 @@ AUI.add(
 					key = instance._portletLanguage.val();
 				}
 
+				var retVal;
+
 				if (value == null) {
 					var portletTitle = portletTitles[key];
 
 					if (portletTitle != null) {
-						return portletTitle;
+						retVal = portletTitle;
 					}
 
-					return instance._objData.defaultPortletTitles[key];
+					retVal = instance._objData.defaultPortletTitles[key];
 				}
 				else {
 					portletTitles[key] = value;
@@ -1402,6 +1400,8 @@ AUI.add(
 						instance._languageClasses(key);
 					}
 				}
+
+				return retVal;
 			},
 
 			_setCheckbox: function(obj, value) {

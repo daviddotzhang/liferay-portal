@@ -110,7 +110,8 @@ public class BookmarksFolderLocalServiceImpl
 	@Override
 	@SystemEvent(
 		action = SystemEventConstants.ACTION_SKIP,
-		type = SystemEventConstants.TYPE_DELETE)
+		type = SystemEventConstants.TYPE_DELETE
+	)
 	public BookmarksFolder deleteFolder(BookmarksFolder folder)
 		throws PortalException {
 
@@ -121,7 +122,8 @@ public class BookmarksFolderLocalServiceImpl
 	@Override
 	@SystemEvent(
 		action = SystemEventConstants.ACTION_SKIP,
-		type = SystemEventConstants.TYPE_DELETE)
+		type = SystemEventConstants.TYPE_DELETE
+	)
 	public BookmarksFolder deleteFolder(
 			BookmarksFolder folder, boolean includeTrashedEntries)
 		throws PortalException {
@@ -267,8 +269,7 @@ public class BookmarksFolderLocalServiceImpl
 	public List<Object> getFoldersAndEntries(
 		long groupId, long folderId, int status) {
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
-			status);
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
 
 		return bookmarksFolderFinder.findF_E_ByG_F(
 			groupId, folderId, queryDefinition);
@@ -278,7 +279,7 @@ public class BookmarksFolderLocalServiceImpl
 	public List<Object> getFoldersAndEntries(
 		long groupId, long folderId, int status, int start, int end) {
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
 			status, start, end, null);
 
 		return bookmarksFolderFinder.findF_E_ByG_F(
@@ -289,8 +290,7 @@ public class BookmarksFolderLocalServiceImpl
 	public int getFoldersAndEntriesCount(
 		long groupId, long folderId, int status) {
 
-		QueryDefinition<?> queryDefinition = new QueryDefinition<Object>(
-			status);
+		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
 
 		return bookmarksFolderFinder.countF_E_ByG_F(
 			groupId, folderId, queryDefinition);
@@ -680,7 +680,7 @@ public class BookmarksFolderLocalServiceImpl
 			return folder.getParentFolderId();
 		}
 
-		List<Long> subfolderIds = new ArrayList<Long>();
+		List<Long> subfolderIds = new ArrayList<>();
 
 		getSubfolderIds(
 			subfolderIds, folder.getGroupId(), folder.getFolderId());

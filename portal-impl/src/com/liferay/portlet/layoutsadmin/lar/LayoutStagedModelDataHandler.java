@@ -59,6 +59,8 @@ import com.liferay.portal.model.LayoutStagingHandler;
 import com.liferay.portal.model.LayoutTemplate;
 import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.LayoutTypePortletConstants;
+import com.liferay.portal.model.adapter.StagedTheme;
+import com.liferay.portal.model.adapter.impl.StagedThemeImpl;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
@@ -114,19 +116,12 @@ public class LayoutStagedModelDataHandler
 	}
 
 	@Override
-	public Layout fetchStagedModelByUuidAndCompanyId(
+	public List<Layout> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		List<Layout> layouts =
-			LayoutLocalServiceUtil.getLayoutsByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<Layout>());
-
-		if (ListUtil.isEmpty(layouts)) {
-			return null;
-		}
-
-		return layouts.get(0);
+		return LayoutLocalServiceUtil.getLayoutsByUuidAndCompanyId(
+			uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			new StagedModelModifiedDateComparator<Layout>());
 	}
 
 	@Override
@@ -143,7 +138,7 @@ public class LayoutStagedModelDataHandler
 	public Map<String, String> getReferenceAttributes(
 		PortletDataContext portletDataContext, Layout layout) {
 
-		Map<String, String> referenceAttributes = new HashMap<String, String>();
+		Map<String, String> referenceAttributes = new HashMap<>();
 
 		referenceAttributes.put(
 			"private-layout", String.valueOf(layout.isPrivateLayout()));
@@ -166,18 +161,17 @@ public class LayoutStagedModelDataHandler
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
 				Group.class);
 
-		long liveGroupId = GetterUtil.getLong(
-			referenceElement.attributeValue("live-group-id"));
+		long groupId = GetterUtil.getLong(
+			referenceElement.attributeValue("group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
+		groupId = MapUtil.getLong(groupIds, groupId);
 
 		boolean privateLayout = GetterUtil.getBoolean(
 			referenceElement.attributeValue("private-layout"));
 
 		Layout existingLayout = null;
 
-		existingLayout = fetchMissingReference(
-			uuid, liveGroupId, privateLayout);
+		existingLayout = fetchMissingReference(uuid, groupId, privateLayout);
 
 		Map<Long, Layout> layouts =
 			(Map<Long, Layout>)portletDataContext.getNewPrimaryKeysMap(
@@ -210,16 +204,16 @@ public class LayoutStagedModelDataHandler
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
 				Group.class);
 
-		long liveGroupId = GetterUtil.getLong(
-			referenceElement.attributeValue("live-group-id"));
+		long groupId = GetterUtil.getLong(
+			referenceElement.attributeValue("group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
+		groupId = MapUtil.getLong(groupIds, groupId);
 
 		boolean privateLayout = GetterUtil.getBoolean(
 			referenceElement.attributeValue("private-layout"));
 
 		Layout existingLayout = fetchMissingReference(
-			uuid, liveGroupId, privateLayout);
+			uuid, groupId, privateLayout);
 
 		if (existingLayout == null) {
 			return false;
@@ -415,12 +409,27 @@ public class LayoutStagedModelDataHandler
 				SitesUtil.addMergeFailFriendlyURLLayout(
 					mergeFailFriendlyURLLayout);
 
+				if (!_log.isWarnEnabled()) {
+					return;
+				}
+
+				StringBundler sb = new StringBundler(6);
+
+				sb.append("Layout with layout ID ");
+				sb.append(layout.getLayoutId());
+				sb.append(" cannot be propagated because the friendly URL ");
+				sb.append("conflicts with the friendly URL of layout with ");
+				sb.append("layout ID ");
+				sb.append(mergeFailFriendlyURLLayout.getLayoutId());
+
+				_log.warn(sb.toString());
+
 				return;
 			}
 		}
 		else {
 
-			// The default behaviour of import mode is
+			// The default behavior of import mode is
 			// PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE_MERGE_BY_LAYOUT_UUID
 
 			existingLayout = LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(
@@ -830,8 +839,14 @@ public class LayoutStagedModelDataHandler
 			}
 
 			if (layout == null) {
-				layout = fetchStagedModelByUuidAndCompanyId(
+				List<Layout> layouts = fetchStagedModelsByUuidAndCompanyId(
 					uuid, originalGroup.getCompanyId());
+
+				if (ListUtil.isEmpty(layouts)) {
+					return null;
+				}
+
+				layout = layouts.get(0);
 			}
 
 			return layout;
@@ -1331,10 +1346,10 @@ public class LayoutStagedModelDataHandler
 	private static final String _SAME_GROUP_FRIENDLY_URL =
 		"/[$SAME_GROUP_FRIENDLY_URL$]";
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutStagedModelDataHandler.class);
 
-	private LayoutLocalServiceHelper _layoutLocalServiceHelper =
+	private final LayoutLocalServiceHelper _layoutLocalServiceHelper =
 		(LayoutLocalServiceHelper)PortalBeanLocatorUtil.locate(
 			LayoutLocalServiceHelper.class.getName());
 

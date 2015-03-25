@@ -26,7 +26,7 @@ import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.asset.model.BaseAssetRenderer;
-import com.liferay.portlet.asset.model.DDMFieldReader;
+import com.liferay.portlet.asset.model.DDMFormValuesReader;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecord;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion;
@@ -38,8 +38,6 @@ import java.util.Locale;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 
 /**
  * @author Marcellus Tavares
@@ -82,8 +80,8 @@ public class DDLRecordAssetRenderer extends BaseAssetRenderer {
 	}
 
 	@Override
-	public DDMFieldReader getDDMFieldReader() {
-		return new DDLRecordDDMFieldReader(_record);
+	public DDMFormValuesReader getDDMFormValuesReader() {
+		return new DDLRecordDDMFormValuesReader(_record);
 	}
 
 	@Override
@@ -170,16 +168,16 @@ public class DDLRecordAssetRenderer extends BaseAssetRenderer {
 
 	@Override
 	public String render(
-			RenderRequest renderRequest, RenderResponse renderResponse,
+			PortletRequest portletRequest, PortletResponse portletResponse,
 			String template)
 		throws Exception {
 
 		if (template.equals(TEMPLATE_ABSTRACT) ||
 			template.equals(TEMPLATE_FULL_CONTENT)) {
 
-			renderRequest.setAttribute(
+			portletRequest.setAttribute(
 				WebKeys.DYNAMIC_DATA_LISTS_RECORD, _record);
-			renderRequest.setAttribute(
+			portletRequest.setAttribute(
 				WebKeys.DYNAMIC_DATA_LISTS_RECORD_VERSION, _recordVersion);
 
 			String path =

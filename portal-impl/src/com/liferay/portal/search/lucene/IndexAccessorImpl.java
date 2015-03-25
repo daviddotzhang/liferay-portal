@@ -79,17 +79,18 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 		_path = PropsValues.LUCENE_DIR + _companyId + StringPool.SLASH;
 
+		IndexSearcherManager indexSearcherManager = null;
+
 		try {
-			if (!SPIUtil.isSPI()) {
+			if (!SPIUtil.isSPI() && !SearchEngineUtil.isIndexReadOnly()) {
 				_checkLuceneDir();
 				_initIndexWriter();
 				_initCommitScheduler();
 
-				_indexSearcherManager = new IndexSearcherManager(_indexWriter);
+				indexSearcherManager = new IndexSearcherManager(_indexWriter);
 			}
 			else {
-				_indexSearcherManager = new IndexSearcherManager(
-					getLuceneDir());
+				indexSearcherManager = new IndexSearcherManager(getLuceneDir());
 			}
 		}
 		catch (IOException ioe) {
@@ -98,6 +99,8 @@ public class IndexAccessorImpl implements IndexAccessor {
 					_companyId,
 				ioe);
 		}
+
+		_indexSearcherManager = indexSearcherManager;
 	}
 
 	@Override
@@ -118,6 +121,10 @@ public class IndexAccessorImpl implements IndexAccessor {
 	public void addDocuments(Collection<Document> documents)
 		throws IOException {
 
+		if (_isIndexReadOnly()) {
+			return;
+		}
+
 		try {
 			for (Document document : documents) {
 				_indexWriter.addDocument(document);
@@ -132,7 +139,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	@Override
 	public void close() {
-		if (SPIUtil.isSPI()) {
+		if (_isIndexReadOnly()) {
 			return;
 		}
 
@@ -154,7 +161,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	@Override
 	public void delete() {
-		if (SearchEngineUtil.isIndexReadOnly()) {
+		if (_isIndexReadOnly()) {
 			return;
 		}
 
@@ -163,7 +170,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	@Override
 	public void deleteDocuments(Term term) throws IOException {
-		if (SearchEngineUtil.isIndexReadOnly()) {
+		if (_isIndexReadOnly()) {
 			return;
 		}
 
@@ -179,6 +186,10 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	@Override
 	public void dumpIndex(OutputStream outputStream) throws IOException {
+		if (_isIndexReadOnly()) {
+			return;
+		}
+
 		try {
 			_dumpIndexDeletionPolicy.dump(
 				outputStream, _indexWriter, _commitLock);
@@ -317,7 +328,7 @@ public class IndexAccessorImpl implements IndexAccessor {
 	}
 
 	private void _checkLuceneDir() {
-		if (SearchEngineUtil.isIndexReadOnly()) {
+		if (_isIndexReadOnly()) {
 			return;
 		}
 
@@ -342,6 +353,10 @@ public class IndexAccessorImpl implements IndexAccessor {
 	}
 
 	private void _deleteAll() {
+		if (_isIndexReadOnly()) {
+			return;
+		}
+
 		try {
 			_indexWriter.deleteAll();
 
@@ -377,19 +392,21 @@ public class IndexAccessorImpl implements IndexAccessor {
 	}
 
 	private void _doCommit() throws IOException {
-		if (_indexWriter != null) {
-			_commitLock.lock();
+		if (_isIndexReadOnly()) {
+			return;
+		}
 
-			try {
-				_indexWriter.commit();
-			}
-			finally {
-				_commitLock.unlock();
+		_commitLock.lock();
 
-				_indexSearcherManager.invalidate();
+		try {
+			_indexWriter.commit();
+		}
+		finally {
+			_commitLock.unlock();
 
-				_invalidate(_companyId);
-			}
+			_indexSearcherManager.invalidate();
+
+			_invalidate(_companyId);
 		}
 
 		_batchCount = 0;
@@ -518,7 +535,23 @@ public class IndexAccessorImpl implements IndexAccessor {
 		}
 	}
 
+	private boolean _isIndexReadOnly() {
+		if (_indexWriter == null) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Index is in read only mode");
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private void _write(Term term, Document document) throws IOException {
+		if (_isIndexReadOnly()) {
+			return;
+		}
+
 		try {
 			if (term != null) {
 				_indexWriter.updateDocument(term, document);
@@ -540,17 +573,18 @@ public class IndexAccessorImpl implements IndexAccessor {
 
 	private static final String _LUCENE_STORE_TYPE_RAM = "ram";
 
-	private static Log _log = LogFactoryUtil.getLog(IndexAccessorImpl.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		IndexAccessorImpl.class);
 
 	private volatile int _batchCount;
-	private Lock _commitLock = new ReentrantLock();
+	private final Lock _commitLock = new ReentrantLock();
 	private long _companyId;
 	private Directory _directory;
-	private DumpIndexDeletionPolicy _dumpIndexDeletionPolicy =
+	private final DumpIndexDeletionPolicy _dumpIndexDeletionPolicy =
 		new DumpIndexDeletionPolicy();
-	private IndexSearcherManager _indexSearcherManager;
+	private final IndexSearcherManager _indexSearcherManager;
 	private IndexWriter _indexWriter;
-	private String _path;
+	private final String _path;
 	private ScheduledExecutorService _scheduledExecutorService;
 
 	private static class InvalidateProcessCallable

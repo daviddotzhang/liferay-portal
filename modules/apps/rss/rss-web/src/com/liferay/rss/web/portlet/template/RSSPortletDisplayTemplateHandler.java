@@ -38,7 +38,7 @@ import org.osgi.service.component.annotations.Component;
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=com_liferay_rss_web_portlet_RSSPortlet"
+		"javax.portlet.name=" + RSSPortletKeys.RSS
 	},
 	service = TemplateHandler.class
 )
@@ -64,7 +64,7 @@ public class RSSPortletDisplayTemplateHandler
 
 	@Override
 	public String getResourceName() {
-		return "com_liferay_rss_web_portlet_RSSPortlet";
+		return RSSPortletKeys.RSS;
 	}
 
 	@Override

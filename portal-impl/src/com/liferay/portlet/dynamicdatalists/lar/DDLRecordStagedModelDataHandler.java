@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.lar.PortletDataException;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
@@ -32,8 +31,10 @@ import com.liferay.portlet.dynamicdatalists.model.DDLRecord;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion;
 import com.liferay.portlet.dynamicdatalists.service.DDLRecordLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 import com.liferay.portlet.dynamicdatamapping.storage.StorageEngineUtil;
+import com.liferay.portlet.dynamicdatamapping.util.DDMFormValuesToFieldsConverterUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -59,27 +60,20 @@ public class DDLRecordStagedModelDataHandler
 	}
 
 	@Override
-	public DDLRecord fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<DDLRecord> records =
-			DDLRecordLocalServiceUtil.getDDLRecordsByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<DDLRecord>());
-
-		if (ListUtil.isEmpty(records)) {
-			return null;
-		}
-
-		return records.get(0);
-	}
-
-	@Override
 	public DDLRecord fetchStagedModelByUuidAndGroupId(
 		String uuid, long groupId) {
 
 		return DDLRecordLocalServiceUtil.fetchDDLRecordByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public List<DDLRecord> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return DDLRecordLocalServiceUtil.getDDLRecordsByUuidAndCompanyId(
+			uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			new StagedModelModifiedDateComparator<DDLRecord>());
 	}
 
 	@Override
@@ -103,8 +97,13 @@ public class DDLRecordStagedModelDataHandler
 
 		DDLRecordVersion recordVersion = record.getRecordVersion();
 
-		Fields fields = StorageEngineUtil.getFields(
+		DDLRecordSet recordSet = record.getRecordSet();
+
+		DDMFormValues ddmFormValues = StorageEngineUtil.getDDMFormValues(
 			recordVersion.getDDMStorageId());
+
+		Fields fields = DDMFormValuesToFieldsConverterUtil.convert(
+			recordSet.getDDMStructure(), ddmFormValues);
 
 		String fieldsPath = ExportImportPathUtil.getModelPath(
 			record, "fields.xml");

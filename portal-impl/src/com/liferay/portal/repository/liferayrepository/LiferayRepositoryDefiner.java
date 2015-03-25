@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.repository.LocalRepository;
 import com.liferay.portal.kernel.repository.Repository;
 import com.liferay.portal.kernel.repository.RepositoryFactory;
 import com.liferay.portal.kernel.repository.capabilities.BulkOperationCapability;
+import com.liferay.portal.kernel.repository.capabilities.ProcessorCapability;
 import com.liferay.portal.kernel.repository.capabilities.SyncCapability;
 import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
 import com.liferay.portal.kernel.repository.capabilities.WorkflowCapability;
@@ -30,6 +31,7 @@ import com.liferay.portal.kernel.repository.registry.CapabilityRegistry;
 import com.liferay.portal.kernel.repository.registry.RepositoryFactoryRegistry;
 import com.liferay.portal.kernel.repository.util.ModelValidatorUtil;
 import com.liferay.portal.repository.capabilities.LiferayBulkOperationCapability;
+import com.liferay.portal.repository.capabilities.LiferayProcessorCapability;
 import com.liferay.portal.repository.capabilities.LiferaySyncCapability;
 import com.liferay.portal.repository.capabilities.LiferayTrashCapability;
 import com.liferay.portal.repository.capabilities.LiferayWorkflowCapability;
@@ -39,9 +41,11 @@ import com.liferay.portal.repository.capabilities.LiferayWorkflowCapability;
  */
 public class LiferayRepositoryDefiner extends BaseRepositoryDefiner {
 
+	public static final String CLASS_NAME = LiferayRepository.class.getName();
+
 	@Override
 	public String getClassName() {
-		return LiferayRepository.class.getName();
+		return CLASS_NAME;
 	}
 
 	@Override
@@ -50,20 +54,22 @@ public class LiferayRepositoryDefiner extends BaseRepositoryDefiner {
 	}
 
 	@Override
-	public void registerCapabilities(CapabilityRegistry capabilityRegistry) {
+	public void registerCapabilities(
+		CapabilityRegistry<DocumentRepository> capabilityRegistry) {
+
 		capabilityRegistry.addExportedCapability(
 			TrashCapability.class, _liferayTrashCapability);
 
-		DocumentRepository documentRepository =
-			capabilityRegistry.getDocumentRepository();
+		DocumentRepository documentRepository = capabilityRegistry.getTarget();
 
 		BulkOperationCapability bulkOperationCapability =
-			new LiferayBulkOperationCapability(
-				documentRepository.getRepositoryId());
+			new LiferayBulkOperationCapability(documentRepository);
 
 		capabilityRegistry.addExportedCapability(
 			BulkOperationCapability.class, bulkOperationCapability);
 
+		capabilityRegistry.addSupportedCapability(
+			ProcessorCapability.class, _processorCapability);
 		capabilityRegistry.addSupportedCapability(
 			SyncCapability.class,
 			new LiferaySyncCapability(bulkOperationCapability));
@@ -87,6 +93,8 @@ public class LiferayRepositoryDefiner extends BaseRepositoryDefiner {
 		new LiferayTrashCapability();
 	private final LiferayWorkflowCapability _liferayWorkflowCapability =
 		new LiferayWorkflowCapability();
+	private final ProcessorCapability _processorCapability =
+		new LiferayProcessorCapability();
 	private RepositoryFactory _repositoryFactory;
 
 	private class LiferayRepositoryFactoryWrapper implements RepositoryFactory {

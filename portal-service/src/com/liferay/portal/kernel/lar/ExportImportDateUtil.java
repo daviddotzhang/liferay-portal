@@ -59,6 +59,8 @@ import javax.portlet.PortletRequest;
 @ProviderType
 public class ExportImportDateUtil {
 
+	public static final String RANGE = "range";
+
 	public static final String RANGE_ALL = "all";
 
 	public static final String RANGE_DATE_RANGE = "dateRange";
@@ -124,7 +126,7 @@ public class ExportImportDateUtil {
 		Map<String, String[]> parameterMap =
 			(Map<String, String[]>)settingsMap.get("parameterMap");
 
-		String range = MapUtil.getString(parameterMap, "range", defaultRange);
+		String range = MapUtil.getString(parameterMap, RANGE, defaultRange);
 		int rangeLast = MapUtil.getInteger(parameterMap, "last");
 		int startDateAmPm = MapUtil.getInteger(parameterMap, "startDateAmPm");
 		int startDateYear = MapUtil.getInteger(parameterMap, "startDateYear");
@@ -140,7 +142,9 @@ public class ExportImportDateUtil {
 		int endDateHour = MapUtil.getInteger(parameterMap, "endDateHour");
 		int endDateMinute = MapUtil.getInteger(parameterMap, "endDateMinute");
 
+		String portletId = (String)settingsMap.get("portletId");
 		long groupId = MapUtil.getLong(settingsMap, "sourceGroupId");
+		long plid = MapUtil.getLong(settingsMap, "sourcePlid");
 		boolean privateLayout = MapUtil.getBoolean(
 			settingsMap, "privateLayout");
 		Locale locale = (Locale)settingsMap.get("locale");
@@ -150,7 +154,7 @@ public class ExportImportDateUtil {
 			range, rangeLast, startDateAmPm, startDateYear, startDateMonth,
 			startDateDay, startDateHour, startDateMinute, endDateAmPm,
 			endDateYear, endDateMonth, endDateDay, endDateHour, endDateMinute,
-			null, groupId, 0, privateLayout, locale, timeZone);
+			portletId, groupId, plid, privateLayout, locale, timeZone);
 	}
 
 	public static DateRange getDateRange(
@@ -172,8 +176,7 @@ public class ExportImportDateUtil {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		String range = ParamUtil.getString(
-			portletRequest, "range", defaultRange);
+		String range = ParamUtil.getString(portletRequest, RANGE, defaultRange);
 		int rangeLast = ParamUtil.getInteger(portletRequest, "last");
 		int startDateAmPm = ParamUtil.getInteger(
 			portletRequest, "startDateAmPm");
@@ -222,7 +225,7 @@ public class ExportImportDateUtil {
 			portletDataContext.getGroupId());
 
 		String range = MapUtil.getString(
-			portletDataContext.getParameterMap(), "range");
+			portletDataContext.getParameterMap(), RANGE);
 
 		if (!group.isStagedRemotely() &&
 			range.equals(RANGE_FROM_LAST_PUBLISH_DATE)) {
@@ -232,6 +235,12 @@ public class ExportImportDateUtil {
 
 			if (portletLastPublishDate == null) {
 				return null;
+			}
+
+			// This is a valid scenario in case of group level portlets
+
+			if (portletDataContext.getStartDate() == null) {
+				return portletLastPublishDate;
 			}
 
 			if (portletLastPublishDate.before(
@@ -441,6 +450,7 @@ public class ExportImportDateUtil {
 
 	private static final String _LAST_PUBLISH_DATE = "last-publish-date";
 
-	private static Log _log = LogFactoryUtil.getLog(ExportImportDateUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ExportImportDateUtil.class);
 
 }

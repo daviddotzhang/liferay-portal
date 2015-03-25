@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.portlet.bridges.mvc;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortlet;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -208,6 +209,16 @@ public class MVCPortlet extends LiferayPortlet {
 			portletConfig, actionRequest, actionResponse);
 	}
 
+	public void invokeTaglibDiscussionPagination(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws IOException, PortletException {
+
+		PortletConfig portletConfig = getPortletConfig();
+
+		PortalUtil.invokeTaglibDiscussionPagination(
+			portletConfig, resourceRequest, resourceResponse);
+	}
+
 	@Override
 	public void processAction(
 			ActionRequest actionRequest, ActionResponse actionResponse)
@@ -231,6 +242,13 @@ public class MVCPortlet extends LiferayPortlet {
 			include(
 				path, resourceRequest, resourceResponse,
 				PortletRequest.RESOURCE_PHASE);
+		}
+
+		boolean invokeTaglibDiscussion = GetterUtil.getBoolean(
+			resourceRequest.getParameter("invokeTaglibDiscussion"));
+
+		if (invokeTaglibDiscussion) {
+			invokeTaglibDiscussionPagination(resourceRequest, resourceResponse);
 		}
 		else {
 			super.serveResource(resourceRequest, resourceResponse);
@@ -378,6 +396,13 @@ public class MVCPortlet extends LiferayPortlet {
 		}
 
 		return mvcPath;
+	}
+
+	protected void hideDefaultSuccessMessage(PortletRequest portletRequest) {
+		SessionMessages.add(
+			portletRequest,
+			PortalUtil.getPortletId(portletRequest) +
+				SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
 	}
 
 	protected void include(

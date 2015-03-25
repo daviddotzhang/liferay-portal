@@ -66,7 +66,7 @@
 					}
 				%>
 
-					<div class="lfr-form-row lfr-form-row-inline">
+					<div class="field-row lfr-form-row lfr-form-row-inline">
 						<div class="row-fields">
 							<aui:input cssClass="lfr-input-text-container" label="title" name='<%= "title" + i %>' value="<%= title %>" />
 
@@ -84,13 +84,8 @@
 		<liferay-ui:panel collapsible="<%= true %>" extended="<%= true %>" id="rssFeedsDisplaySettingsPanel" persistState="<%= true %>" title="display-settings">
 			<aui:fieldset>
 				<div class="display-template">
-
-					<%
-					TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(RSSFeed.class.getName());
-					%>
-
 					<liferay-ui:ddm-template-selector
-						classNameId="<%= PortalUtil.getClassNameId(templateHandler.getClassName()) %>"
+						className="<%= RSSFeed.class.getName() %>"
 						displayStyle="<%= rssDisplayContext.getDisplayStyle() %>"
 						displayStyleGroupId="<%= rssDisplayContext.getDisplayStyleGroupId() %>"
 						label="display-template"
@@ -159,7 +154,9 @@
 		{
 			contentBox: 'fieldset.subscriptions',
 			fieldIndexes: '<portlet:namespace />subscriptionIndexes',
-			namespace: '<portlet:namespace />'
+			namespace: '<portlet:namespace />',
+			sortable: true,
+			sortableHandle: '.field-row'
 		}
 	).render();
 </aui:script>

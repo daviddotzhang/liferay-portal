@@ -15,7 +15,14 @@
 package com.liferay.portal.struts;
 
 import com.liferay.portal.NoSuchLayoutException;
-import com.liferay.portal.kernel.test.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
@@ -23,19 +30,14 @@ import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.impl.VirtualLayout;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
-import com.liferay.portal.test.DeleteAfterTestRun;
-import com.liferay.portal.test.LiferayIntegrationTestRule;
-import com.liferay.portal.test.MainServletTestRule;
-import com.liferay.portal.test.Sync;
-import com.liferay.portal.test.SynchronousDestinationTestRule;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortletKeys;
-import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.portal.util.test.RandomTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.blogs.util.test.BlogsTestUtil;
+import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -135,16 +137,17 @@ public class FindActionTest {
 			LayoutTestUtil.addPortletToLayout(_blogLayout, PortletKeys.BLOGS);
 		}
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		preferenceMap.put("assetLinkBehavior", new String[] {"viewInPortlet"});
 
-		_assetPublisherPortletId =
-			PortletKeys.ASSET_PUBLISHER + PortletConstants.INSTANCE_SEPARATOR +
-				RandomTestUtil.randomString();
+		_testPortletId =
+			com.liferay.portlet.util.test.PortletKeys.TEST +
+				PortletConstants.INSTANCE_SEPARATOR +
+					RandomTestUtil.randomString();
 
 		LayoutTestUtil.addPortletToLayout(
-			TestPropsValues.getUserId(), _assetLayout, _assetPublisherPortletId,
+			TestPropsValues.getUserId(), _assetLayout, _testPortletId,
 			"column-1", preferenceMap);
 
 		Group group = _group;
@@ -153,7 +156,13 @@ public class FindActionTest {
 			group = GroupTestUtil.addGroup();
 		}
 
-		_blogsEntry = BlogsTestUtil.addEntry(group, true);
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				group.getGroupId(), TestPropsValues.getUserId());
+
+		_blogsEntry = BlogsEntryLocalServiceUtil.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), serviceContext);
 	}
 
 	protected HttpServletRequest getHttpServletRequest() throws Exception {
@@ -184,11 +193,12 @@ public class FindActionTest {
 	};
 
 	private Layout _assetLayout;
-	private String _assetPublisherPortletId;
 	private Layout _blogLayout;
 	private BlogsEntry _blogsEntry;
 
 	@DeleteAfterTestRun
 	private Group _group;
+
+	private String _testPortletId;
 
 }

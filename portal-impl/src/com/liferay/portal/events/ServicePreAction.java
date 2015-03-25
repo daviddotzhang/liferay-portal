@@ -55,6 +55,8 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.LayoutSet;
 import com.liferay.portal.model.LayoutTemplate;
+import com.liferay.portal.model.LayoutType;
+import com.liferay.portal.model.LayoutTypeAccessPolicy;
 import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.LayoutTypePortletConstants;
 import com.liferay.portal.model.Portlet;
@@ -460,7 +462,7 @@ public class ServicePreAction extends Action {
 				layout = null;
 			}
 			else if (group.isLayoutPrototype()) {
-				layouts = new ArrayList<Layout>();
+				layouts = new ArrayList<>();
 			}
 			else {
 				layouts = LayoutLocalServiceUtil.getLayouts(
@@ -511,6 +513,7 @@ public class ServicePreAction extends Action {
 
 		LayoutSet layoutSet = null;
 
+		boolean hasAddLayoutLayoutPermission = false;
 		boolean hasCustomizeLayoutPermission = false;
 		boolean hasDeleteLayoutPermission = false;
 		boolean hasUpdateLayoutPermission = false;
@@ -519,14 +522,23 @@ public class ServicePreAction extends Action {
 			request, "customized_view", true);
 
 		if (layout != null) {
-			if (!layout.isTypeControlPanel()) {
-				hasCustomizeLayoutPermission = LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.CUSTOMIZE);
-				hasDeleteLayoutPermission = LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.DELETE);
-				hasUpdateLayoutPermission = LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.UPDATE);
-			}
+			LayoutType layoutType = layout.getLayoutType();
+
+			LayoutTypeAccessPolicy layoutTypeAccessPolicy =
+				layoutType.getLayoutTypeAccessPolicy();
+
+			hasAddLayoutLayoutPermission =
+				layoutTypeAccessPolicy.isAddLayoutAllowed(
+					permissionChecker, layout);
+			hasCustomizeLayoutPermission =
+				layoutTypeAccessPolicy.isCustomizeLayoutAllowed(
+					permissionChecker, layout);
+			hasDeleteLayoutPermission =
+				layoutTypeAccessPolicy.isDeleteLayoutAllowed(
+					permissionChecker, layout);
+			hasUpdateLayoutPermission =
+				layoutTypeAccessPolicy.isUpdateLayoutAllowed(
+					permissionChecker, layout);
 
 			layoutSet = layout.getLayoutSet();
 
@@ -1080,10 +1092,6 @@ public class ServicePreAction extends Action {
 
 			boolean hasAddLayoutGroupPermission = GroupPermissionUtil.contains(
 				permissionChecker, scopeGroup, ActionKeys.ADD_LAYOUT);
-			boolean hasAddLayoutLayoutPermission =
-				!layout.isTypeControlPanel() &&
-				LayoutPermissionUtil.contains(
-					permissionChecker, layout, ActionKeys.ADD_LAYOUT);
 			boolean hasManageLayoutsGroupPermission =
 				GroupPermissionUtil.contains(
 					permissionChecker, scopeGroup, ActionKeys.MANAGE_LAYOUTS);
@@ -1210,7 +1218,6 @@ public class ServicePreAction extends Action {
 						publishToLiveURL.setParameter("tabs1", "public-pages");
 					}
 
-					publishToLiveURL.setParameter("pagesRedirect", currentURL);
 					publishToLiveURL.setParameter(
 						"groupId", String.valueOf(scopeGroupId));
 					publishToLiveURL.setParameter(
@@ -1231,7 +1238,10 @@ public class ServicePreAction extends Action {
 					request, myAccountPortlet.getPortletId(), controlPanelPlid,
 					PortletRequest.RENDER_PHASE);
 
-				if (scopeGroupId > 0) {
+				if (user != null) {
+					myAccountURL.setDoAsGroupId(user.getGroupId());
+				}
+				else if (scopeGroupId > 0) {
 					myAccountURL.setDoAsGroupId(scopeGroupId);
 				}
 
@@ -1345,7 +1355,7 @@ public class ServicePreAction extends Action {
 			long userId, long groupId, boolean privateLayout, File larFile)
 		throws PortalException {
 
-		Map<String, String[]> parameterMap = new HashMap<String, String[]>();
+		Map<String, String[]> parameterMap = new HashMap<>();
 
 		parameterMap.put(
 			PortletDataHandlerKeys.PERMISSIONS,
@@ -1678,7 +1688,7 @@ public class ServicePreAction extends Action {
 
 			if (layout == null) {
 				LinkedHashMap<String, Object> groupParams =
-					new LinkedHashMap<String, Object>();
+					new LinkedHashMap<>();
 
 				groupParams.put("usersGroups", new Long(user.getUserId()));
 
@@ -1758,7 +1768,7 @@ public class ServicePreAction extends Action {
 			hasViewLayoutPermission = true;
 		}
 
-		List<Layout> accessibleLayouts = new ArrayList<Layout>();
+		List<Layout> accessibleLayouts = new ArrayList<>();
 
 		for (int i = 0; i < layouts.size(); i++) {
 			Layout curLayout = layouts.get(i);
@@ -2233,7 +2243,7 @@ public class ServicePreAction extends Action {
 		// Parallel render
 
 		if (PropsValues.LAYOUT_PARALLEL_RENDER_ENABLE &&
-			ServerDetector.isTomcat() && !PropsValues.TCK_URL) {
+			ServerDetector.isTomcat()) {
 
 			boolean portletParallelRender = ParamUtil.getBoolean(
 				request, "p_p_parallel", true);
@@ -2399,6 +2409,7 @@ public class ServicePreAction extends Action {
 
 	private static final String _PATH_PORTAL_LOGOUT = "/portal/logout";
 
-	private static Log _log = LogFactoryUtil.getLog(ServicePreAction.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		ServicePreAction.class);
 
 }

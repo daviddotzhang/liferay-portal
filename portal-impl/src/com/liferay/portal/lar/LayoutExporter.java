@@ -278,9 +278,6 @@ public class LayoutExporter {
 
 		stopWatch.start();
 
-		portletDataContext.setPortetDataContextListener(
-			new PortletDataContextListenerImpl(portletDataContext));
-
 		Document document = SAXReaderUtil.createDocument();
 
 		Element rootElement = document.addElement("root");
@@ -397,8 +394,7 @@ public class LayoutExporter {
 			}
 		}
 
-		Map<String, Object[]> portletIds =
-			new LinkedHashMap<String, Object[]>();
+		Map<String, Object[]> portletIds = new LinkedHashMap<>();
 
 		List<Layout> layouts = LayoutLocalServiceUtil.getLayouts(
 			portletDataContext.getGroupId(),
@@ -413,7 +409,9 @@ public class LayoutExporter {
 		for (Portlet portlet : getDataSiteLevelPortlets(companyId)) {
 			String portletId = portlet.getRootPortletId();
 
-			if (!group.isStagedPortlet(portletId)) {
+			if (ExportImportThreadLocal.isStagingInProcess() &&
+				!group.isStagedPortlet(portletId)) {
+
 				continue;
 			}
 
@@ -592,7 +590,6 @@ public class LayoutExporter {
 		portletDataContext.setScopeGroupId(previousScopeGroupId);
 
 		_portletExporter.exportAssetLinks(portletDataContext);
-		_portletExporter.exportAssetTags(portletDataContext);
 		_portletExporter.exportExpandoTables(portletDataContext);
 		_portletExporter.exportLocks(portletDataContext);
 
@@ -766,16 +763,17 @@ public class LayoutExporter {
 		XStreamAliasRegistryUtil.register(LayoutImpl.class, "Layout");
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(LayoutExporter.class);
+	private static final Log _log = LogFactoryUtil.getLog(LayoutExporter.class);
 
-	private static LayoutExporter _instance = new LayoutExporter();
+	private static final LayoutExporter _instance = new LayoutExporter();
 
-	private DeletionSystemEventExporter _deletionSystemEventExporter =
+	private final DeletionSystemEventExporter _deletionSystemEventExporter =
 		DeletionSystemEventExporter.getInstance();
-	private PermissionExporter _permissionExporter =
+	private final PermissionExporter _permissionExporter =
 		PermissionExporter.getInstance();
-	private PortletExporter _portletExporter = PortletExporter.getInstance();
-	private ThemeExporter _themeExporter = ThemeExporter.getInstance();
+	private final PortletExporter _portletExporter =
+		PortletExporter.getInstance();
+	private final ThemeExporter _themeExporter = ThemeExporter.getInstance();
 
 	private class UpdateLayoutSetLastPublishDateCallable
 		implements Callable<Void> {

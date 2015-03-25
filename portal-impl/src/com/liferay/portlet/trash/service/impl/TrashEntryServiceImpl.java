@@ -224,7 +224,7 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 		List<TrashEntry> entries = trashEntryPersistence.findByGroupId(
 			groupId, 0, end + PropsValues.TRASH_SEARCH_LIMIT, obc);
 
-		List<TrashEntry> filteredEntries = new ArrayList<TrashEntry>();
+		List<TrashEntry> filteredEntries = new ArrayList<>();
 
 		PermissionChecker permissionChecker = getPermissionChecker();
 
@@ -303,7 +303,7 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 	 *         location, or if a portal exception occurred
 	 */
 	@Override
-	public void moveEntry(
+	public TrashEntry moveEntry(
 			String className, long classPK, long destinationContainerModelId,
 			ServiceContext serviceContext)
 		throws PortalException {
@@ -351,6 +351,8 @@ public class TrashEntryServiceImpl extends TrashEntryServiceBaseImpl {
 
 		trashHandler.moveTrashEntry(
 			getUserId(), classPK, destinationContainerModelId, serviceContext);
+
+		return trashEntry;
 	}
 
 	@Override

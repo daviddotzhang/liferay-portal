@@ -23,9 +23,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
-* @author Raymond Augé
-* @author Peter Fellwock
-*/
+ * @author Raymond Augé
+ * @author Peter Fellwock
+ */
 @Component(
 	immediate = true,
 	property = {
@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.private-session-attributes=false",
 		"com.liferay.portlet.render-weight=50",
 		"com.liferay.portlet.remoteable=true",
-		"com.liferay.portlet.struts-path=quick_note",
 		"com.liferay.portlet.use-default-template=false",
 		"javax.portlet.display-name=Quick Note",
 		"javax.portlet.expiration-cache=0",

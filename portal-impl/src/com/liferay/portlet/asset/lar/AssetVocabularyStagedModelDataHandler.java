@@ -20,7 +20,7 @@ import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -41,6 +41,7 @@ import java.util.Map;
  * @author Gergely Mathe
  * @author Mate Thurzo
  */
+@OSGiBeanProperties
 public class AssetVocabularyStagedModelDataHandler
 	extends BaseStagedModelDataHandler<AssetVocabulary> {
 
@@ -60,28 +61,21 @@ public class AssetVocabularyStagedModelDataHandler
 	}
 
 	@Override
-	public AssetVocabulary fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<AssetVocabulary> vocabularies =
-			AssetVocabularyLocalServiceUtil.
-				getAssetVocabulariesByUuidAndCompanyId(
-					uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-					new StagedModelModifiedDateComparator<AssetVocabulary>());
-
-		if (ListUtil.isEmpty(vocabularies)) {
-			return null;
-		}
-
-		return vocabularies.get(0);
-	}
-
-	@Override
 	public AssetVocabulary fetchStagedModelByUuidAndGroupId(
 		String uuid, long groupId) {
 
 		return AssetVocabularyLocalServiceUtil.
 			fetchAssetVocabularyByUuidAndGroupId(uuid, groupId);
+	}
+
+	@Override
+	public List<AssetVocabulary> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return AssetVocabularyLocalServiceUtil.
+			getAssetVocabulariesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<AssetVocabulary>());
 	}
 
 	@Override
@@ -121,6 +115,10 @@ public class AssetVocabularyStagedModelDataHandler
 		vocabularyElement.addAttribute("path", vocabularyPath);
 
 		vocabulary.setUserUuid(vocabulary.getUserUuid());
+
+		portletDataContext.addReferenceElement(
+			vocabulary, vocabularyElement, vocabulary,
+			PortletDataContext.REFERENCE_TYPE_DEPENDENCY, false);
 
 		portletDataContext.addPermissions(
 			AssetVocabulary.class, vocabulary.getVocabularyId());
@@ -166,13 +164,12 @@ public class AssetVocabularyStagedModelDataHandler
 
 			serviceContext.setUuid(vocabulary.getUuid());
 
-			importedVocabulary =
-				AssetVocabularyLocalServiceUtil.addVocabulary(
-					userId, StringPool.BLANK,
-					getVocabularyTitleMap(
-						portletDataContext.getScopeGroupId(), vocabulary, name),
-					vocabulary.getDescriptionMap(), vocabulary.getSettings(),
-					serviceContext);
+			importedVocabulary = AssetVocabularyLocalServiceUtil.addVocabulary(
+				userId, StringPool.BLANK,
+				getVocabularyTitleMap(
+					portletDataContext.getScopeGroupId(), vocabulary, name),
+				vocabulary.getDescriptionMap(), vocabulary.getSettings(),
+				serviceContext);
 		}
 		else {
 			String name = getVocabularyName(
@@ -227,7 +224,7 @@ public class AssetVocabularyStagedModelDataHandler
 		Map<Locale, String> titleMap = vocabulary.getTitleMap();
 
 		if (titleMap == null) {
-			titleMap = new HashMap<Locale, String>();
+			titleMap = new HashMap<>();
 		}
 
 		titleMap.put(PortalUtil.getSiteDefaultLocale(groupId), name);

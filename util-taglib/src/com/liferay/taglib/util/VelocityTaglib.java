@@ -14,7 +14,7 @@
 
 package com.liferay.taglib.util;
 
-import com.liferay.portal.kernel.template.Template;
+import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.taglib.aui.ColumnTag;
@@ -27,6 +27,7 @@ import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
+import com.liferay.taglib.ui.MenuTag;
 import com.liferay.taglib.ui.MySitesTag;
 import com.liferay.taglib.ui.PngImageTag;
 import com.liferay.taglib.ui.QuickAccessTag;
@@ -97,9 +98,9 @@ public interface VelocityTaglib {
 	public void breadcrumb() throws Exception;
 
 	public void breadcrumb(
-			String displayStyle, boolean showGuestGroup,
-			boolean showParentGroups, boolean showLayout,
-			boolean showPortletBreadcrumb)
+			long ddmTemplateGroupId, String ddmTemplateKey,
+			boolean showGuestGroup, boolean showParentGroups,
+			boolean showLayout, boolean showPortletBreadcrumb)
 		throws Exception;
 
 	public void discussion(
@@ -126,12 +127,12 @@ public interface VelocityTaglib {
 			String message, long reportedUserId)
 		throws Exception;
 
-	public AssetCategoriesSummaryTag getAssetCategoriesSummaryTag()
+	public AssetCategoriesSummaryTag<?> getAssetCategoriesSummaryTag()
 		throws Exception;
 
 	public AssetLinksTag getAssetLinksTag() throws Exception;
 
-	public AssetTagsSummaryTag getAssetTagsSummaryTag() throws Exception;
+	public AssetTagsSummaryTag<?> getAssetTagsSummaryTag() throws Exception;
 
 	public BreadcrumbTag getBreadcrumbTag() throws Exception;
 
@@ -146,6 +147,8 @@ public interface VelocityTaglib {
 	public JournalArticleTag getJournalArticleTag() throws Exception;
 
 	public LayoutTag getLayoutTag() throws Exception;
+
+	public MenuTag getMenuTag() throws Exception;
 
 	public MySitesTag getMySitesTag() throws Exception;
 
@@ -267,8 +270,7 @@ public interface VelocityTaglib {
 
 	public void journalContentSearch() throws Exception;
 
-	public void journalContentSearch(
-			boolean showListed, String targetPortletId, String type)
+	public void journalContentSearch(boolean showListed, String targetPortletId)
 		throws Exception;
 
 	public void language() throws Exception;
@@ -284,6 +286,8 @@ public interface VelocityTaglib {
 		throws Exception;
 
 	public void layoutIcon(Layout layout) throws Exception;
+
+	public void menu(Menu menu) throws Exception;
 
 	public void metaTags() throws Exception;
 
@@ -406,8 +410,6 @@ public interface VelocityTaglib {
 		throws Exception;
 
 	public void search() throws Exception;
-
-	public void setTemplate(Template template);
 
 	public void sitesDirectory() throws Exception;
 

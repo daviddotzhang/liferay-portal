@@ -250,7 +250,7 @@ public class ResourceBlockLocalServiceImpl
 		List<ResourceAction> resourceActions =
 			resourceActionLocalService.getResourceActions(name);
 
-		List<String> actionIds = new ArrayList<String>();
+		List<String> actionIds = new ArrayList<>();
 
 		for (ResourceAction resourceAction : resourceActions) {
 			if ((actionIdsLong & resourceAction.getBitwiseValue()) ==
@@ -354,6 +354,35 @@ public class ResourceBlockLocalServiceImpl
 	}
 
 	@Override
+	public boolean[] hasIndividualPermissions(
+			String name, long primKey, long[] roleIds, String actionId)
+		throws PortalException {
+
+		boolean[] hasResourcePermissions = new boolean[roleIds.length];
+
+		if (roleIds.length == 0) {
+			return hasResourcePermissions;
+		}
+
+		ResourceBlock resourceBlock = getResourceBlock(name, primKey);
+
+		ResourceBlockPermissionsContainer resourceBlockPermissionsContainer =
+			resourceBlockPermissionLocalService.
+				getResourceBlockPermissionsContainer(
+					resourceBlock.getResourceBlockId());
+
+		long actionIdLong = getActionId(name, actionId);
+
+		for (int i = 0; i < roleIds.length; i++) {
+			hasResourcePermissions[i] =
+				resourceBlockPermissionsContainer.hasPermission(
+					roleIds[i], actionIdLong);
+		}
+
+		return hasResourcePermissions;
+	}
+
+	@Override
 	public boolean hasPermission(
 			String name, long primKey, String actionId,
 			ResourceBlockIdsBag resourceBlockIdsBag)
@@ -387,7 +416,8 @@ public class ResourceBlockLocalServiceImpl
 	@Override
 	@Transactional(
 		isolation = Isolation.READ_COMMITTED,
-		propagation = Propagation.REQUIRES_NEW)
+		propagation = Propagation.REQUIRES_NEW
+	)
 	public void releasePermissionedModelResourceBlock(
 		PermissionedModel permissionedModel) {
 
@@ -414,7 +444,8 @@ public class ResourceBlockLocalServiceImpl
 	@Override
 	@Transactional(
 		isolation = Isolation.READ_COMMITTED,
-		propagation = Propagation.REQUIRES_NEW)
+		propagation = Propagation.REQUIRES_NEW
+	)
 	public void releaseResourceBlock(long resourceBlockId) {
 		Session session = resourceBlockPersistence.openSession();
 
@@ -469,7 +500,8 @@ public class ResourceBlockLocalServiceImpl
 	@Override
 	@Transactional(
 		isolation = Isolation.READ_COMMITTED,
-		propagation = Propagation.REQUIRES_NEW)
+		propagation = Propagation.REQUIRES_NEW
+	)
 	public void releaseResourceBlock(ResourceBlock resourceBlock) {
 		releaseResourceBlock(resourceBlock.getResourceBlockId());
 	}
@@ -734,11 +766,6 @@ public class ResourceBlockLocalServiceImpl
 			updateCompanyScopeResourceTypePermissions(
 				companyId, name, roleId, actionIdsLong, operator);
 
-		List<ResourceBlock> resourceBlocks = resourceBlockPersistence.findByC_N(
-			companyId, name);
-
-		updatePermissions(resourceBlocks, roleId, actionIdsLong, operator);
-
 		PermissionCacheUtil.clearCache();
 	}
 
@@ -750,11 +777,6 @@ public class ResourceBlockLocalServiceImpl
 		resourceTypePermissionLocalService.
 			updateGroupScopeResourceTypePermissions(
 				companyId, groupId, name, roleId, actionIdsLong, operator);
-
-		List<ResourceBlock> resourceBlocks =
-			resourceBlockPersistence.findByC_G_N(companyId, groupId, name);
-
-		updatePermissions(resourceBlocks, roleId, actionIdsLong, operator);
 
 		PermissionCacheUtil.clearCache();
 	}
@@ -818,7 +840,8 @@ public class ResourceBlockLocalServiceImpl
 	@Override
 	@Transactional(
 		isolation = Isolation.READ_COMMITTED,
-		propagation = Propagation.REQUIRES_NEW)
+		propagation = Propagation.REQUIRES_NEW
+	)
 	public ResourceBlock updateResourceBlockId(
 		long companyId, long groupId, String name,
 		final PermissionedModel permissionedModel, String permissionsHash,
@@ -1051,7 +1074,7 @@ public class ResourceBlockLocalServiceImpl
 	private static final String _RETAIN_RESOURCE_BLOCK =
 		ResourceBlockLocalServiceImpl.class.getName() + ".retainResourceBlock";
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		ResourceBlockLocalServiceImpl.class);
 
 }

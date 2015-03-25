@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.User;
 import com.liferay.portal.repository.cmis.CMISRepository;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.service.CMISRepositoryLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalServiceUtil;
@@ -93,7 +92,7 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 
 	@Override
 	public Map<String, Serializable> getAttributes() {
-		return new HashMap<String, Serializable>();
+		return new HashMap<>();
 	}
 
 	@Override
@@ -162,8 +161,7 @@ public class CMISFileVersion extends CMISModel implements FileVersion {
 			throw new NoSuchFileEntryException(confe);
 		}
 
-		return CMISRepositoryLocalServiceUtil.toFileEntry(
-			getRepositoryId(), document);
+		return _cmisRepository.toFileEntry(document);
 	}
 
 	@Override

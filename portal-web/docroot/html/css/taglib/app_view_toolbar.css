@@ -1,4 +1,3 @@
-@import "compass";
 @import "mixins";
 
 .app-view-taglib {
@@ -72,7 +71,7 @@
 						background-color: transparent;
 						border-width: 0;
 
-						@include box-shadow(none);
+						box-shadow: none;
 
 						display: block;
 						float: none;
@@ -91,22 +90,6 @@
 		.display-style-buttons-container .dropdown-toggle .caret {
 			border-bottom-color: #333;
 			border-top-color: #333;
-		}
-	}
-}
-
-.ie6 {
-	.app-view-taglib.lfr-header-row .lfr-header-row-content {
-		.toolbar {
-			position: relative;
-
-			.field-choice {
-				width: 24px;
-			}
-		}
-
-		.display-style {
-			position: relative;
 		}
 	}
 }

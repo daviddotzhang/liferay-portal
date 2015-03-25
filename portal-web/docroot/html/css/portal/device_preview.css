@@ -1,4 +1,4 @@
-@import "compass";
+@import "bourbon";
 
 .lfr-device-preview-panel {
 	width: 220px;
@@ -184,16 +184,6 @@
 
 	.lfr-device-preview {
 		display: block;
-	}
-}
-
-.ie8 .lfr-device {
-	&.smartphone, &.tablet {
-		padding: 0;
-
-		&:after, &:before {
-			display: none;
-		}
 	}
 }
 

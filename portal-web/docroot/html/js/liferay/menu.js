@@ -1,7 +1,6 @@
 AUI.add(
 	'liferay-menu',
 	function(A) {
-		var Browser = Liferay.Browser;
 		var Lang = A.Lang;
 		var Util = Liferay.Util;
 
@@ -38,8 +37,8 @@ AUI.add(
 		var STR_TOP = 't';
 
 		var MAP_ALIGN_HORIZONTAL_OVERLAY = {
-			right: STR_LEFT,
-			left: STR_RIGHT
+			left: STR_RIGHT,
+			right: STR_LEFT
 		};
 
 		var MAP_ALIGN_HORIZONTAL_OVERLAY_RTL = {
@@ -48,8 +47,8 @@ AUI.add(
 		};
 
 		var MAP_ALIGN_HORIZONTAL_TRIGGER = {
-			right: STR_RIGHT,
-			left: STR_LEFT
+			left: STR_LEFT,
+			right: STR_RIGHT
 		};
 
 		var MAP_ALIGN_HORIZONTAL_TRIGGER_RTL = {
@@ -175,8 +174,6 @@ AUI.add(
 				if (!overlay) {
 					var MenuOverlay = A.Component.create(
 						{
-							NAME: 'overlay',
-
 							AUGMENTS: [
 								A.WidgetCssClass,
 								A.WidgetPosition,
@@ -189,7 +186,9 @@ AUI.add(
 
 							CSS_PREFIX: 'overlay',
 
-							EXTENDS: A.Widget
+							EXTENDS: A.Widget,
+
+							NAME: 'overlay'
 						}
 					);
 
@@ -241,12 +240,6 @@ AUI.add(
 					trigger.setData('menu', menu);
 
 					instance._setARIARoles(trigger, menu, listContainer);
-
-					Util.createFlyouts(
-						{
-							container: listContainer.getDOM()
-						}
-					);
 
 					if (trigger.hasClass('select')) {
 						listContainer.delegate(
@@ -367,16 +360,6 @@ AUI.add(
 					}
 
 					overlay.show();
-
-					if (Browser.isIe() && Browser.getMajorVersion() <= 7) {
-						var searchContainer = menu.one(SELECTOR_SEARCH_CONTAINER);
-
-						if (searchContainer) {
-							searchContainer.width(menu.innerWidth());
-
-							menu.one(SELECTOR_SEARCH_INPUT).width('100%');
-						}
-					}
 
 					if (cssClass.indexOf(CSS_EXTENDED) > -1) {
 						trigger.addClass(CSS_BTN_PRIMARY);

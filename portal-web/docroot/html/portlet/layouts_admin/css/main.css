@@ -204,6 +204,8 @@
 		width: 30px;
 
 		.avatar {
+			background-size: 30px;
+			height: 30px;
 			width: 30px;
 		}
 	}
@@ -256,6 +258,8 @@
 			width: 30px;
 
 			.avatar {
+				background-size: 30px;
+				height: 30px;
 				width: 30px;
 			}
 		}
@@ -453,18 +457,4 @@
 
 .lfr-tree-controls-item {
 	padding: 0 0 6px 6px;
-}
-
-.ie6 {
-	.theme-thumbnail, .no-png-fix {
-		behavior: none;
-	}
-
-	.lfr-available-themes h3 {
-		height: 1%;
-	}
-
-	.lfr-page-layouts .lfr-layout-template-column {
-		width: 30%;
-	}
 }

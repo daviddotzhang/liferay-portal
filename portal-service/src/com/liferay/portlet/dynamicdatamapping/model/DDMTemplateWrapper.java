@@ -64,6 +64,7 @@ public class DDMTemplateWrapper implements DDMTemplate,
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("classNameId", getClassNameId());
 		attributes.put("classPK", getClassPK());
+		attributes.put("resourceClassNameId", getResourceClassNameId());
 		attributes.put("templateKey", getTemplateKey());
 		attributes.put("version", getVersion());
 		attributes.put("name", getName());
@@ -140,6 +141,12 @@ public class DDMTemplateWrapper implements DDMTemplate,
 
 		if (classPK != null) {
 			setClassPK(classPK);
+		}
+
+		Long resourceClassNameId = (Long)attributes.get("resourceClassNameId");
+
+		if (resourceClassNameId != null) {
+			setResourceClassNameId(resourceClassNameId);
 		}
 
 		String templateKey = (String)attributes.get("templateKey");
@@ -509,6 +516,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public java.io.Serializable getPrimaryKeyObj() {
 		return _ddmTemplate.getPrimaryKeyObj();
+	}
+
+	/**
+	* Returns the resource class name ID of this d d m template.
+	*
+	* @return the resource class name ID of this d d m template
+	*/
+	@Override
+	public long getResourceClassNameId() {
+		return _ddmTemplate.getResourceClassNameId();
 	}
 
 	/**
@@ -980,6 +997,16 @@ public class DDMTemplateWrapper implements DDMTemplate,
 	@Override
 	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
 		_ddmTemplate.setPrimaryKeyObj(primaryKeyObj);
+	}
+
+	/**
+	* Sets the resource class name ID of this d d m template.
+	*
+	* @param resourceClassNameId the resource class name ID of this d d m template
+	*/
+	@Override
+	public void setResourceClassNameId(long resourceClassNameId) {
+		_ddmTemplate.setResourceClassNameId(resourceClassNameId);
 	}
 
 	/**

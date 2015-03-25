@@ -448,6 +448,19 @@ public class LiferaySeleniumHelper {
 		}
 	}
 
+	public static void assertPartialConfirmation(
+			LiferaySelenium liferaySelenium, String pattern)
+		throws Exception {
+
+		String confirmation = liferaySelenium.getConfirmation();
+
+		if (!confirmation.contains(pattern)) {
+			throw new Exception(
+				"\"" + confirmation + "\" does not contain \"" + pattern +
+					"\"");
+		}
+	}
+
 	public static void assertPartialText(
 			LiferaySelenium liferaySelenium, String locator, String pattern)
 		throws Exception {
@@ -736,7 +749,7 @@ public class LiferaySeleniumHelper {
 		if (line.contains(
 				"Exception sending context destroyed event to listener " +
 					"instance of class com.liferay.portal.spring.context." +
-					"PortalContextLoaderListener")) {
+						"PortalContextLoaderListener")) {
 
 			return true;
 		}
@@ -950,7 +963,7 @@ public class LiferaySeleniumHelper {
 
 		// LPS-50936
 
-		if (line.matches(
+		if (line.contains(
 				"Liferay does not have the Xuggler native libraries " +
 					"installed.")) {
 
@@ -968,6 +981,69 @@ public class LiferaySeleniumHelper {
 
 				return true;
 			}
+		}
+
+		// LPS-52346
+
+		if (line.matches(
+				".*The web application \\[\\] created a ThreadLocal with key " +
+					"of type.*")) {
+
+			if (line.contains(
+					"[org.apache.jasper.runtime.JspWriterImpl." +
+						"CharBufferThreadLocalPool]")) {
+
+				return true;
+			}
+		}
+
+		// LPS-52699
+
+		if (line.matches(
+				".*The web application \\[\\] created a ThreadLocal with key " +
+					"of type.*")) {
+
+			if (line.contains(
+					"[org.apache.xml.security.algorithms." +
+						"MessageDigestAlgorithm$1]")) {
+
+				return true;
+			}
+
+			if (line.contains(
+					"[org.apache.xml.security.algorithms." +
+						"SignatureAlgorithm$1]")) {
+
+				return true;
+			}
+
+			if (line.contains(
+					"[org.apache.xml.security.utils." +
+						"UnsyncBufferedOutputStream$1]")) {
+
+				return true;
+			}
+
+			if (line.contains(
+					"[org.apache.xml.security.utils." +
+						"UnsyncByteArrayOutputStream$1]")) {
+
+				return true;
+			}
+		}
+
+		// LRQA-14442, temporary workaround until Kiyoshi Lee fixes it
+
+		if (line.contains("Framework Event Dispatcher: Equinox Container:")) {
+			if (line.contains("[org_eclipse_equinox_http_servlet")) {
+				return true;
+			}
+		}
+
+		// WCM-202
+
+		if (line.contains("No score point assigners available")) {
+			return true;
 		}
 
 		if (Validator.equals(
@@ -1725,11 +1801,10 @@ public class LiferaySeleniumHelper {
 		}
 	}
 
-	private static List<Exception> _javaScriptExceptions =
-		new ArrayList<Exception>();
-	private static List<Exception> _liferayExceptions =
-		new ArrayList<Exception>();
-	private static Screen _screen = new Screen();
+	private static final List<Exception> _javaScriptExceptions =
+		new ArrayList<>();
+	private static final List<Exception> _liferayExceptions = new ArrayList<>();
+	private static final Screen _screen = new Screen();
 	private static int _screenshotCount = 0;
 	private static int _screenshotErrorCount = 0;
 

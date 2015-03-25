@@ -61,41 +61,18 @@ public class ClusterExecutorUtil {
 		return clusterExecutor.execute(clusterRequest);
 	}
 
-	public static FutureClusterResponses execute(
-		ClusterRequest clusterRequest,
-		ClusterResponseCallback clusterResponseCallback) {
-
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return null;
-		}
-
-		return clusterExecutor.execute(clusterRequest, clusterResponseCallback);
-	}
-
 	public static ClusterExecutor getClusterExecutor() {
 		PortalRuntimePermission.checkGetBeanProperty(ClusterExecutorUtil.class);
 
 		if ((_clusterExecutor == null) || !_clusterExecutor.isEnabled()) {
 			if (_log.isWarnEnabled()) {
-				_log.warn("ClusterExecutorUtil has not been initialized");
+				_log.warn("ClusterExecutorUtil was not initialized");
 			}
 
 			return null;
 		}
 
 		return _clusterExecutor;
-	}
-
-	public static List<Address> getClusterNodeAddresses() {
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return Collections.emptyList();
-		}
-
-		return clusterExecutor.getClusterNodeAddresses();
 	}
 
 	public static List<ClusterNode> getClusterNodes() {
@@ -118,16 +95,6 @@ public class ClusterExecutorUtil {
 		return clusterExecutor.getLocalClusterNode();
 	}
 
-	public static Address getLocalClusterNodeAddress() {
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return null;
-		}
-
-		return clusterExecutor.getLocalClusterNodeAddress();
-	}
-
 	public static void initialize() {
 		ClusterExecutor clusterExecutor = getClusterExecutor();
 
@@ -136,16 +103,6 @@ public class ClusterExecutorUtil {
 		}
 
 		clusterExecutor.initialize();
-	}
-
-	public static boolean isClusterNodeAlive(Address address) {
-		ClusterExecutor clusterExecutor = getClusterExecutor();
-
-		if (clusterExecutor == null) {
-			return false;
-		}
-
-		return clusterExecutor.isClusterNodeAlive(address);
 	}
 
 	public static boolean isClusterNodeAlive(String clusterNodeId) {

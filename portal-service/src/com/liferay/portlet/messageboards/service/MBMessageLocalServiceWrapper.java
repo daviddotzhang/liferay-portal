@@ -327,6 +327,12 @@ public class MBMessageLocalServiceWrapper implements MBMessageLocalService,
 	}
 
 	@Override
+	public void emptyMessageAttachments(long messageId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_mbMessageLocalService.emptyMessageAttachments(messageId);
+	}
+
+	@Override
 	public com.liferay.portlet.messageboards.model.MBMessage fetchMBMessage(
 		long messageId) {
 		return _mbMessageLocalService.fetchMBMessage(messageId);
@@ -411,6 +417,21 @@ public class MBMessageLocalServiceWrapper implements MBMessageLocalService,
 			groupId, className, classPK, status);
 	}
 
+	@Override
+	public com.liferay.portlet.messageboards.model.MBMessageDisplay getDiscussionMessageDisplay(
+		long userId, long groupId, java.lang.String className, long classPK,
+		int status,
+		java.util.Comparator<com.liferay.portlet.messageboards.model.MBMessage> comparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _mbMessageLocalService.getDiscussionMessageDisplay(userId,
+			groupId, className, classPK, status, comparator);
+	}
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link
+	#getDiscussionMessageDisplay(long, long, String, long, int)}
+	*/
+	@Deprecated
 	@Override
 	public com.liferay.portlet.messageboards.model.MBMessageDisplay getDiscussionMessageDisplay(
 		long userId, long groupId, java.lang.String className, long classPK,
@@ -589,6 +610,16 @@ public class MBMessageLocalServiceWrapper implements MBMessageLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _mbMessageLocalService.getMessageDisplay(userId, message,
 			status, threadView, includePrevAndNext);
+	}
+
+	@Override
+	public com.liferay.portlet.messageboards.model.MBMessageDisplay getMessageDisplay(
+		long userId, com.liferay.portlet.messageboards.model.MBMessage message,
+		int status, java.lang.String threadView, boolean includePrevAndNext,
+		java.util.Comparator<com.liferay.portlet.messageboards.model.MBMessage> comparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _mbMessageLocalService.getMessageDisplay(userId, message,
+			status, threadView, includePrevAndNext, comparator);
 	}
 
 	@Override
@@ -788,11 +819,24 @@ public class MBMessageLocalServiceWrapper implements MBMessageLocalService,
 		return _mbMessageLocalService.updateMBMessage(mbMessage);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, with no direct replacement
+	*/
+	@Deprecated
 	@Override
 	public com.liferay.portlet.messageboards.model.MBMessage updateMessage(
 		long messageId, java.lang.String body)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _mbMessageLocalService.updateMessage(messageId, body);
+	}
+
+	@Override
+	public com.liferay.portlet.messageboards.model.MBMessage updateMessage(
+		long userId, long messageId, java.lang.String body,
+		com.liferay.portal.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _mbMessageLocalService.updateMessage(userId, messageId, body,
+			serviceContext);
 	}
 
 	@Override

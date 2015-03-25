@@ -48,7 +48,16 @@ boolean modePrint = layoutTypePortlet.hasModePrintPortletId(portletId);
 
 PortletPreferencesIds portletPreferencesIds = PortletPreferencesFactoryUtil.getPortletPreferencesIds(request, portletId);
 
-PortletPreferences portletPreferences = PortletPreferencesLocalServiceUtil.getStrictPreferences(portletPreferencesIds);
+PortletPreferences portletPreferences = null;
+
+PortletPreferences renderPortletPreferences = (PortletPreferences)request.getAttribute(WebKeys.RENDER_PORTLET_PREFERENCES);
+
+if (renderPortletPreferences == null) {
+	portletPreferences = PortletPreferencesLocalServiceUtil.getStrictPreferences(portletPreferencesIds);
+}
+else {
+	portletPreferences = renderPortletPreferences;
+}
 
 PortletPreferences portletSetup = PortletPreferencesFactoryUtil.getStrictLayoutPortletSetup(layout, portletId);
 
@@ -212,7 +221,7 @@ if (!portletId.equals(PortletKeys.PORTLET_CONFIGURATION)) {
 		}
 	}
 
-	if (layoutTypePortlet.isCustomizable() && !layoutTypePortlet.isColumnDisabled(columnId) && LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.CUSTOMIZE)) {
+	if (layoutTypePortlet.isCustomizable() && !layoutTypePortlet.isColumnDisabled(columnId) && !portlet.isPreferencesCompanyWide() && portlet.isPreferencesUniquePerLayout() && LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.CUSTOMIZE)) {
 		showConfigurationIcon = true;
 
 		if (PropsValues.PORTLET_CSS_ENABLED) {
@@ -419,6 +428,12 @@ urlConfiguration.setEscapeXml(false);
 
 if (portlet.getConfigurationActionInstance() != null) {
 	urlConfiguration.setParameter("struts_action", "/portlet_configuration/edit_configuration");
+
+	String settingsScope = (String)request.getAttribute(WebKeys.SETTINGS_SCOPE);
+
+	if (Validator.isNotNull(settingsScope)) {
+		urlConfiguration.setParameter("settingsScope", settingsScope);
+	}
 }
 else if (PortletPermissionUtil.contains(permissionChecker, layout, portletDisplay.getId(), ActionKeys.PERMISSIONS)) {
 	urlConfiguration.setParameter("struts_action", "/portlet_configuration/edit_permissions");
@@ -813,10 +828,6 @@ Boolean renderPortletBoundary = GetterUtil.getBoolean(request.getAttribute(WebKe
 		freeformStyles = sb.toString();
 	}
 
-	if ((portletVisibility != null) && !layout.isTypeControlPanel()) {
-		cssClasses += " lfr-configurator-visibility";
-	}
-
 	if (portletDisplay.isStateMin()) {
 		cssClasses += " portlet-minimized";
 	}
@@ -842,10 +853,16 @@ Boolean renderPortletBoundary = GetterUtil.getBoolean(request.getAttribute(WebKe
 	if (portletResourcePortlet != null) {
 		cssClasses += StringPool.SPACE + portletResourcePortlet.getCssClassWrapper();
 	}
+
+	String defaultScreenCssClasses = StringPool.BLANK;
+
+	if ((portletVisibility != null) && !layout.isTypeControlPanel()) {
+		defaultScreenCssClasses += " lfr-configurator-visibility";
+	}
 	%>
 
 	<div class="<%= cssClasses %>" id="p_p_id<%= HtmlUtil.escapeAttribute(renderResponseImpl.getNamespace()) %>" <%= freeformStyles %>>
-		<div id="p_p_id<%= HtmlUtil.escapeAttribute(renderResponseImpl.getNamespace()) %>-defaultScreen">
+		<div class="<%= defaultScreenCssClasses %>" id="p_p_id<%= HtmlUtil.escapeAttribute(renderResponseImpl.getNamespace()) %>-defaultScreen">
 </c:if>
 
 <c:choose>

@@ -35,7 +35,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.repository.cmis.CMISRepository;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.service.CMISRepositoryLocalServiceUtil;
 import com.liferay.portal.service.RepositoryEntryLocalServiceUtil;
 import com.liferay.portal.service.persistence.LockUtil;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
@@ -112,7 +111,7 @@ public class CMISFileEntry extends CMISModel implements FileEntry {
 
 	@Override
 	public Map<String, Serializable> getAttributes() {
-		return new HashMap<String, Serializable>();
+		return new HashMap<>();
 	}
 
 	@Override
@@ -195,8 +194,7 @@ public class CMISFileEntry extends CMISModel implements FileEntry {
 
 		for (Document document : getAllVersions()) {
 			if (version.equals(document.getVersionLabel())) {
-				return CMISRepositoryLocalServiceUtil.toFileVersion(
-					getRepositoryId(), document);
+				return _cmisRepository.toFileVersion(document);
 			}
 		}
 
@@ -210,13 +208,11 @@ public class CMISFileEntry extends CMISModel implements FileEntry {
 		try {
 			List<Document> documents = getAllVersions();
 
-			List<FileVersion> fileVersions = new ArrayList<FileVersion>(
-				documents.size());
+			List<FileVersion> fileVersions = new ArrayList<>(documents.size());
 
 			for (Document document : documents) {
-				FileVersion fileVersion =
-					CMISRepositoryLocalServiceUtil.toFileVersion(
-						getRepositoryId(), document);
+				FileVersion fileVersion = _cmisRepository.toFileVersion(
+					document);
 
 				fileVersions.add(fileVersion);
 			}
@@ -252,8 +248,7 @@ public class CMISFileEntry extends CMISModel implements FileEntry {
 				cmisParentFolders = _document.getParents();
 			}
 
-			parentFolder = CMISRepositoryLocalServiceUtil.toFolder(
-				getRepositoryId(), cmisParentFolders.get(0));
+			parentFolder = _cmisRepository.toFolder(cmisParentFolders.get(0));
 
 			setParentFolder(parentFolder);
 		}
@@ -297,12 +292,11 @@ public class CMISFileEntry extends CMISModel implements FileEntry {
 		if (!documents.isEmpty()) {
 			Document latestDocumentVersion = documents.get(0);
 
-			_latestFileVersion = CMISRepositoryLocalServiceUtil.toFileVersion(
-				getRepositoryId(), latestDocumentVersion);
+			_latestFileVersion = _cmisRepository.toFileVersion(
+				latestDocumentVersion);
 		}
 		else {
-			_latestFileVersion = CMISRepositoryLocalServiceUtil.toFileVersion(
-				getRepositoryId(), _document);
+			_latestFileVersion = _cmisRepository.toFileVersion(_document);
 		}
 
 		return _latestFileVersion;

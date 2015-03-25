@@ -31,15 +31,17 @@ public class MoveFileEntryHandler extends BaseJSONHandler {
 	}
 
 	@Override
-	protected void processResponse(String response) throws Exception {
+	public void processResponse(String response) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		SyncFile remoteSyncFile = objectMapper.readValue(
 			response, new TypeReference<SyncFile>() {});
 
-		SyncFile localSyncFile = (SyncFile)getParameterValue("syncFile");
+		SyncFile localSyncFile = getLocalSyncFile();
 
 		localSyncFile.setModifiedTime(remoteSyncFile.getModifiedTime());
+		localSyncFile.setState(SyncFile.STATE_SYNCED);
+		localSyncFile.setUiEvent(SyncFile.UI_EVENT_UPLOADED);
 
 		SyncFileService.update(localSyncFile);
 	}

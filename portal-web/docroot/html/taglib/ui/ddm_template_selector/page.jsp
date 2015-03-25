@@ -18,6 +18,7 @@
 
 <%
 long classNameId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:ddm-template-select:classNameId"));
+String defaultDisplayStyle = (String)request.getAttribute("liferay-ui:ddm-template-select:defaultDisplayStyle");
 String displayStyle = (String)request.getAttribute("liferay-ui:ddm-template-select:displayStyle");
 long displayStyleGroupId = GetterUtil.getLong((String)request.getAttribute("liferay-ui:ddm-template-select:displayStyleGroupId"));
 List<String> displayStyles = (List<String>)request.getAttribute("liferay-ui:ddm-template-select:displayStyles");
@@ -33,7 +34,11 @@ Group ddmTemplateGroup = GroupLocalServiceUtil.getGroup(ddmTemplateGroupId);
 DDMTemplate ddmTemplate = null;
 
 if (displayStyle.startsWith(PortletDisplayTemplate.DISPLAY_STYLE_PREFIX)) {
-	ddmTemplate = PortletDisplayTemplateUtil.fetchDDMTemplate(displayStyleGroupId, displayStyle);
+	ddmTemplate = PortletDisplayTemplateUtil.getPortletDisplayTemplateDDMTemplate(displayStyleGroupId, classNameId, displayStyle);
+
+	if (ddmTemplate == null) {
+		displayStyle = defaultDisplayStyle;
+	}
 }
 %>
 
@@ -71,7 +76,7 @@ if (displayStyle.startsWith(PortletDisplayTemplate.DISPLAY_STYLE_PREFIX)) {
 		}
 	%>
 
-		<aui:option data="<%= data %>" label="<%= HtmlUtil.escape(curDDMTemplate.getName(locale)) %>" selected="<%= (ddmTemplate != null) && (curDDMTemplate.getTemplateId() == ddmTemplate.getTemplateId()) %>" value="<%= PortletDisplayTemplate.DISPLAY_STYLE_PREFIX + curDDMTemplate.getUuid() %>" />
+		<aui:option data="<%= data %>" label="<%= HtmlUtil.escape(curDDMTemplate.getName(locale)) %>" selected="<%= (ddmTemplate != null) && (curDDMTemplate.getTemplateId() == ddmTemplate.getTemplateId()) %>" value="<%= PortletDisplayTemplate.DISPLAY_STYLE_PREFIX + curDDMTemplate.getTemplateKey() %>" />
 
 	<%
 	}
@@ -91,54 +96,42 @@ if (displayStyle.startsWith(PortletDisplayTemplate.DISPLAY_STYLE_PREFIX)) {
 	<portlet:param name="showHeader" value="<%= Boolean.FALSE.toString() %>" />
 </liferay-portlet:renderURL>
 
-<aui:script use="aui-base">
-	var selectDDMTemplate = A.one('#<portlet:namespace />selectDDMTemplate');
-
-	if (selectDDMTemplate) {
-		var windowId = A.guid();
-
-		selectDDMTemplate.on(
-			'click',
-			function(event) {
-				Liferay.Util.openDDMPortlet(
-					{
-						basePortletURL: '<%= basePortletURL %>',
-						classNameId: '<%= classNameId %>',
-						dialog: {
-							width: 1024
-						},
-						groupId: <%= ddmTemplateGroupId %>,
-						refererPortletName: '<%= PortletKeys.PORTLET_DISPLAY_TEMPLATES %>',
-						struts_action: '/dynamic_data_mapping/view_template',
-						title: '<%= UnicodeLanguageUtil.get(request, "application-display-templates") %>'
+<aui:script sandbox="<%= true %>">
+	$('#<portlet:namespace />selectDDMTemplate').on(
+		'click',
+		function(event) {
+			Liferay.Util.openDDMPortlet(
+				{
+					basePortletURL: '<%= basePortletURL %>',
+					classNameId: '<%= classNameId %>',
+					dialog: {
+						width: 1024
 					},
-					function(event) {
-						if (!event.newVal) {
-							submitForm(document.<portlet:namespace />fm, '<%= refreshURL %>');
-						}
+					groupId: <%= ddmTemplateGroupId %>,
+					refererPortletName: '<%= PortletKeys.PORTLET_DISPLAY_TEMPLATES %>',
+					struts_action: '/dynamic_data_mapping/view_template',
+					title: '<%= UnicodeLanguageUtil.get(request, "application-display-templates") %>'
+				},
+				function(event) {
+					if (!event.newVal) {
+						submitForm(document.<portlet:namespace />fm, '<%= refreshURL %>');
 					}
-				);
-			}
-		);
-	}
+				}
+			);
+		}
+	);
 
-	var displayStyleGroupIdInput = A.one('#<portlet:namespace />displayStyleGroupId');
+	var displayStyleGroupIdInput = $('#<portlet:namespace />displayStyleGroupId');
 
-	var displayStyleSelect = A.one('#<portlet:namespace />displayStyle');
+	var displayStyle = $('#<portlet:namespace />displayStyle');
 
-	displayStyleSelect.on(
+	displayStyle.on(
 		'change',
 		function(event) {
-			var selectedIndex = event.currentTarget.get('selectedIndex');
+			var displayStyleGroupId = displayStyle.find(':selected').data('displaystylegroupid');
 
-			if (selectedIndex >= 0) {
-				var selectedOption = event.currentTarget.get('options').item(selectedIndex);
-
-				var displayStyleGroupId = selectedOption.attr('data-displaystylegroupid');
-
-				if (displayStyleGroupId) {
-					displayStyleGroupIdInput.attr('value', displayStyleGroupId);
-				}
+			if (displayStyleGroupId) {
+				displayStyleGroupIdInput.val(displayStyleGroupId);
 			}
 		}
 	);

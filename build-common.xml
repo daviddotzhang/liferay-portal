@@ -74,6 +74,8 @@
 	<taskdef classpathref="lib.classpath" resource="tasks.properties" />
 
 	<taskdef classname="com.liferay.ant.bnd.BaselineJarTask" classpathref="lib.classpath" name="baseline-jar" />
+	<taskdef classname="com.liferay.ant.bnd.ReleaseToRepoTask" classpathref="lib.classpath" name="release-to-repo" />
+
 	<taskdef classname="com.tonicsystems.jarjar.JarJarTask" classpath="${project.dir}/lib/development/jarjar.jar" name="jarjar" />
 	<taskdef classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpath="${project.dir}/lib/development/xmltask.jar" name="xmltask" />
 
@@ -520,31 +522,6 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		</sequential>
 	</macrodef>
 
-	<macrodef name="baseline-jar-macro">
-		<attribute name="bndRootFile" />
-		<attribute name="file" />
-		<attribute name="outputPath" />
-		<attribute name="rootProjectDir" />
-		<attribute name="sourcePath" />
-
-		<sequential>
-			<manifest-helper />
-
-			<bndexpand propertyfile="@{bndRootFile}" />
-
-			<baseline-jar
-				bndRootFile="@{bndRootFile}"
-				file="@{file}"
-				outputPath="@{outputPath}"
-				sourcePath="@{sourcePath}"
-			>
-				<classpath>
-					<pathelement location="@{sourcePath}/classes" />
-				</classpath>
-			</baseline-jar>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="check-fix-pack-requirements">
 		<attribute default="${app.server.dir}/patching-tool/patches" name="fix.pack.dir" />
 		<attribute name="fix.pack.file.name" />
@@ -700,7 +677,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 
 					<copy todir="test-classes/@{test.type}" preservelastmodified="true">
 						<fileset dir="test" includes="*.properties,META-INF/*.dtd,META-INF/*.xml" />
-						<fileset dir="test/@{test.type}" includes="**/*.policy,**/*.properties,**/dependencies/**,META-INF/*.xml,WEB-INF/*.xml" />
+						<fileset dir="test/@{test.type}" includes="**/*.bnd,**/*.png,**/*.policy,**/*.properties,**/dependencies/**,META-INF/*.xml,WEB-INF/*.xml" />
 					</copy>
 
 					<javac
@@ -802,8 +779,9 @@ Please set the environment variable ANT_OPTS to the recommended value of
 											</exec>
 										</then>
 										<else>
-											<exec dir="@{dir}" executable="${command.executable}" output="${command.output}">
-												<arg line="${command.arg.line}" />
+											<exec dir="@{dir}" executable="/bin/bash" output="${command.output}">
+												<arg value="-c" />
+												<arg value="${command.executable} ${command.arg.line}" />
 											</exec>
 										</else>
 									</if>
@@ -845,8 +823,9 @@ Please set the environment variable ANT_OPTS to the recommended value of
 												</exec>
 											</then>
 											<else>
-												<exec append="true" dir="@{dir}" executable="${command.executable}" output="${command.output}">
-													<arg line="${command.arg.line}" />
+												<exec append="true" dir="@{dir}" executable="/bin/bash" output="${command.output}">
+													<arg value="-c" />
+													<arg value="${command.executable} ${command.arg.line}" />
 												</exec>
 											</else>
 										</if>
@@ -871,8 +850,9 @@ Please set the environment variable ANT_OPTS to the recommended value of
 											</exec>
 										</then>
 										<else>
-											<exec dir="@{dir}" executable="${command.executable}">
-												<arg line="${command.arg.line}" />
+											<exec dir="@{dir}" executable="/bin/bash">
+												<arg value="-c" />
+												<arg value="${command.executable} ${command.arg.line}" />
 											</exec>
 										</else>
 									</if>
@@ -913,6 +893,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 				<jvmarg value="-Dfile.encoding=UTF-8" />
 				<jvmarg value="-Dfixed.issues=${fixed.issues}" />
 				<jvmarg value="-Djava.net.preferIPv4Stack=true" />
+				<jvmarg value="-Dliferay.mode=test" />
 				<misc />
 				<jvmarg value="-Duser.timezone=GMT" />
 				<classpath location="test-coverage" />
@@ -937,8 +918,8 @@ Please set the environment variable ANT_OPTS to the recommended value of
 					/>
 				</try>
 				<catch>
-					<ant antfile="${project.dir}/portal-service/build.xml" target="compile" inheritAll="false" />
-					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
+					<ant dir="../portal-service" target="compile" inheritAll="false" />
+					<ant dir="../util-java" target="compile" inheritAll="false" />
 
 					<taskdef
 						classname="com.liferay.util.ant.ManifestHelperTask"
@@ -952,40 +933,6 @@ Please set the environment variable ANT_OPTS to the recommended value of
 				analyze="@{analyze}"
 				classpathref="project.classpath"
 				projectDirPropertyName="project.dir"
-			/>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="release-to-repo-macro">
-		<attribute name="bndRootFile" />
-		<attribute name="file" />
-
-		<sequential>
-			<trycatch>
-				<try>
-					<taskdef
-						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
-						classpathref="project.classpath"
-						name="release-to-repo"
-					/>
-				</try>
-				<catch>
-					<ant antfile="${project.dir}/portal-service/build.xml" target="compile" inheritAll="false" />
-					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
-
-					<taskdef
-						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
-						classpathref="project.classpath"
-						name="release-to-repo"
-					/>
-				</catch>
-			</trycatch>
-
-			<bndexpand propertyfile="@{bndRootFile}" />
-
-			<release-to-repo
-				bndRootFile="@{bndRootFile}"
-				file="@{file}"
 			/>
 		</sequential>
 	</macrodef>
@@ -1139,7 +1086,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 
 		<sequential>
 			<ivy:resolve log="download-only">
-				<dependency name="arquillian-junit-container" org="org.jboss.arquillian.junit" rev="1.1.2.Final" />
+				<dependency name="arquillian-junit-container" org="org.jboss.arquillian.junit" rev="1.1.6.Final" />
 				<dependency name="com.liferay.arquillian.extension" org="com.liferay" rev="1.0.0-SNAPSHOT" />
 				<exclude org="junit" />
 			</ivy:resolve>
@@ -1296,13 +1243,22 @@ rerun your task.
 			<if>
 				<available file="test/${current.test.dir}" type="dir" />
 				<then>
+					<if>
+						<equals arg1="@{test.type}" arg2="integration" />
+						<then>
+							<delete dir="${liferay.home}/data" />
+							<delete dir="${liferay.home}/osgi/state" />
+						</then>
+					</if>
+
 					<junit-cmd
 						forkmode="@{junit.forkmode}"
 						test.type="@{test.type}"
 					>
 						<misc>
 							<jvmarg value="-Dliferay.lib.portal.dir=${project.dir}/lib/portal" />
-							<jvmarg value="-Dliferay.mode=test" />
+							<jvmarg value="-Dtest.class.group.index=${test.class.group.index}" />
+							<jvmarg value="-Dtest.class.groups=${TEST_CLASS_GROUPS}" />
 						</misc>
 						<test.classes>
 							<batchtest todir="test-results/@{test.type}">
@@ -1312,9 +1268,9 @@ rerun your task.
 									<exclude name="**/DLAppServiceSoapTest.class" />
 									<exclude name="**/UserServiceHttpTest.class" />
 									<exclude name="**/UserServiceSoapTest.class" />
+									<exclude name="**/pacl/test/*Test.class" />
 									<exclude name="${test.excludes}" />
 									<filename regex="${junit.test.excludes}" negate="true" />
-									<filename regex=".*/pacl/test/[\w]+Test.class" negate="true" />
 								</fileset>
 							</batchtest>
 						</test.classes>
@@ -1380,6 +1336,18 @@ rerun your task.
 
 	<target name="print-properties">
 		<echoproperties />
+	</target>
+
+	<target name="run-cpd">
+		<ant antfile="build-common.xml" dir="${project.dir}/tools/sdk" inheritRefs="true" target="run-cpd">
+			<property name="cpd.basedir" value="${basedir}" />
+		</ant>
+	</target>
+
+	<target name="run-pmd">
+		<ant antfile="build-common.xml" dir="${project.dir}/tools/sdk" inheritRefs="true" target="run-pmd">
+			<property name="pmd.basedir" value="${basedir}" />
+		</ant>
 	</target>
 
 	<target name="setproxy" if="setproxy.proxy.host">
@@ -1522,16 +1490,6 @@ rerun your task.
 		<propertycopy from="TEST_CLASS_GROUP_${test.class.group.index}" name="test.classes" />
 
 		<test-cmd
-			junit.forkmode="once"
-			test.includes="${test.classes}"
-			test.type="integration"
-		/>
-
-		<report-test-coverage
-			test.type="integration"
-		/>
-
-		<test-cmd
 			junit.forkmode="perTest"
 			test.includes="${test.classes}"
 			test.type="unit"
@@ -1539,6 +1497,16 @@ rerun your task.
 
 		<report-test-coverage
 			test.type="unit"
+		/>
+
+		<test-cmd
+			junit.forkmode="once"
+			test.includes="${test.classes}"
+			test.type="integration"
+		/>
+
+		<report-test-coverage
+			test.type="integration"
 		/>
 	</target>
 

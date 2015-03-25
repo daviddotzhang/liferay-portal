@@ -31,13 +31,13 @@ public class CheckInCheckOutHandler extends BaseJSONHandler {
 	}
 
 	@Override
-	protected void processResponse(String response) throws Exception {
+	public void processResponse(String response) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		SyncFile remoteSyncFile = objectMapper.readValue(
 			response, new TypeReference<SyncFile>() {});
 
-		SyncFile localSyncFile = (SyncFile)getParameterValue("syncFile");
+		SyncFile localSyncFile = getLocalSyncFile();
 
 		localSyncFile.setLockExpirationDate(
 			remoteSyncFile.getLockExpirationDate());

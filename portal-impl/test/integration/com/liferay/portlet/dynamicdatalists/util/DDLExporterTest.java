@@ -18,25 +18,29 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.test.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
-import com.liferay.portal.test.LiferayIntegrationTestRule;
-import com.liferay.portal.test.MainServletTestRule;
-import com.liferay.portal.test.Sync;
-import com.liferay.portal.test.SynchronousDestinationTestRule;
-import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.test.LayoutTestUtil;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
 import com.liferay.portlet.dynamicdatalists.util.test.DDLRecordSetTestHelper;
 import com.liferay.portlet.dynamicdatalists.util.test.DDLRecordTestHelper;
-import com.liferay.portlet.dynamicdatalists.util.test.DDLRecordTestUtil;
 import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
@@ -46,6 +50,8 @@ import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
 import com.liferay.portlet.dynamicdatamapping.model.Value;
 import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 import com.liferay.portlet.dynamicdatamapping.storage.StorageType;
+import com.liferay.portlet.dynamicdatamapping.util.test.DDMFormTestUtil;
+import com.liferay.portlet.dynamicdatamapping.util.test.DDMFormValuesTestUtil;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestHelper;
 
 import java.io.File;
@@ -77,7 +83,7 @@ public class DDLExporterTest {
 
 	@Before
 	public void setUp() throws Exception {
-		_availableLocales = DDLRecordTestUtil.createAvailableLocales(Locale.US);
+		_availableLocales = DDMFormTestUtil.createAvailableLocales(Locale.US);
 		_defaultLocale = Locale.US;
 		_group = GroupTestUtil.addGroup();
 
@@ -93,12 +99,12 @@ public class DDLExporterTest {
 
 	@Test
 	public void testCSVExport() throws Exception {
-		DDMForm ddmForm = DDLRecordTestUtil.createDDMForm(
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm(
 			_availableLocales, _defaultLocale);
 
 		createDDMFormFields(ddmForm);
 
-		DDMFormValues ddmFormValues = DDLRecordTestUtil.createDDMFormValues(
+		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
 			ddmForm, _availableLocales, _defaultLocale);
 
 		createDDMFormFieldValues(ddmFormValues);
@@ -127,12 +133,12 @@ public class DDLExporterTest {
 
 	@Test
 	public void testXMLExport() throws Exception {
-		DDMForm ddmForm = DDLRecordTestUtil.createDDMForm(
+		DDMForm ddmForm = DDMFormTestUtil.createDDMForm(
 			_availableLocales, _defaultLocale);
 
 		createDDMFormFields(ddmForm);
 
-		DDMFormValues ddmFormValues = DDLRecordTestUtil.createDDMFormValues(
+		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
 			ddmForm, _availableLocales, _defaultLocale);
 
 		createDDMFormFieldValues(ddmFormValues);
@@ -177,7 +183,7 @@ public class DDLExporterTest {
 	protected DDMFormField createDDMFormField(
 		String name, String type, String dataType) {
 
-		DDMFormField ddmFormField = DDLRecordTestUtil.createDDMFormField(
+		DDMFormField ddmFormField = DDMFormTestUtil.createDDMFormField(
 			name, name, type, dataType, true, false, false);
 
 		if (type.equals("radio") || type.equals("select")) {
@@ -213,15 +219,21 @@ public class DDLExporterTest {
 			Value fieldValue = createDDMFormFieldValue(_fieldValues.get(type));
 
 			ddmFormValues.addDDMFormFieldValue(
-				DDLRecordTestUtil.createDDMFormFieldValue(
+				DDMFormValuesTestUtil.createDDMFormFieldValue(
 					fieldName, fieldValue));
 		}
 	}
 
 	protected String createDocumentLibraryDDMFormFieldValue() throws Exception {
-		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
-			_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			"file.txt");
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		FileEntry fileEntry = DLAppLocalServiceUtil.addFileEntry(
+			TestPropsValues.getUserId(), _group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, "file.txt",
+			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomBytes(),
+			serviceContext);
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -286,7 +298,7 @@ public class DDLExporterTest {
 	}
 
 	protected Map<DDMFormFieldType, String> setUpDDMFormFieldDataTypes() {
-		_ddmFormFieldDataTypes = new HashMap<DDMFormFieldType, String>();
+		_ddmFormFieldDataTypes = new HashMap<>();
 
 		_ddmFormFieldDataTypes.put(DDMFormFieldType.CHECKBOX, "boolean");
 		_ddmFormFieldDataTypes.put(DDMFormFieldType.DATE, "date");
@@ -310,7 +322,7 @@ public class DDLExporterTest {
 	protected Map<DDMFormFieldType, String> setUpDDMFormFieldValues()
 		throws Exception {
 
-		_fieldValues = new HashMap<DDMFormFieldType, String>();
+		_fieldValues = new HashMap<>();
 
 		_fieldValues.put(DDMFormFieldType.CHECKBOX, "false");
 		_fieldValues.put(DDMFormFieldType.DATE, "1/1/70");
@@ -326,7 +338,7 @@ public class DDLExporterTest {
 		_fieldValues.put(DDMFormFieldType.NUMBER, "3");
 		_fieldValues.put(DDMFormFieldType.RADIO, createListDDMFormFieldValue());
 		_fieldValues.put(
-			DDMFormFieldType.SELECT,  createListDDMFormFieldValue());
+			DDMFormFieldType.SELECT, createListDDMFormFieldValue());
 		_fieldValues.put(DDMFormFieldType.TEXT, "Text content");
 		_fieldValues.put(DDMFormFieldType.TEXT_AREA, "Text Area content");
 		_fieldValues.put(DDMFormFieldType.TEXT_HTML, "Text HTML content");

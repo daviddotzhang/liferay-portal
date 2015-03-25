@@ -43,9 +43,8 @@ import javax.portlet.PortletURL;
  */
 public class ArticleSearch extends SearchContainer<JournalArticle> {
 
-	public static List<String> headerNames = new ArrayList<String>();
-	public static Map<String, String> orderableHeaders =
-		new HashMap<String, String>();
+	public static List<String> headerNames = new ArrayList<>();
+	public static Map<String, String> orderableHeaders = new HashMap<>();
 
 	static {
 		headerNames.add("id");
@@ -71,8 +70,8 @@ public class ArticleSearch extends SearchContainer<JournalArticle> {
 
 		super(
 			portletRequest, new ArticleDisplayTerms(portletRequest),
-			new ArticleSearchTerms(portletRequest), DEFAULT_CUR_PARAM, cur,
-			delta, iteratorURL, headerNames, null);
+			new ArticleSearchTerms(portletRequest), "curEntry", cur, delta,
+			iteratorURL, headerNames, null);
 
 		PortletConfig portletConfig =
 			(PortletConfig)portletRequest.getAttribute(

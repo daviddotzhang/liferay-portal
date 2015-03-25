@@ -40,6 +40,7 @@ import com.liferay.portal.service.UserLocalService;
 import com.liferay.portal.service.persistence.RepositoryEntryUtil;
 import com.liferay.portlet.asset.service.AssetEntryLocalService;
 import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalService;
+import com.liferay.portlet.documentlibrary.service.DLFolderLocalService;
 import com.liferay.portlet.documentlibrary.util.DL;
 
 import java.io.File;
@@ -129,6 +130,7 @@ public abstract class BaseRepositoryImpl
 			serviceContext);
 	}
 
+	@Override
 	public abstract Folder addFolder(
 			long userId, long parentFolderId, String name, String description,
 			ServiceContext serviceContext)
@@ -196,10 +198,12 @@ public abstract class BaseRepositoryImpl
 			fileEntryId, lockUuid, serviceContext);
 	}
 
+	@Override
 	public abstract FileEntry checkOutFileEntry(
 			long fileEntryId, ServiceContext serviceContext)
 		throws PortalException;
 
+	@Override
 	public abstract FileEntry checkOutFileEntry(
 			long fileEntryId, String owner, long expirationTime,
 			ServiceContext serviceContext)
@@ -360,25 +364,21 @@ public abstract class BaseRepositoryImpl
 		return _localRepository;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getRepositoryEntry(String)}
+	 */
+	@Deprecated
 	public Object[] getRepositoryEntryIds(String objectId)
 		throws PortalException {
 
-		boolean newRepositoryEntry = false;
-
-		RepositoryEntry repositoryEntry = RepositoryEntryUtil.fetchByR_M(
-			getRepositoryId(), objectId);
-
-		if (repositoryEntry == null) {
-			repositoryEntry = repositoryEntryLocalService.addRepositoryEntry(
+		RepositoryEntry repositoryEntry =
+			repositoryEntryLocalService.getRepositoryEntry(
 				PrincipalThreadLocal.getUserId(), getGroupId(),
-				getRepositoryId(), objectId, new ServiceContext());
-
-			newRepositoryEntry = true;
-		}
+				getRepositoryId(), objectId);
 
 		return new Object[] {
 			repositoryEntry.getRepositoryEntryId(), repositoryEntry.getUuid(),
-			newRepositoryEntry
+			false
 		};
 	}
 
@@ -550,6 +550,13 @@ public abstract class BaseRepositoryImpl
 	}
 
 	@Override
+	public void setDLFolderLocalService(
+		DLFolderLocalService dlFolderLocalService) {
+
+		this.dlFolderLocalService = dlFolderLocalService;
+	}
+
+	@Override
 	public void setGroupId(long groupId) {
 		_groupId = groupId;
 	}
@@ -699,6 +706,14 @@ public abstract class BaseRepositoryImpl
 		RepositoryEntryUtil.update(repositoryEntry);
 	}
 
+	protected RepositoryEntry getRepositoryEntry(String objectId)
+		throws PortalException {
+
+		return repositoryEntryLocalService.getRepositoryEntry(
+			PrincipalThreadLocal.getUserId(), getGroupId(), getRepositoryId(),
+			objectId);
+	}
+
 	protected void setManualCheckInRequired(
 			long fileEntryId, ServiceContext serviceContext)
 		throws NoSuchRepositoryEntryException {
@@ -721,6 +736,7 @@ public abstract class BaseRepositoryImpl
 	protected AssetEntryLocalService assetEntryLocalService;
 	protected CompanyLocalService companyLocalService;
 	protected DLAppHelperLocalService dlAppHelperLocalService;
+	protected DLFolderLocalService dlFolderLocalService;
 	protected RepositoryEntryLocalService repositoryEntryLocalService;
 	protected UserLocalService userLocalService;
 

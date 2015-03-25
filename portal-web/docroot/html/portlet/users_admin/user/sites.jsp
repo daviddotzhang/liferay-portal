@@ -169,7 +169,7 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 
 				AArray.removeItem(addGroupIds, event.rowId);
 
-				<portlet:namespace />deleteGroupIds.push(rowId);
+				deleteGroupIds.push(rowId);
 
 				document.<portlet:namespace />fm.<portlet:namespace />addGroupIds.value = addGroupIds.join(',');
 				document.<portlet:namespace />fm.<portlet:namespace />deleteGroupIds.value = deleteGroupIds.join(',');
@@ -200,7 +200,7 @@ currentURLObj.setParameter("historyKey", renderResponse.getNamespace() + "sites"
 
 				Liferay.detach('destroyPortlet', onDestroyPortlet);
 			}
-		}
+		};
 
 		Liferay.on('destroyPortlet', onDestroyPortlet);
 	</aui:script>

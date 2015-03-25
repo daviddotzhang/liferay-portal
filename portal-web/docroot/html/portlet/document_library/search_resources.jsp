@@ -89,7 +89,7 @@ SearchContainer searchContainer = new SearchContainer(liferayPortletRequest, por
 						<portlet:param name="searchRepositoryId" value="<%= !searchEverywhere ? String.valueOf(scopeGroupId) : String.valueOf(repositoryId) %>" />
 						<portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" />
 						<portlet:param name="searchFolderId" value="<%= !searchEverywhere ? String.valueOf(DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) : String.valueOf(folderId) %>" />
-						<portlet:param name="keywords" value="<%= String.valueOf(keywords) %>" />
+						<portlet:param name="keywords" value="<%= keywords %>" />
 						<portlet:param name="showRepositoryTabs" value="<% (searchEverywhere) ? Boolean.TRUE.toString() : Boolean.FALSE.toString() %>" />
 						<portlet:param name="showSearchInfo" value="<%= Boolean.TRUE.toString() %>" />
 					</portlet:renderURL>
@@ -153,9 +153,7 @@ SearchContainer searchContainer = new SearchContainer(liferayPortletRequest, por
 
 				searchContainer.setTotal(hits.getLength());
 
-				PortletURL hitURL = liferayPortletResponse.createRenderURL();
-
-				List<SearchResult> searchResultsList = SearchResultUtil.getSearchResults(hits, locale, hitURL);
+				List<SearchResult> searchResultsList = SearchResultUtil.getSearchResults(hits, locale);
 
 				for (int i = 0; i < searchResultsList.size(); i++) {
 					SearchResult searchResult = searchResultsList.get(i);
@@ -223,7 +221,7 @@ SearchContainer searchContainer = new SearchContainer(liferayPortletRequest, por
 
 							String folderImage = "folder_empty_document";
 
-							if (DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(curFolder.getRepositoryId(), curFolder.getFolderId(), status, true) > 0) {
+							if (PropsValues.DL_FOLDER_ICON_CHECK_COUNT && (DLAppServiceUtil.getFoldersAndFileEntriesAndFileShortcutsCount(curFolder.getRepositoryId(), curFolder.getFolderId(), status, true) > 0)) {
 								folderImage = "folder_full_document";
 							}
 
@@ -291,7 +289,7 @@ SearchContainer searchContainer = new SearchContainer(liferayPortletRequest, por
 		searchRepositoryURL.setParameter("struts_action", "/document_library/search");
 		searchRepositoryURL.setParameter("repositoryId", String.valueOf(scopeGroupId));
 		searchRepositoryURL.setParameter("searchRepositoryId", String.valueOf(scopeGroupId));
-		searchRepositoryURL.setParameter("keywords", String.valueOf(keywords));
+		searchRepositoryURL.setParameter("keywords", keywords);
 		searchRepositoryURL.setParameter("showRepositoryTabs", Boolean.TRUE.toString());
 		searchRepositoryURL.setParameter("showSearchInfo", Boolean.TRUE.toString());
 

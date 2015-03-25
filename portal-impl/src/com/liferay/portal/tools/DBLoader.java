@@ -80,7 +80,7 @@ public class DBLoader {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Map<String, String> arguments = ArgumentsUtil.parseArguments(args);
 
 		String databaseName = arguments.get("db.database.name");
@@ -88,28 +88,29 @@ public class DBLoader {
 		String sqlDir = arguments.get("db.sql.dir");
 		String fileName = arguments.get("db.file.name");
 
-		new DBLoader(databaseName, databaseType, sqlDir, fileName);
+		try {
+			new DBLoader(databaseName, databaseType, sqlDir, fileName);
+		}
+		catch (Exception e) {
+			ArgumentsUtil.processMainException(arguments, e);
+		}
 	}
 
 	public DBLoader(
-		String databaseName, String databaseType, String sqlDir,
-		String fileName) {
+			String databaseName, String databaseType, String sqlDir,
+			String fileName)
+		throws Exception {
 
-		try {
-			_databaseName = databaseName;
-			_databaseType = databaseType;
-			_sqlDir = sqlDir;
-			_fileName = fileName;
+		_databaseName = databaseName;
+		_databaseType = databaseType;
+		_sqlDir = sqlDir;
+		_fileName = fileName;
 
-			if (_databaseType.equals("derby")) {
-				_loadDerby();
-			}
-			else if (_databaseType.equals("hypersonic")) {
-				_loadHypersonic();
-			}
+		if (_databaseType.equals("derby")) {
+			_loadDerby();
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		else if (_databaseType.equals("hypersonic")) {
+			_loadHypersonic();
 		}
 	}
 
@@ -236,11 +237,11 @@ public class DBLoader {
 		_fileUtil.write(_sqlDir + "/" + _databaseName + ".script", content);
 	}
 
-	private static FileImpl _fileUtil = FileImpl.getInstance();
+	private static final FileImpl _fileUtil = FileImpl.getInstance();
 
-	private String _databaseName;
-	private String _databaseType;
-	private String _fileName;
-	private String _sqlDir;
+	private final String _databaseName;
+	private final String _databaseType;
+	private final String _fileName;
+	private final String _sqlDir;
 
 }

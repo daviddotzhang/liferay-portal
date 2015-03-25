@@ -33,6 +33,10 @@ public class InputEditorTag extends IncludeTag {
 		_allowBrowseDocuments = allowBrowseDocuments;
 	}
 
+	public void setAutoCreate(boolean autoCreate) {
+		_autoCreate = autoCreate;
+	}
+
 	public void setConfigParams(Map<String, String> configParams) {
 		_configParams = configParams;
 	}
@@ -109,6 +113,10 @@ public class InputEditorTag extends IncludeTag {
 		_resizable = resizable;
 	}
 
+	public void setShowSource(boolean showSource) {
+		_showSource = showSource;
+	}
+
 	public void setSkipEditorLoading(boolean skipEditorLoading) {
 		_skipEditorLoading = skipEditorLoading;
 	}
@@ -124,6 +132,7 @@ public class InputEditorTag extends IncludeTag {
 	@Override
 	protected void cleanUp() {
 		_allowBrowseDocuments = true;
+		_autoCreate = true;
 		_configParams = null;
 		_contents = null;
 		_contentsLanguageId = null;
@@ -143,6 +152,7 @@ public class InputEditorTag extends IncludeTag {
 		_page = null;
 		_placeholder = null;
 		_resizable = true;
+		_showSource = true;
 		_skipEditorLoading = false;
 		_toolbarSet = "liferay";
 		_width = null;
@@ -178,6 +188,8 @@ public class InputEditorTag extends IncludeTag {
 			"liferay-ui:input-editor:allowBrowseDocuments",
 			String.valueOf(_allowBrowseDocuments));
 		request.setAttribute(
+			"liferay-ui:input-editor:autoCreate", String.valueOf(_autoCreate));
+		request.setAttribute(
 			"liferay-ui:input-editor:configParams", _configParams);
 		request.setAttribute("liferay-ui:input-editor:contents", _contents);
 		request.setAttribute(
@@ -208,6 +220,8 @@ public class InputEditorTag extends IncludeTag {
 		request.setAttribute(
 			"liferay-ui:input-editor:resizable", String.valueOf(_resizable));
 		request.setAttribute(
+			"liferay-ui:input-editor:showSource", String.valueOf(_showSource));
+		request.setAttribute(
 			"liferay-ui:input-editor:skipEditorLoading",
 			String.valueOf(_skipEditorLoading));
 		request.setAttribute("liferay-ui:input-editor:toolbarSet", _toolbarSet);
@@ -215,6 +229,7 @@ public class InputEditorTag extends IncludeTag {
 	}
 
 	private boolean _allowBrowseDocuments = true;
+	private boolean _autoCreate = true;
 	private Map<String, String> _configParams;
 	private String _contents;
 	private String _contentsLanguageId;
@@ -234,6 +249,7 @@ public class InputEditorTag extends IncludeTag {
 	private String _page;
 	private String _placeholder;
 	private boolean _resizable = true;
+	private boolean _showSource = true;
 	private boolean _skipEditorLoading;
 	private String _toolbarSet = "liferay";
 	private String _width;

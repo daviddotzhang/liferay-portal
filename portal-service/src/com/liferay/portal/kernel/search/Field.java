@@ -63,6 +63,8 @@ public class Field implements Serializable {
 
 	public static final String ASSET_VOCABULARY_IDS = "assetVocabularyIds";
 
+	public static final String CAPTION = "caption";
+
 	public static final String CATEGORY_ID = "categoryId";
 
 	public static final String CLASS_NAME_ID = "classNameId";
@@ -123,6 +125,10 @@ public class Field implements Serializable {
 
 	public static final String ORGANIZATION_ID = "organizationId";
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #ENTRY_CLASS_NAME}
+	 */
+	@Deprecated
 	public static final String PORTLET_ID = "portletId";
 
 	public static final String PRIORITY = "priority";
@@ -168,8 +174,7 @@ public class Field implements Serializable {
 	public static final String[] UNSCORED_FIELD_NAMES = {
 		Field.ASSET_CATEGORY_IDS, Field.COMPANY_ID, Field.ENTRY_CLASS_NAME,
 		Field.ENTRY_CLASS_PK, Field.FOLDER_ID, Field.GROUP_ID,
-		Field.GROUP_ROLE_ID, Field.PORTLET_ID, Field.ROLE_ID,
-		Field.SCOPE_GROUP_ID, Field.USER_ID
+		Field.GROUP_ROLE_ID, Field.ROLE_ID, Field.SCOPE_GROUP_ID, Field.USER_ID
 	};
 
 	public static final String URL = "url";
@@ -418,12 +423,12 @@ public class Field implements Serializable {
 		}
 
 		private final LinkedList<Field> _nestedFieldsBuilderFields =
-			new LinkedList<Field>();
+			new LinkedList<>();
 
 	}
 
 	private float _boost = 1;
-	private final List<Field> _fields = new ArrayList<Field>();
+	private final List<Field> _fields = new ArrayList<>();
 	private Map<Locale, String> _localizedValues;
 	private String _name;
 	private boolean _numeric;

@@ -28,8 +28,10 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -39,20 +41,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.output.CountingOutputStream;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.routing.HttpRoutePlanner;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -64,8 +69,11 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +83,45 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Ju
  */
 public class Session {
+
+	public static HttpClient getAnonymousHttpClient() {
+		if (_anonymousHttpClient != null) {
+			return _anonymousHttpClient;
+		}
+
+		HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+
+		RequestConfig.Builder builder = RequestConfig.custom();
+
+		builder.setConnectTimeout(PropsValues.SYNC_HTTP_CONNECTION_TIMEOUT);
+
+		httpClientBuilder.setDefaultRequestConfig(builder.build());
+		httpClientBuilder.setMaxConnPerRoute(1000);
+		httpClientBuilder.setMaxConnTotal(1000);
+		httpClientBuilder.setRoutePlanner(getHttpRoutePlanner());
+
+		_anonymousHttpClient = httpClientBuilder.build();
+
+		return _anonymousHttpClient;
+	}
+
+	public static HttpRoutePlanner getHttpRoutePlanner() {
+		if (_httpRoutePlanner != null) {
+			return _httpRoutePlanner;
+		}
+
+		ProxySearch proxySearch = ProxySearch.getDefaultProxySearch();
+
+		ProxySelector proxySelector = proxySearch.getProxySelector();
+
+		if (proxySelector == null) {
+			proxySelector = ProxySelector.getDefault();
+		}
+
+		_httpRoutePlanner = new SystemDefaultRoutePlanner(proxySelector);
+
+		return _httpRoutePlanner;
+	}
 
 	public Session(
 		URL url, String login, String password, boolean trustSelfSigned,
@@ -89,8 +136,11 @@ public class Session {
 		CredentialsProvider credentialsProvider =
 			new BasicCredentialsProvider();
 
+		_httpHost = new HttpHost(
+			url.getHost(), url.getPort(), url.getProtocol());
+
 		credentialsProvider.setCredentials(
-			new AuthScope(url.getHost(), url.getPort()),
+			new AuthScope(_httpHost),
 			new UsernamePasswordCredentials(login, password));
 
 		httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
@@ -99,28 +149,17 @@ public class Session {
 
 		builder.setConnectTimeout(PropsValues.SYNC_HTTP_CONNECTION_TIMEOUT);
 		builder.setSocketTimeout(PropsValues.SYNC_HTTP_SOCKET_TIMEOUT);
-		builder.setStaleConnectionCheckEnabled(false);
 
 		httpClientBuilder.setDefaultRequestConfig(builder.build());
 
 		httpClientBuilder.setMaxConnPerRoute(maxConnections);
 		httpClientBuilder.setMaxConnTotal(maxConnections);
-		httpClientBuilder.setRoutePlanner(_getHttpRoutePlanner());
+		httpClientBuilder.setRoutePlanner(getHttpRoutePlanner());
 
 		if (trustSelfSigned) {
 			try {
-				SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
-
-				sslContextBuilder.loadTrustMaterial(
-					null, new TrustSelfSignedStrategy());
-
-				SSLConnectionSocketFactory sslConnectionSocketFactory =
-					new SSLConnectionSocketFactory(
-						sslContextBuilder.build(),
-						SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-
 				httpClientBuilder.setSSLSocketFactory(
-					sslConnectionSocketFactory);
+					_getTrustingSSLSocketFactory());
 			}
 			catch (Exception e) {
 				_logger.error(e.getMessage(), e);
@@ -129,8 +168,6 @@ public class Session {
 
 		_httpClient = httpClientBuilder.build();
 
-		_httpHost = new HttpHost(
-			url.getHost(), url.getPort(), url.getProtocol());
 		_token = null;
 
 		Runnable runnable = new Runnable() {
@@ -150,6 +187,73 @@ public class Session {
 
 		_scheduledExecutorService.scheduleAtFixedRate(
 			runnable, 0, 1000, TimeUnit.MILLISECONDS);
+	}
+
+	public void asynchronousExecute(
+			final HttpGet httpGet, final Handler<Void> handler)
+		throws Exception {
+
+		Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					execute(httpGet, handler);
+				}
+				catch (Exception e) {
+					handler.handleException(e);
+				}
+			}
+
+		};
+
+		_executorService.execute(runnable);
+	}
+
+	public void asynchronousExecute(
+			final HttpPost httpPost, final Map<String, Object> parameters,
+			final Handler<Void> handler)
+		throws Exception {
+
+		Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					execute(httpPost, parameters, handler);
+				}
+				catch (Exception e) {
+					handler.handleException(e);
+				}
+			}
+
+		};
+
+		_executorService.execute(runnable);
+	}
+
+	public HttpResponse execute(
+			HttpPost httpPost, Map<String, Object> parameters)
+		throws Exception {
+
+		httpPost.setHeader("Sync-JWT", _token);
+
+		_buildHttpPostBody(httpPost, parameters);
+
+		return _httpClient.execute(_httpHost, httpPost, getBasicHttpContext());
+	}
+
+	public <T> T execute(
+			HttpPost httpPost, Map<String, Object> parameters,
+			Handler<? extends T> handler)
+		throws Exception {
+
+		httpPost.setHeader("Sync-JWT", _token);
+
+		_buildHttpPostBody(httpPost, parameters);
+
+		return _httpClient.execute(
+			_httpHost, httpPost, handler, getBasicHttpContext());
 	}
 
 	public HttpResponse execute(HttpRequest httpRequest) throws Exception {
@@ -180,96 +284,6 @@ public class Session {
 		httpRequest.setHeader("Sync-JWT", _token);
 
 		return _httpClient.execute(_httpHost, httpRequest, httpContext);
-	}
-
-	public void executeAsynchronousGet(
-			final String urlPath, final Handler<Void> handler)
-		throws Exception {
-
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					executeGet(urlPath, handler);
-				}
-				catch (Exception e) {
-					handler.handleException(e);
-				}
-			}
-
-		};
-
-		_executorService.execute(runnable);
-	}
-
-	public void executeAsynchronousPost(
-			final String urlPath, final Map<String, Object> parameters,
-			final Handler<Void> handler)
-		throws Exception {
-
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					executePost(urlPath, parameters, handler);
-				}
-				catch (Exception e) {
-					handler.handleException(e);
-				}
-			}
-
-		};
-
-		_executorService.execute(runnable);
-	}
-
-	public HttpResponse executeGet(String urlPath) throws Exception {
-		HttpGet httpGet = new HttpGet(urlPath);
-
-		httpGet.setHeader("Sync-JWT", _token);
-
-		return _httpClient.execute(_httpHost, httpGet, getBasicHttpContext());
-	}
-
-	public <T> T executeGet(String urlPath, Handler<? extends T> handler)
-		throws Exception {
-
-		HttpGet httpGet = new HttpGet(urlPath);
-
-		httpGet.setHeader("Sync-JWT", _token);
-
-		return _httpClient.execute(
-			_httpHost, httpGet, handler, getBasicHttpContext());
-	}
-
-	public HttpResponse executePost(
-			String urlPath, Map<String, Object> parameters)
-		throws Exception {
-
-		HttpPost httpPost = new HttpPost(urlPath);
-
-		httpPost.setHeader("Sync-JWT", _token);
-
-		_buildHttpPostBody(httpPost, parameters);
-
-		return _httpClient.execute(_httpHost, httpPost, getBasicHttpContext());
-	}
-
-	public <T> T executePost(
-			String urlPath, Map<String, Object> parameters,
-			Handler<? extends T> handler)
-		throws Exception {
-
-		HttpPost httpPost = new HttpPost(urlPath);
-
-		httpPost.setHeader("Sync-JWT", _token);
-
-		_buildHttpPostBody(httpPost, parameters);
-
-		return _httpClient.execute(
-			_httpHost, httpPost, handler, getBasicHttpContext());
 	}
 
 	public BasicHttpContext getBasicHttpContext() {
@@ -313,8 +327,28 @@ public class Session {
 			HttpPost httpPost, Map<String, Object> parameters)
 		throws Exception {
 
+		HttpEntity httpEntity = _getEntity(parameters);
+
+		httpPost.setEntity(httpEntity);
+	}
+
+	private BasicAuthCache _getBasicAuthCache() {
+		BasicAuthCache basicAuthCache = new BasicAuthCache();
+
+		BasicScheme basicScheme = new BasicScheme();
+
+		basicAuthCache.put(_httpHost, basicScheme);
+
+		return basicAuthCache;
+	}
+
+	private HttpEntity _getEntity(Map<String, Object> parameters)
+		throws Exception {
+
 		Path deltaFilePath = (Path)parameters.get("deltaFilePath");
 		Path filePath = (Path)parameters.get("filePath");
+		String zipFileIds = (String)parameters.get("zipFileIds");
+		Path zipFilePath = (Path)parameters.get("zipFilePath");
 
 		MultipartEntityBuilder multipartEntityBuilder =
 			_getMultipartEntityBuilder(parameters);
@@ -333,18 +367,18 @@ public class Session {
 					filePath, (String)parameters.get("mimeType"),
 					(String)parameters.get("title")));
 		}
+		else if (zipFileIds != null) {
+			return _getURLEncodedFormEntity(parameters);
+		}
+		else if (zipFilePath != null) {
+			multipartEntityBuilder.addPart(
+				"zipFile",
+				_getFileBody(
+					zipFilePath, "application/zip",
+					String.valueOf(zipFilePath.getFileName())));
+		}
 
-		httpPost.setEntity(multipartEntityBuilder.build());
-	}
-
-	private BasicAuthCache _getBasicAuthCache() {
-		BasicAuthCache basicAuthCache = new BasicAuthCache();
-
-		BasicScheme basicScheme = new BasicScheme();
-
-		basicAuthCache.put(_httpHost, basicScheme);
-
-		return basicAuthCache;
+		return multipartEntityBuilder.build();
 	}
 
 	private ContentBody _getFileBody(
@@ -373,24 +407,6 @@ public class Session {
 		};
 	}
 
-	private HttpRoutePlanner _getHttpRoutePlanner() {
-		if (_httpRoutePlanner != null) {
-			return _httpRoutePlanner;
-		}
-
-		ProxySearch proxySearch = ProxySearch.getDefaultProxySearch();
-
-		ProxySelector proxySelector = proxySearch.getProxySelector();
-
-		if (proxySelector == null) {
-			proxySelector = ProxySelector.getDefault();
-		}
-
-		_httpRoutePlanner = new SystemDefaultRoutePlanner(proxySelector);
-
-		return _httpRoutePlanner;
-	}
-
 	private MultipartEntityBuilder _getMultipartEntityBuilder(
 		Map<String, Object> parameters) {
 
@@ -417,9 +433,37 @@ public class Session {
 				Charset.forName("UTF-8")));
 	}
 
+	private SSLConnectionSocketFactory _getTrustingSSLSocketFactory()
+		throws Exception {
+
+		SSLContextBuilder sslContextBuilder = SSLContexts.custom();
+
+		sslContextBuilder.loadTrustMaterial(
+			null, new TrustSelfSignedStrategy());
+
+		return new SSLConnectionSocketFactory(
+			sslContextBuilder.build(), new NoopHostnameVerifier());
+	}
+
+	private HttpEntity _getURLEncodedFormEntity(Map<String, Object> parameters)
+		throws Exception {
+
+		List<NameValuePair> nameValuePairs = new ArrayList<>();
+
+		for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+			NameValuePair nameValuePair = new BasicNameValuePair(
+				entry.getKey(), String.valueOf(entry.getValue()));
+
+			nameValuePairs.add(nameValuePair);
+		}
+
+		return new UrlEncodedFormEntity(nameValuePairs);
+	}
+
 	private static final Logger _logger = LoggerFactory.getLogger(
 		Session.class);
 
+	private static HttpClient _anonymousHttpClient;
 	private static HttpRoutePlanner _httpRoutePlanner;
 	private static final ScheduledExecutorService _scheduledExecutorService =
 		Executors.newSingleThreadScheduledExecutor();
@@ -430,7 +474,7 @@ public class Session {
 	private final ExecutorService _executorService;
 	private final HttpClient _httpClient;
 	private final HttpHost _httpHost;
-	private final Set<String> _ignoredParameterKeys = new HashSet<String>(
+	private final Set<String> _ignoredParameterKeys = new HashSet<>(
 		Arrays.asList("filePath", "syncFile", "syncSite", "uiEvent"));
 	private String _token;
 	private final AtomicInteger _uploadedBytes = new AtomicInteger(0);

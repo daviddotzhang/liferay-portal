@@ -17,6 +17,7 @@ package com.liferay.portlet.journal.template;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.template.TemplateVariableCodeHandler;
 import com.liferay.portal.kernel.template.TemplateVariableGroup;
+import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -58,6 +59,11 @@ public class JournalTemplateHandler extends BaseDDMTemplateHandler {
 	}
 
 	@Override
+	public String getTemplatesHelpPropertyKey() {
+		return PropsKeys.JOURNAL_TEMPLATE_LANGUAGE_CONTENT;
+	}
+
+	@Override
 	public Map<String, TemplateVariableGroup> getTemplateVariableGroups(
 			long classPK, String language, Locale locale)
 		throws Exception {
@@ -88,17 +94,6 @@ public class JournalTemplateHandler extends BaseDDMTemplateHandler {
 	@Override
 	protected TemplateVariableCodeHandler getTemplateVariableCodeHandler() {
 		return _templateVariableCodeHandler;
-	}
-
-	@Override
-	protected TemplateVariableGroup getUtilTemplateVariableGroup() {
-		TemplateVariableGroup utilTemplateVariableGroup =
-			super.getUtilTemplateVariableGroup();
-
-		utilTemplateVariableGroup.addVariable(
-			"xml-request", String.class, "xmlRequest");
-
-		return utilTemplateVariableGroup;
 	}
 
 	private final TemplateVariableCodeHandler _templateVariableCodeHandler =

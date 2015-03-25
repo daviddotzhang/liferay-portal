@@ -5,9 +5,9 @@ AUI.add(
 
 		var CHANGE_IMAGE_CONTROLS_DELAY = 5000;
 
-		var CSS_DROP_ACTIVE = 'drop-active';
-
 		var CSS_CHECK_ACTIVE = 'check-active';
+
+		var CSS_DROP_ACTIVE = 'drop-active';
 
 		var CSS_PROGRESS_ACTIVE = 'progress-active';
 
@@ -22,6 +22,10 @@ AUI.add(
 		var STR_ERROR_MESSAGE = 'errorMessage';
 
 		var STR_IMAGE_DATA = 'imageData';
+
+		var STR_IMAGE_DELETED = 'imageDeleted';
+
+		var STR_IMAGE_UPLOADED = 'imageUploaded';
 
 		var STR_SPACE = ' ';
 
@@ -131,7 +135,7 @@ AUI.add(
 						instance._eventHandles = [
 							instance._fileEntryImageNode.on('load', instance._onImageLoaded, instance),
 							instance.rootNode.delegate(STR_CLICK, instance._onBrowseClick, '.browse-image', instance),
-							instance.one('#removeImage').on(STR_CLICK, instance._updateImageData, instance),
+							instance.one('#removeImage').on(STR_CLICK, instance._onDeleteClick, instance),
 							instance.one('#cancelUpload').on(STR_CLICK, instance._cancelUpload, instance)
 						];
 					},
@@ -218,6 +222,19 @@ AUI.add(
 							},
 							instance._updateImageDataFn
 						);
+					},
+
+					_onDeleteClick: function(event) {
+						var instance = this;
+
+						Liferay.fire(
+							STR_IMAGE_DELETED,
+							{
+								imageData: null
+							}
+						);
+
+						instance._updateImageData(event);
 					},
 
 					_onFileSelect: function(event) {
@@ -309,6 +326,17 @@ AUI.add(
 								}
 							);
 						}
+
+						var fireEvent = (data.success) ? STR_IMAGE_UPLOADED : STR_IMAGE_DELETED;
+
+						var imageData = (data.success) ? data.image : null;
+
+						Liferay.fire(
+							fireEvent,
+							{
+								imageData: imageData
+							}
+						);
 					},
 
 					_onUploadProgress: function(event) {
@@ -477,7 +505,7 @@ AUI.add(
 							STR_IMAGE_DATA,
 							{
 								imageData: {
-									fileEntryId: event.fileentryid || 0,
+									fileEntryId: event.fileentryid || 0,
 									url: event.url || ''
 								}
 							}

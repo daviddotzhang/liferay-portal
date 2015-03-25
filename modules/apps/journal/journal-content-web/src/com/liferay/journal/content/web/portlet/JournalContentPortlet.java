@@ -14,7 +14,8 @@
 
 package com.liferay.journal.content.web.portlet;
 
-import com.liferay.journal.content.web.portlet.upgrade.JournalContentUpgrade;
+import com.liferay.journal.content.web.constants.JournalContentPortletKeys;
+import com.liferay.journal.content.web.upgrade.JournalContentWebUpgrade;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.PortletRequestModel;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
@@ -34,13 +35,13 @@ import com.liferay.util.log4j.Log4JUtil;
 
 import java.io.IOException;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
 import javax.portlet.Portlet;
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceRequest;
+import javax.portlet.ResourceResponse;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -48,7 +49,7 @@ import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
-*/
+ */
 @Component(
 	immediate = true,
 	property = {
@@ -64,14 +65,13 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.private-session-attributes=false",
 		"com.liferay.portlet.render-weight=50",
 		"com.liferay.portlet.scopeable=true",
-		"com.liferay.portlet.struts-path=journal_content",
 		"com.liferay.portlet.use-default-template=true",
 		"javax.portlet.display-name=Web Content Display",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.config-template=/configuration.jsp",
 		"javax.portlet.init-param.template-path=/",
 		"javax.portlet.init-param.view-template=/view.jsp",
-		"javax.portlet.name=com_liferay_journal_content_web_portlet_JournalContentPortlet",
+		"javax.portlet.name=" + JournalContentPortletKeys.JOURNAL_CONTENT,
 		"javax.portlet.resource-bundle=content.Language",
 		"javax.portlet.security-role-ref=guest,power-user,user",
 		"javax.portlet.supports.mime-type=text/html",
@@ -91,14 +91,9 @@ public class JournalContentPortlet extends MVCPortlet {
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		long articleGroupId = ParamUtil.getLong(
-			renderRequest, "articleGroupId");
-
-		if (articleGroupId <= 0) {
-			articleGroupId = GetterUtil.getLong(
-				portletPreferences.getValue(
-					"groupId", String.valueOf(themeDisplay.getScopeGroupId())));
-		}
+		long articleGroupId = PrefsParamUtil.getLong(
+			portletPreferences, renderRequest, "groupId",
+			themeDisplay.getScopeGroupId());
 
 		String articleId = PrefsParamUtil.getString(
 			portletPreferences, renderRequest, "articleId");
@@ -157,11 +152,20 @@ public class JournalContentPortlet extends MVCPortlet {
 		super.doView(renderRequest, renderResponse);
 	}
 
-	public void exportArticle(
-			ActionRequest actionRequest, ActionResponse actionResponse)
-		throws Exception {
+	@Override
+	public void serveResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws IOException, PortletException {
 
-		ExportArticleUtil.sendFile(actionRequest, actionResponse);
+		String resourceID = GetterUtil.getString(
+			resourceRequest.getResourceID());
+
+		if (resourceID.equals("exportArticle")) {
+			ExportArticleUtil.sendFile(resourceRequest, resourceResponse);
+		}
+		else {
+			super.serveResource(resourceRequest, resourceResponse);
+		}
 	}
 
 	@Activate
@@ -173,7 +177,7 @@ public class JournalContentPortlet extends MVCPortlet {
 
 	protected void initLogger(ClassLoader classLoader) {
 		Log4JUtil.configureLog4J(
-			classLoader.getResource("META-INF/portlet-log4j.xml"));
+			classLoader.getResource("META-INF/portal-log4j.xml"));
 	}
 
 	@Reference
@@ -184,8 +188,8 @@ public class JournalContentPortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
-	protected void setJournalContentUpgrade(
-		JournalContentUpgrade journalContentUpgrade) {
+	protected void setJournalContentWebUpgrade(
+		JournalContentWebUpgrade journalContentWebUpgrade) {
 	}
 
 	protected void unsetJournalContentSearchLocal(

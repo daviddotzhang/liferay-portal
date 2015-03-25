@@ -21,7 +21,7 @@ import com.j256.ormlite.field.DatabaseField;
  */
 public abstract class BaseModel {
 
-	public static final int UI_EVENT_DEFAULT = 0;
+	public static final int UI_EVENT_NONE = 0;
 
 	public int getUiEvent() {
 		return uiEvent;
@@ -31,7 +31,7 @@ public abstract class BaseModel {
 		this.uiEvent = uiEvent;
 	}
 
-	@DatabaseField(useGetSet = true)
+	@DatabaseField(index = true, useGetSet = true)
 	protected int uiEvent;
 
 }

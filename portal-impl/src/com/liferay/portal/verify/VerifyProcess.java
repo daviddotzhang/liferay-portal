@@ -96,7 +96,7 @@ public abstract class VerifyProcess extends BaseDBProcess {
 				throwableAwareRunnables)
 		throws Exception {
 
-		List<Throwable> throwables = new ArrayList<Throwable>();
+		List<Throwable> throwables = new ArrayList<>();
 
 		if (throwableAwareRunnables.size() <
 				PropsValues.VERIFY_PROCESS_CONCURRENCY_THRESHOLD) {
@@ -115,7 +115,7 @@ public abstract class VerifyProcess extends BaseDBProcess {
 			ExecutorService executorService = Executors.newFixedThreadPool(
 				throwableAwareRunnables.size());
 
-			List<Callable<Object>> jobs = new ArrayList<Callable<Object>>(
+			List<Callable<Object>> jobs = new ArrayList<>(
 				throwableAwareRunnables.size());
 
 			for (Runnable runnable : throwableAwareRunnables) {
@@ -189,7 +189,7 @@ public abstract class VerifyProcess extends BaseDBProcess {
 
 		Matcher matcher = _createTablePattern.matcher(sql);
 
-		Set<String> tableNames = new HashSet<String>();
+		Set<String> tableNames = new HashSet<>();
 
 		while (matcher.find()) {
 			String match = matcher.group(1);

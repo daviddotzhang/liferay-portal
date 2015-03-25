@@ -24,8 +24,17 @@ import com.liferay.portal.kernel.lar.MissingReferences;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataContextFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.test.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
+import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
@@ -46,23 +55,17 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.repository.liferayrepository.model.LiferayFileEntry;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.test.DeleteAfterTestRun;
-import com.liferay.portal.test.LiferayIntegrationTestRule;
-import com.liferay.portal.test.MainServletTestRule;
-import com.liferay.portal.test.Sync;
-import com.liferay.portal.test.SynchronousDestinationTestRule;
-import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PortalImpl;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.portal.util.test.RandomTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
+import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
-import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.util.test.JournalTestUtil;
 
@@ -109,11 +112,15 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 		_liveGroup = GroupTestUtil.addGroup();
 		_stagingGroup = GroupTestUtil.addGroup();
 
-		_fileEntry = DLAppTestUtil.addFileEntry(
-			_stagingGroup.getGroupId(),
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_stagingGroup.getGroupId(), TestPropsValues.getUserId());
+
+		_fileEntry = DLAppLocalServiceUtil.addFileEntry(
+			TestPropsValues.getUserId(), _stagingGroup.getGroupId(),
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString() + ".txt",
-			RandomTestUtil.randomString(), true);
+			RandomTestUtil.randomString() + ".txt", ContentTypes.TEXT_PLAIN,
+			RandomTestUtil.randomBytes(), serviceContext);
 
 		LiferayFileEntry liferayFileEntry = (LiferayFileEntry)_fileEntry;
 
@@ -587,6 +594,15 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 			LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(
 				_stagingPublicLayout.getUuid(), _liveGroup.getGroupId(), false);
 
+		Map<Long, Long> layoutPlids =
+			(Map<Long, Long>)_portletDataContextImport.getNewPrimaryKeysMap(
+				Layout.class);
+
+		layoutPlids.put(
+			_stagingPrivateLayout.getPlid(), importedPrivateLayout.getPlid());
+		layoutPlids.put(
+			_stagingPublicLayout.getPlid(), importedPublicLayout.getPlid());
+
 		String content = getContent("layout_links_ids_replacement.txt");
 
 		String expectedContent = replaceLinksToLayoutsParameters(
@@ -664,9 +680,7 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 		}
 
 		sb.append(CharPool.AT);
-		sb.append(layout.getUuid());
-		sb.append(StringPool.AT);
-		sb.append(layout.getFriendlyURL());
+		sb.append(layout.getPlid());
 
 		if (group != null) {
 			sb.append(CharPool.AT);
@@ -710,7 +724,7 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 
 		String[] lines = StringUtil.split(content, StringPool.NEW_LINE);
 
-		List<String> urls = new ArrayList<String>();
+		List<String> urls = new ArrayList<>();
 
 		for (String line : lines) {
 			matcher.reset(line);
@@ -781,7 +795,7 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 			timestampParameter + "?" + timestampParameter +
 				"&width=100&height=100";
 
-		List<String> outURLs = new ArrayList<String>();
+		List<String> outURLs = new ArrayList<>();
 
 		for (String url : urls) {
 			if (!url.contains("[$TIMESTAMP")) {
@@ -830,7 +844,7 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 	private Group _liveGroup;
 
 	private Layout _livePublicLayout;
-	private Pattern _pattern = Pattern.compile("href=|\\{|\\[");
+	private final Pattern _pattern = Pattern.compile("href=|\\{|\\[");
 	private PortletDataContext _portletDataContextExport;
 	private PortletDataContext _portletDataContextImport;
 	private StagedModel _referrerStagedModel;
@@ -878,7 +892,7 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 
 		@Override
 		public List<String> getEntries() {
-			return new ArrayList<String>(_entries.keySet());
+			return new ArrayList<>(_entries.keySet());
 		}
 
 		@Override
@@ -911,8 +925,8 @@ public class ExportImportHelperUtilTest extends PowerMockito {
 			return StringPool.BLANK;
 		}
 
-		private List<String> _binaryEntries = new ArrayList<String>();
-		private Map<String, String> _entries = new HashMap<String, String>();
+		private final List<String> _binaryEntries = new ArrayList<>();
+		private final Map<String, String> _entries = new HashMap<>();
 
 	}
 

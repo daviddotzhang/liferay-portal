@@ -27,7 +27,7 @@ UserGroup userGroup = (UserGroup)row.getObject();
 %>
 
 <liferay-ui:icon-menu icon="<%= StringPool.BLANK %>" message="<%= StringPool.BLANK %>">
-	<c:if test="<%= UserGroupPermissionUtil.contains(permissionChecker, userGroup.getUserGroupId(), ActionKeys.UPDATE) %>">
+	<c:if test="<%= UserGroupPermissionUtil.contains(permissionChecker, userGroup.getUserGroupId(), ActionKeys.UPDATE) && UserGroupPermissionUtil.contains(permissionChecker, userGroup.getUserGroupId(), ActionKeys.VIEW) %>">
 		<portlet:renderURL var="editURL">
 			<portlet:param name="struts_action" value="/users_admin/edit_user_group" />
 			<portlet:param name="redirect" value="<%= redirect %>" />
@@ -63,6 +63,12 @@ UserGroup userGroup = (UserGroup)row.getObject();
 		/>
 	</c:if>
 
+	<%
+	Group userGroupGroup = userGroup.getGroup();
+
+	hasPermissionsPermission = GroupPermissionUtil.contains(permissionChecker, userGroupGroup, ActionKeys.PERMISSIONS);
+	%>
+
 	<c:if test="<%= hasPermissionsPermission %>">
 		<liferay-security:permissionsURL
 			modelResource="<%= Group.class.getName() %>"
@@ -80,10 +86,6 @@ UserGroup userGroup = (UserGroup)row.getObject();
 			useDialog="<%= true %>"
 		/>
 	</c:if>
-
-	<%
-	Group userGroupGroup = userGroup.getGroup();
-	%>
 
 	<c:if test="<%= GroupPermissionUtil.contains(permissionChecker, userGroupGroup, ActionKeys.MANAGE_LAYOUTS) %>">
 		<portlet:renderURL var="managePagesURL">

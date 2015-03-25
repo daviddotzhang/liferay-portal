@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -46,7 +45,6 @@ import com.liferay.portal.service.RepositoryLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.documentlibrary.DuplicateFileException;
-import com.liferay.portlet.documentlibrary.NoSuchFileException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
@@ -62,13 +60,14 @@ import com.liferay.portlet.documentlibrary.util.DLProcessorRegistryUtil;
 import com.liferay.portlet.documentlibrary.util.DLProcessorThreadLocal;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.storage.Fields;
+import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 import com.liferay.portlet.dynamicdatamapping.storage.StorageEngineUtil;
 import com.liferay.portlet.trash.util.TrashUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -96,22 +95,6 @@ public class FileEntryStagedModelDataHandler
 	}
 
 	@Override
-	public FileEntry fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<DLFileEntry> fileEntries =
-			DLFileEntryLocalServiceUtil.getDLFileEntriesByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<DLFileEntry>());
-
-		if (ListUtil.isEmpty(fileEntries)) {
-			return null;
-		}
-
-		return new LiferayFileEntry(fileEntries.get(0));
-	}
-
-	@Override
 	public FileEntry fetchStagedModelByUuidAndGroupId(
 		String uuid, long groupId) {
 
@@ -122,6 +105,24 @@ public class FileEntryStagedModelDataHandler
 		catch (PortalException pe) {
 			return null;
 		}
+	}
+
+	@Override
+	public List<FileEntry> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		List<DLFileEntry> dlFileEntries =
+			DLFileEntryLocalServiceUtil.getDLFileEntriesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<DLFileEntry>());
+
+		List<FileEntry> fileEntries = new ArrayList<>();
+
+		for (DLFileEntry dlFileEntry : dlFileEntries) {
+			fileEntries.add(new LiferayFileEntry(dlFileEntry));
+		}
+
+		return fileEntries;
 	}
 
 	@Override
@@ -152,6 +153,22 @@ public class FileEntryStagedModelDataHandler
 		}
 		finally {
 			DLProcessorThreadLocal.setEnabled(dlProcessorEnabled);
+		}
+	}
+
+	@Override
+	public void restoreStagedModel(
+			PortletDataContext portletDataContext, FileEntry stagedModel)
+		throws PortletDataException {
+
+		try {
+			doRestoreStagedModel(portletDataContext, stagedModel);
+		}
+		catch (PortletDataException pde) {
+			throw pde;
+		}
+		catch (Exception e) {
+			throw new PortletDataException(e);
 		}
 	}
 
@@ -202,16 +219,16 @@ public class FileEntryStagedModelDataHandler
 			try {
 				is = FileEntryUtil.getContentStream(fileEntry);
 			}
-			catch (NoSuchFileException nsfe) {
+			catch (Exception e) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to retrieve content for file entry " +
+							fileEntry.getFileEntryId(),
+						e);
+				}
 			}
 
 			if (is == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"No file found for file entry " +
-							fileEntry.getFileEntryId());
-				}
-
 				fileEntryElement.detach();
 
 				return;
@@ -316,7 +333,15 @@ public class FileEntryStagedModelDataHandler
 			try {
 				is = FileEntryUtil.getContentStream(fileEntry);
 			}
-			catch (NoSuchFileException nsfe) {
+			catch (Exception e) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to retrieve content for file entry " +
+							fileEntry.getFileEntryId(),
+						e);
+				}
+
+				return;
 			}
 		}
 		else {
@@ -417,12 +442,41 @@ public class FileEntryStagedModelDataHandler
 
 				boolean indexEnabled = serviceContext.isIndexingEnabled();
 
+				boolean updateFileEntry = false;
+
+				if (!Validator.equals(
+						fileVersion.getUuid(),
+						latestExistingFileVersion.getUuid())) {
+
+					updateFileEntry = true;
+				}
+				else {
+					InputStream existingFileVersionInputStream = null;
+
+					try {
+						existingFileVersionInputStream =
+							latestExistingFileVersion.getContentStream(false);
+					}
+					catch (Exception e) {
+						if (_log.isDebugEnabled()) {
+							_log.debug(e, e);
+						}
+					}
+					finally {
+						if (existingFileVersionInputStream != null) {
+							existingFileVersionInputStream.close();
+						}
+					}
+
+					if (existingFileVersionInputStream == null) {
+						updateFileEntry = true;
+					}
+				}
+
 				try {
 					serviceContext.setIndexingEnabled(false);
 
-					if (!fileVersion.getUuid().equals(
-							latestExistingFileVersion.getUuid())) {
-
+					if (updateFileEntry) {
 						DLFileVersion alreadyExistingFileVersion =
 							DLFileVersionLocalServiceUtil.
 								getFileVersionByUuidAndGroupId(
@@ -596,10 +650,10 @@ public class FileEntryStagedModelDataHandler
 			structureFields.addAttribute(
 				"structureUuid", ddmStructure.getUuid());
 
-			Fields fields = StorageEngineUtil.getFields(
+			DDMFormValues ddmFormValues = StorageEngineUtil.getDDMFormValues(
 				dlFileEntryMetadata.getDDMStorageId());
 
-			portletDataContext.addZipEntry(path, fields);
+			portletDataContext.addZipEntry(path, ddmFormValues);
 		}
 	}
 
@@ -648,11 +702,12 @@ public class FileEntryStagedModelDataHandler
 
 			String path = structureFieldsElement.attributeValue("path");
 
-			Fields fields = (Fields)portletDataContext.getZipEntryAsObject(
-				path);
+			DDMFormValues ddmFormValues =
+				(DDMFormValues)portletDataContext.getZipEntryAsObject(path);
 
 			serviceContext.setAttribute(
-				Fields.class.getName() + ddmStructure.getStructureId(), fields);
+				DDMFormValues.class.getName() + ddmStructure.getStructureId(),
+				ddmFormValues);
 		}
 	}
 
@@ -725,7 +780,7 @@ public class FileEntryStagedModelDataHandler
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		FileEntryStagedModelDataHandler.class);
 
 }

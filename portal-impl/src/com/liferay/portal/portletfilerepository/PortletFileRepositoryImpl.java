@@ -38,7 +38,6 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Repository;
 import com.liferay.portal.model.User;
@@ -48,10 +47,8 @@ import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.RepositoryLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.webserver.WebServerServlet;
 import com.liferay.portlet.documentlibrary.NoSuchFileEntryException;
 import com.liferay.portlet.documentlibrary.NoSuchFolderException;
@@ -517,25 +514,6 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 		sb.append(StringPool.SLASH);
 		sb.append(HttpUtil.encodeURL(fileEntry.getUuid()));
 
-		if (themeDisplay != null) {
-			PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
-
-			if (portletDisplay != null) {
-				String portletId = portletDisplay.getId();
-
-				if (portletId.equals(PortletKeys.TRASH) &&
-					!queryString.contains("status=")) {
-
-					if (Validator.isNotNull(queryString)) {
-						queryString += StringPool.AMPERSAND;
-					}
-
-					queryString +=
-						"status=" + WorkflowConstants.STATUS_IN_TRASH;
-				}
-			}
-		}
-
 		if (Validator.isNotNull(queryString)) {
 			sb.append(StringPool.QUESTION);
 			sb.append(queryString);
@@ -655,8 +633,7 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 	 * @see com.liferay.portlet.documentlibrary.util.RepositoryModelUtil#toFileEntries
 	 */
 	protected List<FileEntry> toFileEntries(List<DLFileEntry> dlFileEntries) {
-		List<FileEntry> fileEntries = new ArrayList<FileEntry>(
-			dlFileEntries.size());
+		List<FileEntry> fileEntries = new ArrayList<>(dlFileEntries.size());
 
 		for (DLFileEntry dlFileEntry : dlFileEntries) {
 			FileEntry fileEntry = new LiferayFileEntry(dlFileEntry);
@@ -672,7 +649,7 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		PortletFileRepositoryImpl.class);
 
 }

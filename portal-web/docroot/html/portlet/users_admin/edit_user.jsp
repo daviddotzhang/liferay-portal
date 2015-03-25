@@ -250,7 +250,21 @@ if (selUser != null) {
 	</liferay-util:buffer>
 
 	<liferay-util:buffer var="htmlBottom">
-		<c:if test="<%= (selUser != null) && (passwordPolicy != null) && selUser.getLockout() %>">
+
+		<%
+		boolean lockedOut = false;
+
+		if ((selUser != null) && (passwordPolicy != null)) {
+			try {
+				UserLocalServiceUtil.checkLockout(selUser);
+			}
+			catch (UserLockoutException.PasswordPolicyLockout ule) {
+				lockedOut = true;
+			}
+		}
+		%>
+
+		<c:if test="<%= lockedOut %>">
 			<aui:button-row>
 				<div class="alert alert-warning"><liferay-ui:message key="this-user-account-has-been-locked-due-to-excessive-failed-login-attempts" /></div>
 
@@ -282,7 +296,7 @@ if (selUser != null) {
 <aui:script>
 	function <portlet:namespace />createURL(href, value, onclick) {
 		return '<a href="' + href + '"' + (onclick ? ' onclick="' + onclick + '" ' : '') + '>' + value + '</a>';
-	};
+	}
 
 	function <portlet:namespace />saveUser(cmd) {
 		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = cmd;

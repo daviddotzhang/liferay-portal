@@ -127,7 +127,7 @@ public class ShoppingItemLocalServiceImpl
 
 			if ((sale == null) && (itemPrice.getDiscount() > 0) &&
 				((itemPrice.getStatus() ==
-					 ShoppingItemPriceConstants.STATUS_ACTIVE_DEFAULT) ||
+					ShoppingItemPriceConstants.STATUS_ACTIVE_DEFAULT) ||
 				 (itemPrice.getStatus() ==
 					 ShoppingItemPriceConstants.STATUS_ACTIVE))) {
 
@@ -496,7 +496,7 @@ public class ShoppingItemLocalServiceImpl
 
 			if ((sale == null) && (itemPrice.getDiscount() > 0) &&
 				((itemPrice.getStatus() ==
-					 ShoppingItemPriceConstants.STATUS_ACTIVE_DEFAULT) ||
+					ShoppingItemPriceConstants.STATUS_ACTIVE_DEFAULT) ||
 				 (itemPrice.getStatus() ==
 					 ShoppingItemPriceConstants.STATUS_ACTIVE))) {
 
@@ -663,8 +663,8 @@ public class ShoppingItemLocalServiceImpl
 		}
 
 		if (!itemFields.isEmpty()) {
-			List<String> itemFieldNames = new ArrayList<String>();
-			List<String> duplicateItemFieldNames = new ArrayList<String>();
+			List<String> itemFieldNames = new ArrayList<>();
+			List<String> duplicateItemFieldNames = new ArrayList<>();
 
 			StringBundler sb = new StringBundler(itemFields.size());
 
@@ -721,7 +721,7 @@ public class ShoppingItemLocalServiceImpl
 			}
 
 			long smallImageMaxSize = PrefsPropsUtil.getLong(
-				PropsKeys.SHOPPING_IMAGE_MEDIUM_MAX_SIZE);
+				PropsKeys.SHOPPING_IMAGE_SMALL_MAX_SIZE);
 
 			if ((smallImageMaxSize > 0) &&
 				((smallImageBytes == null) ||

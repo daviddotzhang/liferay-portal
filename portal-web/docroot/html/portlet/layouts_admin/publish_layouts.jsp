@@ -31,6 +31,8 @@ String closeRedirect = ParamUtil.getString(request, "closeRedirect");
 
 String publishConfigurationButtons = ParamUtil.getString(request, "publishConfigurationButtons", "custom");
 
+boolean quickPublish = ParamUtil.getBoolean(request, "quickPublish");
+
 long exportImportConfigurationId = 0;
 
 ExportImportConfiguration exportImportConfiguration = null;
@@ -111,15 +113,7 @@ long[] selectedLayoutIds = null;
 String openNodes = SessionTreeJSClicks.getOpenNodes(request, treeId + "SelectedNode");
 
 if (openNodes == null) {
-	List<Layout> stagingGroupLayouts = LayoutLocalServiceUtil.getLayouts(stagingGroupId, privateLayout, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID);
-
-	selectedLayoutIds = new long[stagingGroupLayouts.size()];
-
-	for (int i = 0; i < stagingGroupLayouts.size(); i++) {
-		Layout stagingGroupLayout = stagingGroupLayouts.get(i);
-
-		selectedLayoutIds[i] = stagingGroupLayout.getLayoutId();
-	}
+	selectedLayoutIds = ExportImportHelperUtil.getAllLayoutIds(stagingGroupId, privateLayout);
 }
 else {
 	selectedLayoutIds = GetterUtil.getLongValues(StringUtil.split(openNodes, ','));
@@ -135,7 +129,7 @@ if (group.isStaged() && group.isStagedRemotely()) {
 
 portletURL.setParameter("struts_action", "/layouts_admin/publish_layouts");
 portletURL.setParameter("closeRedirect", closeRedirect);
-portletURL.setParameter("groupId", String.valueOf(liveGroupId));
+portletURL.setParameter("groupId", String.valueOf(stagingGroupId));
 portletURL.setParameter("stagingGroupId", String.valueOf(stagingGroupId));
 portletURL.setParameter("privateLayout", String.valueOf(privateLayout));
 
@@ -179,19 +173,26 @@ String tabs2Names = StringPool.BLANK;
 if (cmd.equals("view_processes")) {
 	tabs2Names = "current-and-previous";
 }
-else {
+else if (!quickPublish) {
 	tabs2Names = "new-publication-process,current-and-previous,scheduled";
 }
 %>
 
-<liferay-ui:trash-undo />
+<portlet:actionURL var="restoreTrashEntriesURL">
+	<portlet:param name="struts_action" value="/layouts_admin/edit_export_configuration" />
+	<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.RESTORE %>" />
+</portlet:actionURL>
+
+<liferay-ui:trash-undo
+	portletURL="<%= restoreTrashEntriesURL %>"
+/>
 
 <liferay-ui:tabs
 	names="<%= tabs2Names %>"
 	param="tabs2"
 	refresh="<%= false %>"
 >
-	<c:if test='<%= !cmd.equals("view_processes") %>'>
+	<c:if test='<%= !cmd.equals("view_processes") && !quickPublish %>'>
 		<liferay-ui:section>
 			<div <%= (!cmd.equals(Constants.ADD) && !cmd.equals(Constants.UPDATE)) ? StringPool.BLANK : "class=\"hide\"" %>>
 				<aui:nav-bar>
@@ -392,11 +393,12 @@ else {
 				<liferay-util:param name="groupId" value="<%= String.valueOf(stagingGroupId) %>" />
 				<liferay-util:param name="liveGroupId" value="<%= String.valueOf(liveGroupId) %>" />
 				<liferay-util:param name="localPublishing" value="<%= String.valueOf(localPublishing) %>" />
+				<liferay-util:param name="quickPublish" value="<%= String.valueOf(quickPublish) %>" />
 			</liferay-util:include>
 		</div>
 	</liferay-ui:section>
 
-	<c:if test='<%= !cmd.equals("view_processes") %>'>
+	<c:if test='<%= !cmd.equals("view_processes") && !quickPublish %>'>
 		<liferay-ui:section>
 
 			<%
@@ -450,6 +452,7 @@ else {
 		<portlet:param name="liveGroupId" value="<%= String.valueOf(liveGroupId) %>" />
 		<portlet:param name="localPublishing" value="<%= String.valueOf(localPublishing) %>" />
 		<portlet:param name="privateLayout" value="<%= String.valueOf(privateLayout) %>" />
+		<portlet:param name="quickPublish" value="<%= String.valueOf(quickPublish) %>" />
 	</liferay-portlet:resourceURL>
 
 	new Liferay.ExportImport(
@@ -505,5 +508,9 @@ else {
 		}
 	};
 
-	A.one('#<portlet:namespace />publishConfigurationButtons').delegate('click', clickHandler, 'li a');
+	var publishConfigurationButtons = A.one('#<portlet:namespace />publishConfigurationButtons');
+
+	if (publishConfigurationButtons) {
+		publishConfigurationButtons.delegate('click', clickHandler, 'li a');
+	}
 </aui:script>

@@ -10,15 +10,16 @@ AUI.add(
 
 			var nameB = b.substring(pos);
 
+			var retVal = 0;
+
 			if (nameA < nameB) {
-				return -1;
+				retVal = -1;
 			}
 			else if (nameA > nameB) {
-				return 1;
+				retVal = 1;
 			}
-			else {
-				return 0;
-			}
+
+			return retVal;
 		};
 
 		/**
@@ -133,10 +134,6 @@ AUI.add(
 
 				if (select) {
 					select.empty().append(selectOptions).val(selectVal);
-
-					if (Liferay.Browser.isIe()) {
-						select.setStyle('width', 'auto');
-					}
 				}
 			}
 		};

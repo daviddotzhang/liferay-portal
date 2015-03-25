@@ -16,22 +16,22 @@ package com.liferay.portal.staging;
 
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.staging.StagingUtil;
-import com.liferay.portal.kernel.test.AggregateTestRule;
+import com.liferay.portal.kernel.lar.exportimportconfiguration.ExportImportConfigurationParameterMapFactory;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
+import com.liferay.portal.kernel.test.util.CompanyTestUtil;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.test.DeleteAfterTestRun;
-import com.liferay.portal.test.LiferayIntegrationTestRule;
-import com.liferay.portal.test.MainServletTestRule;
-import com.liferay.portal.test.Sync;
-import com.liferay.portal.test.SynchronousDestinationTestRule;
-import com.liferay.portal.util.test.CompanyTestUtil;
-import com.liferay.portal.util.test.GroupTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleResource;
 import com.liferay.portlet.journal.service.JournalArticleLocalServiceUtil;
@@ -42,6 +42,7 @@ import java.io.File;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -53,7 +54,7 @@ import org.junit.Test;
 /**
  * @author Daniel Kocsis
  */
-@Sync
+@Sync(cleanTransaction = true)
 public class StagingLocalizationTest {
 
 	@ClassRule
@@ -115,9 +116,11 @@ public class StagingLocalizationTest {
 			_sourceGroup.getGroupId(), "Title", "content",
 			LocaleUtil.fromLanguageId(defaultContentLanguageId));
 
+		Map<String, String[]> parameterMap =
+			ExportImportConfigurationParameterMapFactory.buildParameterMap();
+
 		File file = LayoutLocalServiceUtil.exportLayoutsAsFile(
-			_sourceGroup.getGroupId(), false, null,
-			StagingUtil.getStagingParameters(),
+			_sourceGroup.getGroupId(), false, null, parameterMap,
 			new Date(System.currentTimeMillis() - Time.MINUTE), new Date());
 
 		CompanyTestUtil.resetCompanyLocales(
@@ -125,7 +128,7 @@ public class StagingLocalizationTest {
 
 		LayoutLocalServiceUtil.importLayouts(
 			TestPropsValues.getUserId(), _targetGroup.getGroupId(), false,
-			StagingUtil.getStagingParameters(), file);
+			parameterMap, file);
 
 		JournalArticleResource articleResource =
 			JournalArticleResourceLocalServiceUtil.

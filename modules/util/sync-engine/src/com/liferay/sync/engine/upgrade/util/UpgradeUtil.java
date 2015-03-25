@@ -63,6 +63,11 @@ public class UpgradeUtil {
 
 				Files.copy(inputStream, loggerConfigurationFilePath);
 			}
+
+			SyncPropService.updateSyncProp(
+				"buildNumber", ReleaseInfo.getBuildNumber());
+
+			return;
 		}
 		else if (buildNumber == ReleaseInfo.getBuildNumber()) {
 			return;

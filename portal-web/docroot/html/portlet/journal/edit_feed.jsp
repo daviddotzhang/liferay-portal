@@ -19,7 +19,7 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
-JournalFeed feed = (JournalFeed)request.getAttribute(WebKeys.JOURNAL_FEED);
+JournalFeed feed = ActionUtil.getFeed(request);
 
 long groupId = BeanParamUtil.getLong(feed, request, "groupId", scopeGroupId);
 
@@ -96,19 +96,18 @@ if (feed != null) {
 	feedURL = new PortletURLImpl(request, PortletKeys.JOURNAL, targetLayoutPlid, PortletRequest.RESOURCE_PHASE);
 
 	feedURL.setCacheability(ResourceURL.FULL);
-
-	feedURL.setParameter("struts_action", "/journal/rss");
 	feedURL.setParameter("groupId", String.valueOf(groupId));
 	feedURL.setParameter("feedId", String.valueOf(feedId));
+	feedURL.setResourceID("rss");
 }
 %>
 
 <portlet:actionURL var="editFeedURL">
-	<portlet:param name="struts_action" value="/journal/edit_feed" />
+	<portlet:param name="mvcPath" value="/html/portlet/journal/edit_feed.jsp" />
 </portlet:actionURL>
 
 <aui:form action="<%= editFeedURL %>" enctype="multipart/form-data" method="post" name="fm" onSubmit='<%= "event.preventDefault(); " + renderResponse.getNamespace() + "saveFeed();" %>'>
-	<aui:input name="<%= Constants.CMD %>" type="hidden" value="" />
+	<aui:input name="<%= ActionRequest.ACTION_NAME %>" type="hidden" value="" />
 	<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 	<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 	<aui:input name="feedId" type="hidden" value="<%= feedId %>" />
@@ -165,7 +164,11 @@ if (feed != null) {
 				</aui:field-wrapper>
 			</c:when>
 			<c:otherwise>
-				<aui:input name="url" type="resource" value="<%= feedURL.toString() %>" />
+				<aui:field-wrapper>
+					<aui:input name="url" type="resource" value="<%= feedURL.toString() %>" />
+
+					<aui:a href="<%= feedURL.toString() %>" label="preview" target="_blank" />
+				</aui:field-wrapper>
 			</c:otherwise>
 		</c:choose>
 	</aui:fieldset>
@@ -176,7 +179,7 @@ if (feed != null) {
 				<div class="form-group">
 					<aui:input name="ddmStructureKey" required="<%= true %>" type="hidden" value="<%= ddmStructureKey %>" />
 
-					<aui:input name="structure" type="resource" value="<%= ddmStructureName %>" />
+					<aui:input name="structure" required="<%= true %>" type="resource" value="<%= ddmStructureName %>" />
 
 					<aui:button name="selectStructureButton" onClick='<%= renderResponse.getNamespace() + "openStructureSelector();" %>' value="select" />
 
@@ -315,15 +318,6 @@ if (feed != null) {
 
 		<c:if test="<%= hasSavePermission %>">
 			<aui:button type="submit" />
-
-			<c:if test="<%= feed != null %>">
-
-				<%
-				String taglibPreviewButton = "Liferay.Util.openWindow({id:'" + renderResponse.getNamespace() + "preview', title: '" + UnicodeLanguageUtil.get(request, "feed") + "', uri: '" + feedURL + "'});";
-				%>
-
-				<aui:button onClick="<%= taglibPreviewButton %>" value="preview" />
-			</c:if>
 		</c:if>
 
 		<aui:button href="<%= redirect %>" type="cancel" />
@@ -354,7 +348,7 @@ if (feed != null) {
 				title: '<%= UnicodeLanguageUtil.get(request, "structures") %>'
 			},
 			function(event) {
-				if (confirm('<%= UnicodeLanguageUtil.get(request, "selecting-a-new-structure-will-change-the-available-templates-and-available-feed-item-content") %>') && (document.<portlet:namespace />fm.<portlet:namespace />ddmStructureKey.value != event.structurekey)) {
+				if (confirm('<%= UnicodeLanguageUtil.get(request, "selecting-a-new-structure-changes-the-available-templates-and-available-feed-item-content") %>') && (document.<portlet:namespace />fm.<portlet:namespace />ddmStructureKey.value != event.structurekey)) {
 					document.<portlet:namespace />fm.<portlet:namespace />ddmStructureKey.value = event.ddmstructurekey;
 					document.<portlet:namespace />fm.<portlet:namespace />ddmTemplateKey.value = '';
 					document.<portlet:namespace />fm.<portlet:namespace />ddmRendererTemplateKey.value = '';
@@ -376,7 +370,7 @@ if (feed != null) {
 	}
 
 	function <portlet:namespace />saveFeed() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= feed == null ? Constants.ADD : Constants.UPDATE %>';
+		document.<portlet:namespace />fm['<portlet:namespace />javax-portlet-action'].value = '<%= feed == null ? "addFeed" : "updateFeed" %>';
 
 		<c:if test="<%= feed == null %>">
 			document.<portlet:namespace />fm.<portlet:namespace />feedId.value = document.<portlet:namespace />fm.<portlet:namespace />newFeedId.value;

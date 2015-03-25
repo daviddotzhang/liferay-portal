@@ -64,14 +64,10 @@ public class SyncWatchEventPersistence
 		Where<SyncWatchEvent, Long> where = queryBuilder.where();
 
 		where.eq("eventType", eventType);
-
-		where.and();
-
 		where.eq("filePathName", new SelectArg(filePathName));
-
-		where.and();
-
 		where.between("timestamp", timestamp - 1000, timestamp + 1000);
+
+		where.and(3);
 
 		List<SyncWatchEvent> syncWatchEvents = query(queryBuilder.prepare());
 
@@ -82,7 +78,7 @@ public class SyncWatchEventPersistence
 		return syncWatchEvents.get(0);
 	}
 
-	public SyncWatchEvent fetchBySyncAccountId_Last(long syncAccountId)
+	public List<SyncWatchEvent> findBySyncAccountId(long syncAccountId)
 		throws SQLException {
 
 		QueryBuilder<SyncWatchEvent, Long> queryBuilder = queryBuilder();
@@ -91,16 +87,9 @@ public class SyncWatchEventPersistence
 
 		where.eq("syncAccountId", syncAccountId);
 
-		queryBuilder.limit(1L);
-		queryBuilder.orderBy("timestamp", false);
+		queryBuilder.orderBy("fileType", false);
 
-		List<SyncWatchEvent> syncWatchEvents = query(queryBuilder.prepare());
-
-		if ((syncWatchEvents == null) || syncWatchEvents.isEmpty()) {
-			return null;
-		}
-
-		return syncWatchEvents.get(0);
+		return query(queryBuilder.prepare());
 	}
 
 	public List<SyncWatchEvent> findBySyncAccountId(

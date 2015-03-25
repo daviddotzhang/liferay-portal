@@ -36,7 +36,6 @@ import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.security.auth.HttpPrincipal;
-import com.liferay.portal.service.ExportImportConfigurationLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.http.LayoutServiceHttp;
 import com.liferay.portal.service.http.StagingServiceHttp;
@@ -66,15 +65,8 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 	public BackgroundTaskResult execute(BackgroundTask backgroundTask)
 		throws PortalException {
 
-		Map<String, Serializable> taskContextMap =
-			backgroundTask.getTaskContextMap();
-
-		long exportImportConfigurationId = MapUtil.getLong(
-			taskContextMap, "exportImportConfigurationId");
-
 		ExportImportConfiguration exportImportConfiguration =
-			ExportImportConfigurationLocalServiceUtil.
-				getExportImportConfiguration(exportImportConfigurationId);
+			getExportImportConfiguration(backgroundTask);
 
 		Map<String, Serializable> settingsMap =
 			exportImportConfiguration.getSettingsMap();
@@ -93,6 +85,10 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 		DateRange dateRange = ExportImportDateUtil.getDateRange(
 			exportImportConfiguration,
 			ExportImportDateUtil.RANGE_FROM_LAST_PUBLISH_DATE);
+
+		Map<String, Serializable> taskContextMap =
+			backgroundTask.getTaskContextMap();
+
 		HttpPrincipal httpPrincipal = (HttpPrincipal)taskContextMap.get(
 			"httpPrincipal");
 
@@ -221,7 +217,7 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 			HttpPrincipal httpPrincipal)
 		throws PortalException {
 
-		List<Layout> layouts = new ArrayList<Layout>();
+		List<Layout> layouts = new ArrayList<>();
 
 		if (layoutIdMap != null) {
 			for (Map.Entry<Long, Boolean> entry : layoutIdMap.entrySet()) {
@@ -268,7 +264,7 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 			HttpPrincipal httpPrincipal, Layout layout, long remoteGroupId)
 		throws PortalException {
 
-		List<Layout> missingRemoteParentLayouts = new ArrayList<Layout>();
+		List<Layout> missingRemoteParentLayouts = new ArrayList<>();
 
 		long parentLayoutId = layout.getParentLayoutId();
 
@@ -295,7 +291,7 @@ public class LayoutRemoteStagingBackgroundTaskExecutor
 		return missingRemoteParentLayouts;
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutRemoteStagingBackgroundTaskExecutor.class);
 
 }

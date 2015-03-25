@@ -17,6 +17,18 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/development/alloy-taglib.jar</file-name>
+				<version>1.1.2</version>
+				<project-name>Alloy TagLibs</project-name>
+				<project-url>https://github.com/liferay/alloy-taglibs</project-url>
+				<licenses>
+					<license>
+						<license-name>LGPL 2.1</license-name>
+						<license-url>http://www.gnu.org/licenses/lgpl-2.1.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/development/annotations.jar</file-name>
 				<version>1.0</version>
 				<project-name>Common Annotations</project-name>
@@ -281,7 +293,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/hsql.jar</file-name>
-				<version>2.1.0</version>
+				<version>2.3.2</version>
 				<project-name>HSQL Database Engine</project-name>
 				<project-url>http://hsqldb.org</project-url>
 				<licenses>
@@ -290,9 +302,6 @@
 						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
 					</license>
 				</licenses>
-				<comments>
-					This was recompiled for compatibility with JDK 5.
-				</comments>
 			</library>
 			<library>
 				<file-name>lib/development/interbase.jar</file-name>
@@ -528,7 +537,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/junit.jar</file-name>
-				<version>4.12 B3</version>
+				<version>4.12</version>
 				<project-name>JUnit</project-name>
 				<project-url>http://www.junit.org/index.htm</project-url>
 				<licenses>
@@ -635,6 +644,21 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/development/org.freemarker-2.3.17.LIFERAY-PATCHED-1.jar</file-name>
+				<version>2.3.17.LIFERAY-PATCHED-1</version>
+				<project-name>FreeMarker</project-name>
+				<project-url>http://www.freemarker.org</project-url>
+				<licenses>
+					<license>
+						<license-name>BSD Style License</license-name>
+						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
+					</license>
+				</licenses>
+				<comments>
+					See modules/third-party/org-freemarker/build.xml.
+				</comments>
+			</library>
+			<library>
 				<file-name>lib/development/p6spy.jar</file-name>
 				<version>1.3</version>
 				<project-name>P6Spy</project-name>
@@ -671,8 +695,8 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/development/powermock-api.jar</file-name>
-				<version>1.5.6</version>
+				<file-name>lib/development/powermock-api-mockito.jar</file-name>
+				<version>1.6.1</version>
 				<project-name>Powermock</project-name>
 				<project-url>http://code.google.com/p/powermock</project-url>
 				<licenses>
@@ -684,7 +708,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/powermock-api-support.jar</file-name>
-				<version>1.5.6</version>
+				<version>1.6.1</version>
 				<project-name>Powermock</project-name>
 				<project-url>http://code.google.com/p/powermock</project-url>
 				<licenses>
@@ -696,7 +720,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/powermock-core.jar</file-name>
-				<version>1.5.6</version>
+				<version>1.6.1</version>
 				<project-name>Powermock</project-name>
 				<project-url>http://code.google.com/p/powermock</project-url>
 				<licenses>
@@ -708,7 +732,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/powermock-module-junit4.jar</file-name>
-				<version>1.5.6</version>
+				<version>1.6.1</version>
 				<project-name>Powermock</project-name>
 				<project-url>http://code.google.com/p/powermock</project-url>
 				<licenses>
@@ -720,7 +744,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/powermock-module-junit4-common.jar</file-name>
-				<version>1.5.6</version>
+				<version>1.6.1</version>
 				<project-name>Powermock</project-name>
 				<project-url>http://code.google.com/p/powermock</project-url>
 				<licenses>
@@ -732,7 +756,7 @@
 			</library>
 			<library>
 				<file-name>lib/development/powermock-reflect.jar</file-name>
-				<version>1.5.6</version>
+				<version>1.6.1</version>
 				<project-name>Powermock</project-name>
 				<project-url>http://code.google.com/p/powermock</project-url>
 				<licenses>
@@ -744,14 +768,14 @@
 			</library>
 			<library>
 				<file-name>lib/development/qdox.jar</file-name>
-				<version>1.12 (Snapshot 20100502)</version>
+				<version>1.12.1</version>
 				<project-name>QDox</project-name>
 				<project-url>http://qdox.codehaus.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>Copyright (c) 2002-2006 Joe Walnes and QDox Project Team</copyright-notice>
+						<copyright-notice>Copyright (c) 2002-2009 Joe Walnes and QDox Project Team</copyright-notice>
 					</license>
 				</licenses>
 			</library>
@@ -979,6 +1003,32 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/development/velocity.jar</file-name>
+				<version>1.6.4</version>
+				<project-name>Velocity</project-name>
+				<project-url>http://velocity.apache.org</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+						<copyright-notice>Copyright (c) 2000-2007 The Apache Software Foundation</copyright-notice>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/velocity-tools.jar</file-name>
+				<version>1.4</version>
+				<project-name>Velocity</project-name>
+				<project-url>http://velocity.apache.org</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+						<copyright-notice>Copyright (c) 2000-2007 The Apache Software Foundation</copyright-notice>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/development/xmltask.jar</file-name>
 				<version>1.16</version>
 				<project-name>XMLTask</project-name>
@@ -1014,18 +1064,6 @@
 					<license>
 						<license-name>Apache License 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/alloy-taglib.jar</file-name>
-				<version>1.1.1</version>
-				<project-name>Alloy TagLibs</project-name>
-				<project-url>https://github.com/liferay/alloy-taglibs</project-url>
-				<licenses>
-					<license>
-						<license-name>LGPL 2.1</license-name>
-						<license-url>http://www.gnu.org/licenses/lgpl-2.1.html</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -1223,7 +1261,7 @@
 			</library>
 			<library>
 				<file-name>lib/portal/bnd.jar</file-name>
-				<version>2.3.0.20140225-161137</version>
+				<version>2.4.1</version>
 				<project-name>Bnd</project-name>
 				<project-url>http://www.aqute.biz/Bnd</project-url>
 				<licenses>
@@ -1232,9 +1270,6 @@
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
 					</license>
 				</licenses>
-				<comments>
-					Built from 5748e2f785f478f57df3034abcd0bbb918d467fe.
-				</comments>
 			</library>
 			<library>
 				<file-name>lib/portal/bobo-browse.jar</file-name>
@@ -1301,18 +1336,6 @@
 					<license>
 						<license-name>LGPL 2.1</license-name>
 						<license-url>http://www.gnu.org/licenses/lgpl-2.1.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/cas-client-core.jar</file-name>
-				<version>3.1.9</version>
-				<project-name>CAS Java Client</project-name>
-				<project-url>http://www.ja-sig.org/downloads/cas-clients</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -1810,34 +1833,10 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/ehcache-jgroupsreplication.jar</file-name>
-				<version>1.7.0</version>
-				<project-name>Ehcache</project-name>
-				<project-url>http://ehcache.sourceforge.net</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/fastutil.jar</file-name>
 				<version>5.0.5</version>
 				<project-name>Fastutil</project-name>
 				<project-url>http://fastutil.dsi.unimi.it</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/felix-fileinstall.jar</file-name>
-				<version>3.1.10</version>
-				<project-name>Apache Felix</project-name>
-				<project-url>http://felix.apache.org</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -1856,21 +1855,6 @@
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
 					</license>
 				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/freemarker.jar</file-name>
-				<version>2.3.17</version>
-				<project-name>FreeMarker</project-name>
-				<project-url>http://www.freemarker.org</project-url>
-				<licenses>
-					<license>
-						<license-name>BSD Style License</license-name>
-						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
-					</license>
-				</licenses>
-				<comments>
-					See the Ant target "build-freemarker-jar" in portal-impl/build.xml.
-				</comments>
 			</library>
 			<library>
 				<file-name>lib/portal/freshcookies-security.jar</file-name>
@@ -1925,7 +1909,19 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/hibernate3.jar</file-name>
+				<file-name>lib/portal/hibernate-commons-annotations.jar</file-name>
+				<version>3.2.0</version>
+				<project-name>Hibernate</project-name>
+				<project-url>http://www.hibernate.org</project-url>
+				<licenses>
+					<license>
+						<license-name>LGPL 2.1</license-name>
+						<license-url>http://www.gnu.org/licenses/lgpl-2.1.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/portal/hibernate-core.jar</file-name>
 				<version>3.6.10</version>
 				<project-name>Hibernate</project-name>
 				<project-url>http://www.hibernate.org</project-url>
@@ -2501,7 +2497,7 @@
 					</license>
 				</licenses>
 				<comments>
-					See the Ant target "build-ruby-gems-jar" in portal-impl/build.xml.
+					See modules/util/ruby-gem.
 				</comments>
 			</library>
 			<library>
@@ -2686,7 +2682,7 @@
 			</library>
 			<library>
 				<file-name>lib/portal/liferay-icu4j.jar</file-name>
-				<version>4.0.1</version>
+				<version>54.1.1.LIFERAY-PATCHED-1</version>
 				<project-name>ICU4J</project-name>
 				<project-url>http://www.icu-project.org</project-url>
 				<licenses>
@@ -2697,7 +2693,8 @@
 					</license>
 				</licenses>
 				<comments>
-					See LPS-1907 and LPS-36663.
+					See LPS-1907, LPS-36663, LPS-54422, and
+					modules/third-party/com-ibm-icu/build.xml.
 				</comments>
 			</library>
 			<library>
@@ -2933,6 +2930,18 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/portal/monte-cc.jar</file-name>
+				<version>0.7.7</version>
+				<project-name>Monte Media Library</project-name>
+				<project-url>http://www.randelshofer.ch/monte</project-url>
+				<licenses>
+					<license>
+						<license-name>LGPL 3.0</license-name>
+						<license-url>https://www.gnu.org/licenses/lgpl-3.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/portal/msnm.jar</file-name>
 				<version>1.2.2</version>
 				<project-name>JMSN - Open source MSN messenger clone</project-name>
@@ -2973,7 +2982,7 @@
 				<file-name>lib/portal/netty-all.jar</file-name>
 				<version>4.0.23</version>
 				<project-name>Netty</project-name>
-				<project-url>http://netty.io/</project-url>
+				<project-url>http://netty.io</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -2990,19 +2999,6 @@
 					<license>
 						<license-name>Apache License 2.0</license-name>
 						<copyright-notice>Authored by David Jordan (as Java Editor of the Object Data Management Group)</copyright-notice>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/openid4java.jar</file-name>
-				<version>0.9.5.593</version>
-				<project-name>OpenID 4 Java</project-name>
-				<project-url>http://code.google.com/p/openid4java</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>Copyright (c) 2006-2008 Sxip Identity Corporation</copyright-notice>
 					</license>
 				</licenses>
 			</library>
@@ -3211,30 +3207,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/scala-library.jar</file-name>
-				<version>2.10.3</version>
-				<project-name>Scala</project-name>
-				<project-url>http://www.scala-lang.org</project-url>
-				<licenses>
-					<license>
-						<license-name>BSD Style License</license-name>
-						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-					<file-name>lib/portal/scala-reflect.jar</file-name>
-					<version>2.10.3</version>
-					<project-name>Scala</project-name>
-					<project-url>http://www.scala-lang.org</project-url>
-					<licenses>
-							<license>
-									<license-name>BSD Style License</license-name>
-									<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
-							</license>
-					</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/scribe.jar</file-name>
 				<version>1.0.8</version>
 				<project-name>Scribe</project-name>
@@ -3355,7 +3327,8 @@
 					</license>
 				</licenses>
 				<comments>
-					This includes missing OSGi headers. See LPS-49575.
+					This includes missing OSGi headers. See Lata from nodes,
+#    aggregating results, etc.PS-49575.
 				</comments>
 			</library>
 			<library>
@@ -3741,32 +3714,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/velocity.jar</file-name>
-				<version>1.6.4</version>
-				<project-name>Velocity</project-name>
-				<project-url>http://velocity.apache.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>Copyright (c) 2000-2007 The Apache Software Foundation</copyright-notice>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/velocity-tools.jar</file-name>
-				<version>1.4</version>
-				<project-name>Velocity</project-name>
-				<project-url>http://velocity.apache.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-						<copyright-notice>Copyright (c) 2000-2007 The Apache Software Foundation</copyright-notice>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/vorbis-java-core.jar</file-name>
 				<version>0.6</version>
 				<project-name>Vorbis</project-name>
@@ -3965,14 +3912,14 @@
 			</library>
 			<library>
 				<file-name>lib/portal/xstream.jar</file-name>
-				<version>1.4.3</version>
+				<version>1.4.7</version>
 				<project-name>XStream</project-name>
 				<project-url>http://xstream.codehaus.org</project-url>
 				<licenses>
 					<license>
 						<license-name>BSD Style License</license-name>
 						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
-						<copyright-notice>Copyright (c) 2003-2006, Joe Walnes. Copyright (c) 2006-2007, XStream Committers. All rights reserved.</copyright-notice>
+						<copyright-notice>Copyright (c) 2003-2006, Joe Walnes. Copyright (c) 2006-2009, 2011 XStream Committers. All rights reserved.</copyright-notice>
 					</license>
 				</licenses>
 			</library>
@@ -3983,8 +3930,8 @@
 				<project-url>http://www.xuggle.com</project-url>
 				<licenses>
 					<license>
-						<license-name>LGPL 3</license-name>
-						<license-url>http://www.gnu.org/licenses/lgpl.html</license-url>
+						<license-name>LGPL 3.0</license-name>
+						<license-url>https://www.gnu.org/licenses/lgpl-3.0</license-url>
 					</license>
 				</licenses>
 			</library>

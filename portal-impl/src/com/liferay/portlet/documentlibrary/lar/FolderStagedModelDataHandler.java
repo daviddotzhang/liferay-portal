@@ -28,7 +28,6 @@ import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -77,24 +76,26 @@ public class FolderStagedModelDataHandler
 	}
 
 	@Override
-	public Folder fetchStagedModelByUuidAndCompanyId(
+	public Folder fetchStagedModelByUuidAndGroupId(String uuid, long groupId) {
+		return FolderUtil.fetchByUUID_R(uuid, groupId);
+	}
+
+	@Override
+	public List<Folder> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		List<DLFolder> folders =
+		List<DLFolder> dlFolders =
 			DLFolderLocalServiceUtil.getDLFoldersByUuidAndCompanyId(
 				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 				new StagedModelModifiedDateComparator<DLFolder>());
 
-		if (ListUtil.isEmpty(folders)) {
-			return null;
+		List<Folder> folders = new ArrayList<>();
+
+		for (DLFolder dlFolder : dlFolders) {
+			folders.add(new LiferayFolder(dlFolder));
 		}
 
-		return new LiferayFolder(folders.get(0));
-	}
-
-	@Override
-	public Folder fetchStagedModelByUuidAndGroupId(String uuid, long groupId) {
-		return FolderUtil.fetchByUUID_R(uuid, groupId);
+		return folders;
 	}
 
 	@Override
@@ -105,6 +106,22 @@ public class FolderStagedModelDataHandler
 	@Override
 	public String getDisplayName(Folder folder) {
 		return folder.getName();
+	}
+
+	@Override
+	public void restoreStagedModel(
+			PortletDataContext portletDataContext, Folder stagedModel)
+		throws PortletDataException {
+
+		try {
+			doRestoreStagedModel(portletDataContext, stagedModel);
+		}
+		catch (PortletDataException pde) {
+			throw pde;
+		}
+		catch (Exception e) {
+			throw new PortletDataException(e);
+		}
 	}
 
 	@Override
@@ -332,12 +349,6 @@ public class FolderStagedModelDataHandler
 			"defaultFileEntryTypeUuid", defaultFileEntryTypeUuid);
 	}
 
-	/**
-	 * @see com.liferay.portal.lar.PortletImporter#getAssetCategoryName(String,
-	 *      long, long, String, long, int)
-	 * @see com.liferay.portal.lar.PortletImporter#getAssetVocabularyName(
-	 *      String, long, String, int)
-	 */
 	protected String getFolderName(
 			String uuid, long groupId, long parentFolderId, String name,
 			int count)
@@ -367,7 +378,7 @@ public class FolderStagedModelDataHandler
 			return;
 		}
 
-		List<Long> currentFolderFileEntryTypeIds = new ArrayList<Long>();
+		List<Long> currentFolderFileEntryTypeIds = new ArrayList<>();
 
 		String defaultFileEntryTypeUuid = GetterUtil.getString(
 			folderElement.attributeValue("defaultFileEntryTypeUuid"));
@@ -476,7 +487,7 @@ public class FolderStagedModelDataHandler
 		}
 	}
 
-	private static Log _log = LogFactoryUtil.getLog(
+	private static final Log _log = LogFactoryUtil.getLog(
 		FolderStagedModelDataHandler.class);
 
 }

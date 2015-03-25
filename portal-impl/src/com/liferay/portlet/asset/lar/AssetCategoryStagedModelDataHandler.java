@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.lar.StagedModelModifiedDateComparator;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -47,6 +47,7 @@ import java.util.Map;
  * @author Gergely Mathe
  * @author Mate Thurzo
  */
+@OSGiBeanProperties
 public class AssetCategoryStagedModelDataHandler
 	extends BaseStagedModelDataHandler<AssetCategory> {
 
@@ -65,27 +66,21 @@ public class AssetCategoryStagedModelDataHandler
 	}
 
 	@Override
-	public AssetCategory fetchStagedModelByUuidAndCompanyId(
-		String uuid, long companyId) {
-
-		List<AssetCategory> categories =
-			AssetCategoryLocalServiceUtil.getAssetCategoriesByUuidAndCompanyId(
-				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new StagedModelModifiedDateComparator<AssetCategory>());
-
-		if (ListUtil.isEmpty(categories)) {
-			return null;
-		}
-
-		return categories.get(0);
-	}
-
-	@Override
 	public AssetCategory fetchStagedModelByUuidAndGroupId(
 		String uuid, long groupId) {
 
 		return AssetCategoryLocalServiceUtil.fetchAssetCategoryByUuidAndGroupId(
 			uuid, groupId);
+	}
+
+	@Override
+	public List<AssetCategory> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return AssetCategoryLocalServiceUtil.
+			getAssetCategoriesByUuidAndCompanyId(
+				uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new StagedModelModifiedDateComparator<AssetCategory>());
 	}
 
 	@Override
@@ -159,6 +154,10 @@ public class AssetCategoryStagedModelDataHandler
 		String categoryPath = ExportImportPathUtil.getModelPath(category);
 
 		categoryElement.addAttribute("path", categoryPath);
+
+		portletDataContext.addReferenceElement(
+			category, categoryElement, category,
+			PortletDataContext.REFERENCE_TYPE_DEPENDENCY, false);
 
 		portletDataContext.addPermissions(
 			AssetCategory.class, category.getCategoryId());
@@ -298,7 +297,7 @@ public class AssetCategoryStagedModelDataHandler
 		Map<Locale, String> titleMap = category.getTitleMap();
 
 		if (titleMap == null) {
-			titleMap = new HashMap<Locale, String>();
+			titleMap = new HashMap<>();
 		}
 
 		titleMap.put(PortalUtil.getSiteDefaultLocale(groupId), name);

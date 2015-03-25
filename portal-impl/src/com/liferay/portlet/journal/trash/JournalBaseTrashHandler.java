@@ -61,8 +61,7 @@ public abstract class JournalBaseTrashHandler extends BaseTrashHandler {
 		List<JournalFolder> folders = JournalFolderLocalServiceUtil.getFolders(
 			getGroupId(classPK), parentContainerModelId, start, end);
 
-		List<ContainerModel> containerModels = new ArrayList<ContainerModel>(
-			folders.size());
+		List<ContainerModel> containerModels = new ArrayList<>(folders.size());
 
 		for (JournalFolder curFolder : folders) {
 			containerModels.add(curFolder);
@@ -84,7 +83,7 @@ public abstract class JournalBaseTrashHandler extends BaseTrashHandler {
 	public List<ContainerModel> getParentContainerModels(long classPK)
 		throws PortalException {
 
-		List<ContainerModel> containerModels = new ArrayList<ContainerModel>();
+		List<ContainerModel> containerModels = new ArrayList<>();
 
 		ContainerModel containerModel = getParentContainerModel(classPK);
 
@@ -145,14 +144,13 @@ public abstract class JournalBaseTrashHandler extends BaseTrashHandler {
 			long classPK, int start, int end)
 		throws PortalException {
 
-		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
+		List<TrashRenderer> trashRenderers = new ArrayList<>();
 
 		JournalFolder folder = JournalFolderLocalServiceUtil.getFolder(classPK);
 
-		List<JournalArticle> articles =
-			JournalArticleLocalServiceUtil.search(
-				folder.getGroupId(), classPK, WorkflowConstants.STATUS_IN_TRASH,
-				start, end);
+		List<JournalArticle> articles = JournalArticleLocalServiceUtil.search(
+			folder.getGroupId(), classPK, WorkflowConstants.STATUS_IN_TRASH,
+			start, end);
 
 		for (JournalArticle article : articles) {
 			TrashHandler trashHandler =
@@ -188,14 +186,13 @@ public abstract class JournalBaseTrashHandler extends BaseTrashHandler {
 			long classPK, int start, int end)
 		throws PortalException {
 
-		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
+		List<TrashRenderer> trashRenderers = new ArrayList<>();
 
 		JournalFolder folder = JournalFolderLocalServiceUtil.getFolder(classPK);
 
-		List<JournalFolder> folders =
-			JournalFolderLocalServiceUtil.getFolders(
-				folder.getGroupId(), classPK, WorkflowConstants.STATUS_IN_TRASH,
-				start, end);
+		List<JournalFolder> folders = JournalFolderLocalServiceUtil.getFolders(
+			folder.getGroupId(), classPK, WorkflowConstants.STATUS_IN_TRASH,
+			start, end);
 
 		for (JournalFolder curFolder : folders) {
 			TrashHandler trashHandler =

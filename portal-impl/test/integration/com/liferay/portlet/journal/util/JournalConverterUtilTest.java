@@ -17,7 +17,11 @@ package com.liferay.portlet.journal.util;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.repository.model.FileEntry;
-import com.liferay.portal.kernel.test.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -28,15 +32,15 @@ import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.kernel.xml.XPath;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.User;
-import com.liferay.portal.test.LiferayIntegrationTestRule;
-import com.liferay.portal.test.MainServletTestRule;
+import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portal.xml.XMLSchemaImpl;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
+import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
-import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
@@ -93,7 +97,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 
 		_ddmStructure = addStructure(
 			classNameId, null, "Test Structure", definition,
-			StorageType.XML.getValue(), DDMStructureConstants.TYPE_DEFAULT);
+			StorageType.JSON.getValue(), DDMStructureConstants.TYPE_DEFAULT);
 	}
 
 	@Test
@@ -322,9 +326,15 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 
 		Fields expectedFields = new Fields();
 
-		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
-			group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			"Test 1.txt");
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				group.getGroupId(), TestPropsValues.getUserId());
+
+		FileEntry fileEntry = DLAppLocalServiceUtil.addFileEntry(
+			TestPropsValues.getUserId(), group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, "Test 1.txt",
+			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomBytes(),
+			serviceContext);
 
 		Field documentLibraryField = getDocumentLibraryField(
 			fileEntry, _ddmStructure.getStructureId());
@@ -509,7 +519,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		assertEquals(
 			expectedDDMFormField.getLabel(), actualDDMFormField.getLabel());
 		Assert.assertEquals(
-			expectedDDMFormField.getName(),  actualDDMFormField.getName());
+			expectedDDMFormField.getName(), actualDDMFormField.getName());
 		assertEquals(
 			expectedDDMFormField.getStyle(), actualDDMFormField.getStyle());
 		assertEquals(
@@ -579,7 +589,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		field.setDDMStructureId(ddmStructureId);
 		field.setName("boolean");
 
-		List<Serializable> enValues = new ArrayList<Serializable>();
+		List<Serializable> enValues = new ArrayList<>();
 
 		enValues.add(true);
 		enValues.add(false);
@@ -623,8 +633,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 			String content)
 		throws Exception {
 
-		Map<String, Map<Locale, List<String>>> fieldsMap =
-			new HashMap<String, Map<Locale, List<String>>>();
+		Map<String, Map<Locale, List<String>>> fieldsMap = new HashMap<>();
 
 		Document document = SAXReaderUtil.read(content);
 
@@ -641,7 +650,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 	}
 
 	protected Map<String, Layout> getLayoutsMap() throws Exception {
-		Map<String, Layout> layouts = new LinkedHashMap<String, Layout>(4);
+		Map<String, Layout> layouts = new LinkedHashMap<>(4);
 
 		User user = TestPropsValues.getUser();
 
@@ -669,7 +678,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		field.setDDMStructureId(ddmStructureId);
 		field.setName("link_to_layout");
 
-		List<Serializable> enValues = new ArrayList<Serializable>();
+		List<Serializable> enValues = new ArrayList<>();
 
 		for (Layout layout : layoutsMap.values()) {
 			enValues.add(getLinkToLayoutFieldValue(layout, false));
@@ -708,12 +717,12 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 	}
 
 	protected Field getMultiListField(long ddmStructureId) {
-		Field field =  new Field();
+		Field field = new Field();
 
 		field.setDDMStructureId(ddmStructureId);
 		field.setName("multi-list");
 
-		field.addValue(_enLocale, "[\"a\",\"b\"]");
+		field.addValue(_enLocale, "[\"a\"]");
 
 		return field;
 	}
@@ -728,14 +737,14 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		contact.setDDMStructureId(ddmStructureId);
 		contact.setName("contact");
 
-		List<Serializable> enValues = new ArrayList<Serializable>();
+		List<Serializable> enValues = new ArrayList<>();
 
 		enValues.add("joe");
 		enValues.add("richard");
 
 		contact.setValues(_enLocale, enValues);
 
-		List<Serializable> ptValues = new ArrayList<Serializable>();
+		List<Serializable> ptValues = new ArrayList<>();
 
 		ptValues.add("joao");
 		ptValues.add("ricardo");
@@ -751,7 +760,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		phone.setDDMStructureId(ddmStructureId);
 		phone.setName("phone");
 
-		List<Serializable> values = new ArrayList<Serializable>();
+		List<Serializable> values = new ArrayList<>();
 
 		values.add("123");
 		values.add("456");
@@ -768,7 +777,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		ext.setDDMStructureId(ddmStructureId);
 		ext.setName("ext");
 
-		values = new ArrayList<Serializable>();
+		values = new ArrayList<>();
 
 		values.add("1");
 		values.add("2");
@@ -811,7 +820,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		field.setDDMStructureId(ddmStructureId);
 		field.setName("text_box");
 
-		List<Serializable> enValues = new ArrayList<Serializable>();
+		List<Serializable> enValues = new ArrayList<>();
 
 		enValues.add("one");
 		enValues.add("two");
@@ -819,7 +828,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 
 		field.addValues(_enLocale, enValues);
 
-		List<Serializable> ptValues = new ArrayList<Serializable>();
+		List<Serializable> ptValues = new ArrayList<>();
 
 		ptValues.add("um");
 		ptValues.add("dois");
@@ -848,7 +857,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		List<String> values = valuesMap.get(locale);
 
 		if (values == null) {
-			values = new ArrayList<String>();
+			values = new ArrayList<>();
 
 			valuesMap.put(locale, values);
 		}
@@ -890,7 +899,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 				String.valueOf(privateLayout.getLayoutId()),
 				String.valueOf(privateUserLayout.getLayoutId()),
 				String.valueOf(publicLayout.getLayoutId()),
-				String.valueOf(publicUserLayout.getLayoutId()),
+				String.valueOf(publicUserLayout.getLayoutId())
 			});
 	}
 
@@ -912,7 +921,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 		Map<Locale, List<String>> valuesMap = fieldsMap.get(name);
 
 		if (valuesMap == null) {
-			valuesMap = new HashMap<Locale,  List<String>>();
+			valuesMap = new HashMap<>();
 
 			fieldsMap.put(name, valuesMap);
 		}
@@ -963,7 +972,7 @@ public class JournalConverterUtilTest extends BaseDDMServiceTestCase {
 	private static final String _PUBLIC_USER_LAYOUT = "publicUserLayout";
 
 	private DDMStructure _ddmStructure;
-	private Locale _enLocale = LocaleUtil.fromLanguageId("en_US");
-	private Locale _ptLocale = LocaleUtil.fromLanguageId("pt_BR");
+	private final Locale _enLocale = LocaleUtil.fromLanguageId("en_US");
+	private final Locale _ptLocale = LocaleUtil.fromLanguageId("pt_BR");
 
 }

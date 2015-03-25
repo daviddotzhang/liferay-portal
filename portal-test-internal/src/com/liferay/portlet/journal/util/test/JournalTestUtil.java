@@ -20,6 +20,9 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -38,9 +41,6 @@ import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.test.RandomTestUtil;
-import com.liferay.portal.util.test.ServiceContextTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
@@ -75,6 +75,23 @@ public class JournalTestUtil {
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(groupId);
+
+		serviceContext.setCommand(Constants.ADD);
+		serviceContext.setLayoutFullURL("http://localhost");
+
+		return addArticle(
+			groupId, folderId, JournalArticleConstants.CLASSNAME_ID_DEFAULT,
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), LocaleUtil.getSiteDefault(), false,
+			false, serviceContext);
+	}
+
+	public static JournalArticle addArticle(
+			long userId, long groupId, long folderId)
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(groupId, userId);
 
 		serviceContext.setCommand(Constants.ADD);
 		serviceContext.setLayoutFullURL("http://localhost");
@@ -209,19 +226,19 @@ public class JournalTestUtil {
 			ServiceContext serviceContext)
 		throws Exception {
 
-		Map<Locale, String> titleMap = new HashMap<Locale, String>();
+		Map<Locale, String> titleMap = new HashMap<>();
 
 		for (Locale locale : _locales) {
 			titleMap.put(locale, title);
 		}
 
-		Map<Locale, String> descriptionMap = new HashMap<Locale, String>();
+		Map<Locale, String> descriptionMap = new HashMap<>();
 
 		for (Locale locale : _locales) {
 			descriptionMap.put(locale, description);
 		}
 
-		Map<Locale, String> contentMap = new HashMap<Locale, String>();
+		Map<Locale, String> contentMap = new HashMap<>();
 
 		for (Locale locale : _locales) {
 			contentMap.put(locale, content);
@@ -377,19 +394,19 @@ public class JournalTestUtil {
 			boolean approved, ServiceContext serviceContext)
 		throws Exception {
 
-		Map<Locale, String> titleMap = new HashMap<Locale, String>();
+		Map<Locale, String> titleMap = new HashMap<>();
 
 		for (Locale locale : _locales) {
 			titleMap.put(locale, title);
 		}
 
-		Map<Locale, String> descriptionMap = new HashMap<Locale, String>();
+		Map<Locale, String> descriptionMap = new HashMap<>();
 
 		for (Locale locale : _locales) {
 			descriptionMap.put(locale, RandomTestUtil.randomString(50));
 		}
 
-		Map<Locale, String> contentMap = new HashMap<Locale, String>();
+		Map<Locale, String> contentMap = new HashMap<>();
 
 		for (Locale locale : _locales) {
 			contentMap.put(locale, content);
@@ -440,7 +457,7 @@ public class JournalTestUtil {
 			Map<String, byte[]> images, ServiceContext serviceContext)
 		throws Exception {
 
-		Map<Locale, String> titleMap = new HashMap<Locale, String>();
+		Map<Locale, String> titleMap = new HashMap<>();
 
 		titleMap.put(defaultLocale, "Test Article");
 
@@ -572,11 +589,22 @@ public class JournalTestUtil {
 	}
 
 	public static JournalFolder addFolder(
+			long userId, long groupId, long parentFolderId, String name)
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(groupId, userId);
+
+		return addFolder(parentFolderId, name, serviceContext);
+	}
+
+	public static JournalFolder addFolder(
 			long groupId, long parentFolderId, String name)
 		throws Exception {
 
 		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(groupId);
+			ServiceContextTestUtil.getServiceContext(
+				groupId, TestPropsValues.getUserId());
 
 		return addFolder(parentFolderId, name, serviceContext);
 	}
@@ -600,7 +628,7 @@ public class JournalTestUtil {
 		}
 
 		return JournalFolderLocalServiceUtil.addFolder(
-			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
 			parentFolderId, name, "This is a test folder.", serviceContext);
 	}
 
@@ -664,8 +692,7 @@ public class JournalTestUtil {
 	public static Map<String, Map<String, String>> getXsdMap(String xsd)
 		throws Exception {
 
-		Map<String, Map<String, String>> map =
-			new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, String>> map = new HashMap<>();
 
 		Document document = SAXReaderUtil.read(xsd);
 
@@ -697,6 +724,17 @@ public class JournalTestUtil {
 	}
 
 	public static JournalArticle updateArticle(
+			JournalArticle article, Map<Locale, String> titleMap,
+			String content, boolean workflowEnabled, boolean approved,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		return updateArticle(
+				article.getUserId(), article, titleMap, content,
+				workflowEnabled, approved, serviceContext);
+	}
+
+	public static JournalArticle updateArticle(
 			JournalArticle article, String title)
 		throws Exception {
 
@@ -720,6 +758,23 @@ public class JournalTestUtil {
 			ServiceContext serviceContext)
 		throws Exception {
 
+		Map<Locale, String> titleMap = new HashMap<>();
+
+		for (Locale locale : _locales) {
+			titleMap.put(locale, title);
+		}
+
+		return updateArticle(
+			article, titleMap, content, workflowEnabled, approved,
+			serviceContext);
+	}
+
+	public static JournalArticle updateArticle(
+			long userId, JournalArticle article, Map<Locale, String> titleMap,
+			String content, boolean workflowEnabled, boolean approved,
+			ServiceContext serviceContext)
+		throws Exception {
+
 		if (workflowEnabled) {
 			serviceContext = (ServiceContext)serviceContext.clone();
 
@@ -731,12 +786,6 @@ public class JournalTestUtil {
 				serviceContext.setWorkflowAction(
 					WorkflowConstants.ACTION_SAVE_DRAFT);
 			}
-		}
-
-		Map<Locale, String> titleMap = new HashMap<Locale, String>();
-
-		for (Locale locale : _locales) {
-			titleMap.put(locale, title);
 		}
 
 		Date displayDate = article.getDisplayDate();
@@ -764,7 +813,7 @@ public class JournalTestUtil {
 		serviceContext.setLayoutFullURL("http://localhost");
 
 		return JournalArticleLocalServiceUtil.updateArticle(
-			article.getUserId(), article.getGroupId(), article.getFolderId(),
+			userId, article.getGroupId(), article.getFolderId(),
 			article.getArticleId(), article.getVersion(), titleMap,
 			article.getDescriptionMap(), content, article.getDDMStructureKey(),
 			article.getDDMTemplateKey(), article.getLayoutUuid(),
@@ -781,6 +830,19 @@ public class JournalTestUtil {
 		return updateArticle(
 			article, RandomTestUtil.randomString(), article.getContent(), false,
 			approved, ServiceContextTestUtil.getServiceContext());
+	}
+
+	public static JournalArticle updateArticleWithWorkflow(
+			long userId, JournalArticle article, boolean approved)
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				article.getGroupId(), userId);
+
+		return updateArticle(
+			article, RandomTestUtil.randomString(), article.getContent(), false,
+			approved, serviceContext);
 	}
 
 	private static String _getFeedFriendlyURL(long groupId, long plid)
@@ -813,7 +875,7 @@ public class JournalTestUtil {
 	}
 
 	private static Map<String, String> _getMap(Element dynamicElementElement) {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Element parentElement = dynamicElementElement.getParent();
 
