@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.lar;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.spring.orm.LastSessionRecorderHelperUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -149,6 +150,10 @@ public class StagedModelDataHandlerUtil {
 		StagedModelDataHandler<T> stagedModelDataHandler =
 			_getStagedModelDataHandler(stagedModel);
 
+		if (stagedModelDataHandler == null) {
+			return;
+		}
+
 		stagedModelDataHandler.exportStagedModel(
 			portletDataContext, stagedModel);
 	}
@@ -203,11 +208,15 @@ public class StagedModelDataHandlerUtil {
 		boolean missing = GetterUtil.getBoolean(
 			referenceElement.attributeValue("missing"));
 
-		if (missing) {
-			StagedModelDataHandler<?> stagedModelDataHandler =
-				StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
-					stagedModelClassName);
+		StagedModelDataHandler<?> stagedModelDataHandler =
+			StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
+				stagedModelClassName);
 
+		if (stagedModelDataHandler == null) {
+			return;
+		}
+
+		if (missing) {
 			stagedModelDataHandler.importMissingReference(
 				portletDataContext, referenceElement);
 
@@ -243,11 +252,15 @@ public class StagedModelDataHandlerUtil {
 			boolean missing = GetterUtil.getBoolean(
 				referenceElement.attributeValue("missing"));
 
-			if (missing) {
-				StagedModelDataHandler<?> stagedModelDataHandler =
-					StagedModelDataHandlerRegistryUtil.
-						getStagedModelDataHandler(stagedModelClass.getName());
+			StagedModelDataHandler<?> stagedModelDataHandler =
+				StagedModelDataHandlerRegistryUtil.getStagedModelDataHandler(
+					stagedModelClassName);
 
+			if (stagedModelDataHandler == null) {
+				continue;
+			}
+
+			if (missing) {
 				stagedModelDataHandler.importMissingReference(
 					portletDataContext, referenceElement);
 
@@ -293,8 +306,14 @@ public class StagedModelDataHandlerUtil {
 		StagedModelDataHandler<T> stagedModelDataHandler =
 			_getStagedModelDataHandler(stagedModel);
 
+		if (stagedModelDataHandler == null) {
+			return;
+		}
+
 		stagedModelDataHandler.importStagedModel(
 			portletDataContext, stagedModel);
+
+		LastSessionRecorderHelperUtil.syncLastSessionState();
 	}
 
 	private static StagedModel _getReferenceStagedModel(

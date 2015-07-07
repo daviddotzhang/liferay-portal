@@ -18,8 +18,9 @@
 
 <%
 String actionJsp = (String)request.getAttribute("liferay-ui:app-view-search-entry:actionJsp");
+ServletContext actionJspServletContext = (ServletContext)request.getAttribute("liferay-ui:app-view-entry:actionJspServletContext");
 String containerName = (String)request.getAttribute("liferay-ui:app-view-search-entry:containerName");
-String containerType = GetterUtil.getString(request.getAttribute("liferay-ui:app-view-search-entry:containerType"), LanguageUtil.get(locale, "folder"));
+String containerType = GetterUtil.getString(request.getAttribute("liferay-ui:app-view-search-entry:containerType"), LanguageUtil.get(request, "folder"));
 String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:app-view-search-entry:cssClass"));
 String description = (String)request.getAttribute("liferay-ui:app-view-search-entry:description");
 List<Tuple> fileEntryTuples = (List<Tuple>)request.getAttribute("liferay-ui:app-view-search-entry:fileEntryTuples");
@@ -36,7 +37,7 @@ String title = (String)request.getAttribute("liferay-ui:app-view-search-entry:ti
 String url = (String)request.getAttribute("liferay-ui:app-view-search-entry:url");
 List<String> versions = (List<String>)request.getAttribute("liferay-ui:app-view-search-entry:versions");
 
-Summary summary = new Summary(title, description, null);
+Summary summary = new Summary(title, description);
 
 summary.setHighlight(highlightEnabled);
 summary.setQueryTerms(queryTerms);
@@ -79,7 +80,7 @@ summary.setQueryTerms(queryTerms);
 
 						<c:if test="<%= Validator.isNotNull(containerName) %>">
 							<dt>
-								<%= LanguageUtil.get(locale, containerType) %>:
+								<liferay-ui:message key="<%= containerType %>" />:
 							</dt>
 							<dd>
 
@@ -149,8 +150,9 @@ summary.setQueryTerms(queryTerms);
 		for (MBMessage mbMessage : mbMessages) {
 			User userDisplay = UserLocalServiceUtil.getUser(mbMessage.getUserId());
 
-			summary = new Summary(null, mbMessage.getBody(), null);
+			summary = new Summary(null, mbMessage.getBody());
 
+			summary.setEscape(false);
 			summary.setHighlight(highlightEnabled);
 			summary.setQueryTerms(queryTerms);
 		%>
@@ -186,7 +188,7 @@ summary.setQueryTerms(queryTerms);
 	</c:if>
 
 	<c:if test="<%= Validator.isNotNull(actionJsp) %>">
-		<liferay-util:include page="<%= actionJsp %>">
+		<liferay-util:include page="<%= actionJsp %>" servletContext="<%= actionJspServletContext %>">
 			<liferay-util:param name="showMinimalActionButtons" value="<%= String.valueOf(Boolean.TRUE) %>" />
 		</liferay-util:include>
 	</c:if>

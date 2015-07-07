@@ -209,7 +209,7 @@
 
 	<#assign community_name = site_name />
 
-	<#assign is_guest_group = page_group.getName() == "Guest" />
+	<#assign is_guest_group = page_group.isGuest() />
 
 	<#if is_guest_group>
 		<#assign css_class = css_class + " guest-site" />
@@ -247,24 +247,11 @@
 
 	<#assign css_class = css_class + " " + site_type />
 
-	<#assign my_sites_portlet_url = portletURLFactory.create(request, "49", page.getPlid(), "ACTION_PHASE") />
-
-	<#assign my_places_portlet_url = my_sites_portlet_url />
-
-	${my_sites_portlet_url.setWindowState("normal")}
-	${my_sites_portlet_url.setPortletMode("view")}
-
-	${my_sites_portlet_url.setParameter("struts_action", "/my_sites/view")}
-	${my_sites_portlet_url.setParameter("groupId", "${page.getGroupId()}")}
-	${my_sites_portlet_url.setParameter("privateLayout", "false")}
-
-	<#assign site_default_public_url = htmlUtil.escape(my_sites_portlet_url.toString()) />
+	<#assign site_default_public_url = htmlUtil.escape(page_group.getDisplayURL(theme_display, false)) />
 
 	<#assign community_default_public_url = site_default_public_url />
 
-	${my_sites_portlet_url.setParameter("privateLayout", "true")}
-
-	<#assign site_default_private_url = htmlUtil.escape(my_sites_portlet_url.toString()) />
+	<#assign site_default_private_url = htmlUtil.escape(page_group.getDisplayURL(theme_display, true)) />
 
 	<#assign community_default_private_url = site_default_private_url />
 

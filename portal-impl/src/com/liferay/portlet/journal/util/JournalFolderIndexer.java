@@ -18,10 +18,7 @@ import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.portlet.LiferayPortletURL;
-import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.search.BaseIndexer;
-import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
@@ -29,12 +26,13 @@ import com.liferay.portal.kernel.search.FolderIndexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.service.JournalFolderLocalServiceUtil;
 import com.liferay.portlet.journal.service.permission.JournalFolderPermission;
@@ -43,17 +41,14 @@ import java.util.Locale;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.PortletURL;
-import javax.portlet.WindowStateException;
 
 /**
  * @author Eduardo Garcia
  */
+@OSGiBeanProperties
 public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 
-	public static final String[] CLASS_NAMES = {JournalFolder.class.getName()};
-
-	public static final String PORTLET_ID = PortletKeys.JOURNAL;
+	public static final String CLASS_NAME = JournalFolder.class.getName();
 
 	public JournalFolderIndexer() {
 		setDefaultSelectedFieldNames(
@@ -64,18 +59,13 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 	}
 
 	@Override
-	public String[] getClassNames() {
-		return CLASS_NAMES;
+	public String getClassName() {
+		return CLASS_NAME;
 	}
 
 	@Override
 	public String[] getFolderClassNames() {
-		return CLASS_NAMES;
-	}
-
-	@Override
-	public String getPortletId() {
-		return PORTLET_ID;
+		return new String[] {CLASS_NAME};
 	}
 
 	@Override
@@ -92,11 +82,11 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 	}
 
 	@Override
-	public void postProcessContextQuery(
-			BooleanQuery contextQuery, SearchContext searchContext)
+	public void postProcessContextBooleanFilter(
+			BooleanFilter contextBooleanFilter, SearchContext searchContext)
 		throws Exception {
 
-		addStatus(contextQuery, searchContext);
+		addStatus(contextBooleanFilter, searchContext);
 	}
 
 	@Override
@@ -105,7 +95,7 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 
 		Document document = new DocumentImpl();
 
-		document.addUID(PORTLET_ID, folder.getFolderId());
+		document.addUID(CLASS_NAME, folder.getFolderId());
 
 		SearchEngineUtil.deleteDocument(
 			getSearchEngineId(), folder.getCompanyId(), document.get(Field.UID),
@@ -120,7 +110,7 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 			_log.debug("Indexing folder " + folder);
 		}
 
-		Document document = getBaseModelDocument(PORTLET_ID, folder);
+		Document document = getBaseModelDocument(CLASS_NAME, folder);
 
 		document.addText(Field.DESCRIPTION, folder.getDescription());
 		document.addKeyword(Field.FOLDER_ID, folder.getParentFolderId());
@@ -138,29 +128,13 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 
 	@Override
 	protected Summary doGetSummary(
-		Document document, Locale locale, String snippet, PortletURL portletURL,
+		Document document, Locale locale, String snippet,
 		PortletRequest portletRequest, PortletResponse portletResponse) {
-
-		LiferayPortletURL liferayPortletURL = (LiferayPortletURL)portletURL;
-
-		liferayPortletURL.setLifecycle(PortletRequest.ACTION_PHASE);
-
-		try {
-			liferayPortletURL.setWindowState(LiferayWindowState.EXCLUSIVE);
-		}
-		catch (WindowStateException wse) {
-		}
-
-		String folderId = document.get(Field.ENTRY_CLASS_PK);
-
-		portletURL.setParameter("struts_action", "/journal/view");
-		portletURL.setParameter("folderId", folderId);
 
 		Summary summary = createSummary(
 			document, Field.TITLE, Field.DESCRIPTION);
 
 		summary.setMaxContentLength(200);
-		summary.setPortletURL(portletURL);
 
 		return summary;
 	}
@@ -188,11 +162,6 @@ public class JournalFolderIndexer extends BaseIndexer implements FolderIndexer {
 		long companyId = GetterUtil.getLong(ids[0]);
 
 		reindexFolders(companyId);
-	}
-
-	@Override
-	protected String getPortletId(SearchContext searchContext) {
-		return PORTLET_ID;
 	}
 
 	protected void reindexFolders(long companyId) throws PortalException {

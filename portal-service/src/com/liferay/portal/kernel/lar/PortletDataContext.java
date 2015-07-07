@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.lar;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.dao.orm.Criterion;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.DateRange;
@@ -118,7 +119,7 @@ public interface PortletDataContext extends Serializable {
 
 	/**
 	 * @deprecated As of 6.2.0, replaced by {@link #addClassedModel(Element,
-	 *             ClassedModel, Class)}
+	 *             String, ClassedModel, Class)}
 	 */
 	@Deprecated
 	public void addClassedModel(
@@ -154,7 +155,7 @@ public interface PortletDataContext extends Serializable {
 		String className, long classPK, List<MBMessage> messages);
 
 	public void addDateRangeCriteria(
-		DynamicQuery dynamicQuery, String modifiedDatePropertyName);
+		DynamicQuery dynamicQuery, String propertyName);
 
 	public void addDeletionSystemEventStagedModelTypes(
 		StagedModelType... stagedModelTypes);
@@ -313,6 +314,8 @@ public interface PortletDataContext extends Serializable {
 
 	public DateRange getDateRange();
 
+	public Criterion getDateRangeCriteria(String propertyName);
+
 	public Set<StagedModelType> getDeletionSystemEventStagedModelTypes();
 
 	public Date getEndDate();
@@ -374,6 +377,8 @@ public interface PortletDataContext extends Serializable {
 	public Map<?, ?> getNewPrimaryKeysMap(Class<?> clazz);
 
 	public Map<?, ?> getNewPrimaryKeysMap(String className);
+
+	public Map<String, Map<?, ?>> getNewPrimaryKeysMaps();
 
 	/**
 	 * @deprecated As of 7.0.0, with no direct replacement
@@ -614,6 +619,8 @@ public interface PortletDataContext extends Serializable {
 
 	public boolean isDataStrategyMirrorWithOverwriting();
 
+	public boolean isInitialPublication();
+
 	public boolean isModelCounted(String className, long classPK);
 
 	public boolean isPathExportedInScope(String path);
@@ -666,6 +673,10 @@ public interface PortletDataContext extends Serializable {
 
 	public void setPlid(long plid);
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	public void setPortetDataContextListener(
 		PortletDataContextListener portletDataContextListener);
 

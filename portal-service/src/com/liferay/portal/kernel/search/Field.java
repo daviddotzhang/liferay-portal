@@ -41,12 +41,6 @@ public class Field implements Serializable {
 
 	public static final String ASSET_CATEGORY_IDS = "assetCategoryIds";
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #ASSET_CATEGORY_TITLES}
-	 */
-	@Deprecated
-	public static final String ASSET_CATEGORY_NAMES = "assetCategoryNames";
-
 	public static final String ASSET_CATEGORY_TITLE = "assetCategoryTitle";
 
 	public static final String ASSET_CATEGORY_TITLES = "assetCategoryTitles";
@@ -62,6 +56,8 @@ public class Field implements Serializable {
 	public static final String ASSET_VOCABULARY_ID = "assetVocabularyId";
 
 	public static final String ASSET_VOCABULARY_IDS = "assetVocabularyIds";
+
+	public static final String CAPTION = "caption";
 
 	public static final String CATEGORY_ID = "categoryId";
 
@@ -109,12 +105,6 @@ public class Field implements Serializable {
 
 	public static final String LAYOUT_UUID = "layoutUuid";
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #MODIFIED_DATE}
-	 */
-	@Deprecated
-	public static final String MODIFIED = "modified";
-
 	public static final String MODIFIED_DATE = "modified";
 
 	public static final String NAME = "name";
@@ -123,6 +113,10 @@ public class Field implements Serializable {
 
 	public static final String ORGANIZATION_ID = "organizationId";
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #ENTRY_CLASS_NAME}
+	 */
+	@Deprecated
 	public static final String PORTLET_ID = "portletId";
 
 	public static final String PRIORITY = "priority";
@@ -168,8 +162,7 @@ public class Field implements Serializable {
 	public static final String[] UNSCORED_FIELD_NAMES = {
 		Field.ASSET_CATEGORY_IDS, Field.COMPANY_ID, Field.ENTRY_CLASS_NAME,
 		Field.ENTRY_CLASS_PK, Field.FOLDER_ID, Field.GROUP_ID,
-		Field.GROUP_ROLE_ID, Field.PORTLET_ID, Field.ROLE_ID,
-		Field.SCOPE_GROUP_ID, Field.USER_ID
+		Field.GROUP_ROLE_ID, Field.ROLE_ID, Field.SCOPE_GROUP_ID, Field.USER_ID
 	};
 
 	public static final String URL = "url";
@@ -197,46 +190,19 @@ public class Field implements Serializable {
 		this(name, new String[] {value});
 	}
 
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String value, boolean tokenized) {
-		this(name, value);
-
-		setTokenized(tokenized);
-	}
-
 	public Field(String name, String[] values) {
 		_name = name;
 		_values = values;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String[] values, boolean tokenized) {
-		this(name, values);
-
-		setTokenized(tokenized);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0
-	 */
-	@Deprecated
-	public Field(String name, String[] values, boolean tokenized, float boost) {
-		this(name, values);
-
-		setBoost(boost);
-		setTokenized(tokenized);
 	}
 
 	public void addField(Field field) {
 		_fields.add(field);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link Query#getBoost}
+	 */
+	@Deprecated
 	public float getBoost() {
 		return _boost;
 	}
@@ -311,6 +277,10 @@ public class Field implements Serializable {
 		return _tokenized;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link Query#setBoost(float)}
+	 */
+	@Deprecated
 	public void setBoost(float boost) {
 		_boost = boost;
 	}
@@ -418,12 +388,12 @@ public class Field implements Serializable {
 		}
 
 		private final LinkedList<Field> _nestedFieldsBuilderFields =
-			new LinkedList<Field>();
+			new LinkedList<>();
 
 	}
 
 	private float _boost = 1;
-	private final List<Field> _fields = new ArrayList<Field>();
+	private final List<Field> _fields = new ArrayList<>();
 	private Map<Locale, String> _localizedValues;
 	private String _name;
 	private boolean _numeric;

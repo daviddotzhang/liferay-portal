@@ -36,7 +36,7 @@ create table Address (
 	zip VARCHAR(75) null,
 	regionId LONG,
 	countryId LONG,
-	typeId INTEGER,
+	typeId LONG,
 	mailing BOOLEAN,
 	primary_ BOOLEAN
 );
@@ -175,18 +175,6 @@ create table AssetTag (
 	assetCount INTEGER
 );
 
-create table AssetTagProperty (
-	tagPropertyId LONG not null primary key,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	tagId LONG,
-	key_ VARCHAR(75) null,
-	value VARCHAR(255) null
-);
-
 create table AssetTagStats (
 	tagStatsId LONG not null primary key,
 	tagId LONG,
@@ -246,8 +234,9 @@ create table BlogsEntry (
 	allowPingbacks BOOLEAN,
 	allowTrackbacks BOOLEAN,
 	trackbacks TEXT null,
+	coverImageCaption STRING null,
 	coverImageFileEntryId LONG,
-	coverImageURL VARCHAR(75) null,
+	coverImageURL STRING null,
 	smallImage BOOLEAN,
 	smallImageFileEntryId LONG,
 	smallImageId LONG,
@@ -347,8 +336,8 @@ create table Contact_ (
 	firstName VARCHAR(75) null,
 	middleName VARCHAR(75) null,
 	lastName VARCHAR(75) null,
-	prefixId INTEGER,
-	suffixId INTEGER,
+	prefixId LONG,
+	suffixId LONG,
 	male BOOLEAN,
 	birthday DATE null,
 	smsSn VARCHAR(75) null,
@@ -489,6 +478,19 @@ create table DDMStructure (
 	type_ INTEGER
 );
 
+create table DDMStructureLayout (
+	uuid_ VARCHAR(75) null,
+	structureLayoutId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
+	structureVersionId LONG,
+	definition TEXT null
+);
+
 create table DDMStructureLink (
 	structureLinkId LONG not null primary key,
 	classNameId LONG,
@@ -523,6 +525,7 @@ create table DDMTemplate (
 	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
+	resourceClassNameId LONG,
 	templateKey VARCHAR(75) null,
 	version VARCHAR(75) null,
 	name STRING null,
@@ -537,6 +540,13 @@ create table DDMTemplate (
 	smallImageURL VARCHAR(75) null
 );
 
+create table DDMTemplateLink (
+	templateLinkId LONG not null primary key,
+	classNameId LONG,
+	classPK LONG,
+	templateId LONG
+);
+
 create table DDMTemplateVersion (
 	templateVersionId LONG not null primary key,
 	groupId LONG,
@@ -544,6 +554,8 @@ create table DDMTemplateVersion (
 	userId LONG,
 	userName VARCHAR(75) null,
 	createDate DATE null,
+	classNameId LONG,
+	classPK LONG,
 	templateId LONG,
 	version VARCHAR(75) null,
 	name STRING null,
@@ -600,7 +612,6 @@ create table DLFileEntryMetadata (
 	fileEntryMetadataId LONG not null primary key,
 	DDMStorageId LONG,
 	DDMStructureId LONG,
-	fileEntryTypeId LONG,
 	fileEntryId LONG,
 	fileVersionId LONG
 );
@@ -736,7 +747,7 @@ create table EmailAddress (
 	classNameId LONG,
 	classPK LONG,
 	address VARCHAR(75) null,
-	typeId INTEGER,
+	typeId LONG,
 	primary_ BOOLEAN
 );
 
@@ -785,7 +796,7 @@ create table ExportImportConfiguration (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	name VARCHAR(75) null,
+	name VARCHAR(200) null,
 	description STRING null,
 	type_ INTEGER,
 	settings_ TEXT null,
@@ -806,7 +817,8 @@ create table Group_ (
 	parentGroupId LONG,
 	liveGroupId LONG,
 	treePath STRING null,
-	name VARCHAR(150) null,
+	groupKey VARCHAR(150) null,
+	name STRING null,
 	description STRING null,
 	type_ INTEGER,
 	typeSettings TEXT null,
@@ -1136,7 +1148,7 @@ create table LayoutSetPrototype (
 
 create table ListType (
 	mvccVersion LONG default 0,
-	listTypeId INTEGER not null primary key,
+	listTypeId LONG not null primary key,
 	name VARCHAR(75) null,
 	type_ VARCHAR(75) null
 );
@@ -1378,7 +1390,7 @@ create table MembershipRequest (
 	replyComments STRING null,
 	replyDate DATE null,
 	replierUserId LONG,
-	statusId INTEGER
+	statusId LONG
 );
 
 create table Organization_ (
@@ -1397,7 +1409,7 @@ create table Organization_ (
 	recursable BOOLEAN,
 	regionId LONG,
 	countryId LONG,
-	statusId INTEGER,
+	statusId LONG,
 	comments STRING null,
 	logoId LONG
 );
@@ -1414,7 +1426,7 @@ create table OrgLabor (
 	mvccVersion LONG default 0,
 	orgLaborId LONG not null primary key,
 	organizationId LONG,
-	typeId INTEGER,
+	typeId LONG,
 	sunOpen INTEGER,
 	sunClose INTEGER,
 	monOpen INTEGER,
@@ -1498,7 +1510,7 @@ create table Phone (
 	classPK LONG,
 	number_ VARCHAR(75) null,
 	extension VARCHAR(75) null,
-	typeId INTEGER,
+	typeId LONG,
 	primary_ BOOLEAN
 );
 
@@ -2073,6 +2085,7 @@ create table SocialRequest (
 create table Subscription (
 	mvccVersion LONG default 0,
 	subscriptionId LONG not null primary key,
+	groupId LONG,
 	companyId LONG,
 	userId LONG,
 	userName VARCHAR(75) null,
@@ -2349,59 +2362,8 @@ create table Website (
 	classNameId LONG,
 	classPK LONG,
 	url STRING null,
-	typeId INTEGER,
+	typeId LONG,
 	primary_ BOOLEAN
-);
-
-create table WikiNode (
-	uuid_ VARCHAR(75) null,
-	nodeId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	name VARCHAR(75) null,
-	description STRING null,
-	lastPostDate DATE null,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table WikiPage (
-	uuid_ VARCHAR(75) null,
-	pageId LONG not null primary key,
-	resourcePrimKey LONG,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	nodeId LONG,
-	title VARCHAR(255) null,
-	version DOUBLE,
-	minorEdit BOOLEAN,
-	content TEXT null,
-	summary STRING null,
-	format VARCHAR(75) null,
-	head BOOLEAN,
-	parentTitle VARCHAR(255) null,
-	redirectTitle VARCHAR(255) null,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table WikiPageResource (
-	uuid_ VARCHAR(75) null,
-	resourcePrimKey LONG not null primary key,
-	nodeId LONG,
-	title VARCHAR(255) null
 );
 
 create table WorkflowDefinitionLink (

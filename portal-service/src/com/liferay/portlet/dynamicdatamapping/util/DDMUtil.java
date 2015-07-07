@@ -15,16 +15,21 @@
 package com.liferay.portlet.dynamicdatamapping.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
+import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayout;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.storage.Field;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 
 import java.io.Serializable;
+
+import javax.portlet.PortletRequest;
 
 /**
  * @author Eduardo Lundgren
@@ -38,8 +43,38 @@ public class DDMUtil {
 		return _ddm;
 	}
 
-	public static DDMDisplay getDDMDisplay(ServiceContext serviceContext) {
-		return getDDM().getDDMDisplay(serviceContext);
+	public static DDMDisplay getDDMDisplay(long classNameId)
+		throws PortalException {
+
+		return getDDM().getDDMDisplay(classNameId);
+	}
+
+	public static DDMForm getDDMForm(long classNameId, long classPK)
+		throws PortalException {
+
+		return getDDM().getDDMForm(classNameId, classPK);
+	}
+
+	public static DDMForm getDDMForm(PortletRequest portletRequest)
+		throws PortalException {
+
+		return getDDM().getDDMForm(portletRequest);
+	}
+
+	public static JSONArray getDDMFormFieldsJSONArray(
+		DDMStructure ddmStructure, String script) {
+
+		return getDDM().getDDMFormFieldsJSONArray(ddmStructure, script);
+	}
+
+	public static DDMPermissionHandler getDDMPermissionHandler(
+		long classNameId) {
+
+		return getDDM().getDDMPermissionHandler(classNameId);
+	}
+
+	public static DDMFormLayout getDefaultDDMFormLayout(DDMForm ddmForm) {
+		return getDDM().getDefaultDDMFormLayout(ddmForm);
 	}
 
 	public static Serializable getDisplayFieldValue(

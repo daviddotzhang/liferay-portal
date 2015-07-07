@@ -124,8 +124,7 @@ public class EditPermissionsAction extends PortletAction {
 				groupId, selResource, resourcePrimKey);
 		}
 		catch (PrincipalException pe) {
-			SessionErrors.add(
-				renderRequest, PrincipalException.class.getName());
+			SessionErrors.add(renderRequest, pe.getClass());
 
 			return actionMapping.findForward(
 				"portlet.portlet_configuration.error");
@@ -157,7 +156,7 @@ public class EditPermissionsAction extends PortletAction {
 	protected List<String> getActionIdsList(
 		ActionRequest actionRequest, long roleId, boolean includePreselected) {
 
-		List<String> actionIds = new ArrayList<String>();
+		List<String> actionIds = new ArrayList<>();
 
 		Enumeration<String> enu = actionRequest.getParameterNames();
 
@@ -242,7 +241,7 @@ public class EditPermissionsAction extends PortletAction {
 		String resourcePrimKey = ParamUtil.getString(
 			actionRequest, "resourcePrimKey");
 
-		Map<Long, String[]> roleIdsToActionIds = new HashMap<Long, String[]>();
+		Map<Long, String[]> roleIdsToActionIds = new HashMap<>();
 
 		if (ResourceBlockLocalServiceUtil.isSupported(selResource)) {
 			for (long roleId : roleIds) {

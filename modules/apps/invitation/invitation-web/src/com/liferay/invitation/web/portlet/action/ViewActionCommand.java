@@ -14,6 +14,7 @@
 
 package com.liferay.invitation.web.portlet.action;
 
+import com.liferay.invitation.web.constants.InvitationPortletKeys;
 import com.liferay.invitation.web.util.InvitationUtil;
 import com.liferay.mail.service.MailServiceUtil;
 import com.liferay.portal.kernel.mail.MailMessage;
@@ -53,7 +54,7 @@ import org.osgi.service.component.annotations.Component;
 	immediate = true,
 	property = {
 		"action.command.name=view",
-		"javax.portlet.name=com_liferay_invitation_web_portlet_InvitationPortlet"
+		"javax.portlet.name=" + InvitationPortletKeys.INVITATION
 	},
 	service = ActionCommand.class
 )
@@ -64,8 +65,8 @@ public class ViewActionCommand extends BaseActionCommand {
 			PortletRequest portletRequest, PortletResponse portletResponse)
 		throws Exception {
 
-		Set<String> invalidEmailAddresses = new HashSet<String>();
-		Set<String> validEmailAddresses = new HashSet<String>();
+		Set<String> invalidEmailAddresses = new HashSet<>();
+		Set<String> validEmailAddresses = new HashSet<>();
 
 		PortletPreferences portletPreferences = portletRequest.getPreferences();
 
@@ -138,9 +139,7 @@ public class ViewActionCommand extends BaseActionCommand {
 				"[$FROM_ADDRESS$]", "[$FROM_NAME$]", "[$PAGE_URL$]",
 				"[$PORTAL_URL$]"
 			},
-			new String[] {
-				fromAddress, fromName, layoutFullURL, portalURL
-			});
+			new String[] {fromAddress, fromName, layoutFullURL, portalURL});
 
 		body = StringUtil.replace(
 			body,
@@ -148,9 +147,7 @@ public class ViewActionCommand extends BaseActionCommand {
 				"[$FROM_ADDRESS$]", "[$FROM_NAME$]", "[$PAGE_URL$]",
 				"[$PORTAL_URL$]"
 			},
-			new String[] {
-				fromAddress, fromName, layoutFullURL, portalURL
-			});
+			new String[] {fromAddress, fromName, layoutFullURL, portalURL});
 
 		for (String emailAddress : validEmailAddresses) {
 			InternetAddress to = new InternetAddress(emailAddress);

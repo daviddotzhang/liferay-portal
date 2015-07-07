@@ -32,18 +32,20 @@ import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
+import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
+import com.liferay.portlet.documentlibrary.service.DLFileShortcutLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileVersionLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileVersionServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.storage.Fields;
+import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 import com.liferay.portlet.dynamicdatamapping.storage.StorageEngineUtil;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
@@ -86,6 +88,43 @@ public class DLFileEntryImpl extends DLFileEntryBaseImpl {
 	public long getDataRepositoryId() {
 		return DLFolderConstants.getDataRepositoryId(
 			getGroupId(), getFolderId());
+	}
+
+	@Override
+	public Map<String, DDMFormValues> getDDMFormValuesMap(long fileVersionId)
+		throws PortalException {
+
+		Map<String, DDMFormValues> ddmFormValuesMap = new HashMap<>();
+
+		DLFileVersion dlFileVersion =
+			DLFileVersionLocalServiceUtil.getFileVersion(fileVersionId);
+
+		long fileEntryTypeId = dlFileVersion.getFileEntryTypeId();
+
+		if (fileEntryTypeId <= 0) {
+			return ddmFormValuesMap;
+		}
+
+		DLFileEntryType dlFileEntryType = getDLFileEntryType();
+
+		List<DDMStructure> ddmStructures = dlFileEntryType.getDDMStructures();
+
+		for (DDMStructure ddmStructure : ddmStructures) {
+			DLFileEntryMetadata dlFileEntryMetadata =
+				DLFileEntryMetadataLocalServiceUtil.fetchFileEntryMetadata(
+					ddmStructure.getStructureId(), fileVersionId);
+
+			if (dlFileEntryMetadata != null) {
+				DDMFormValues ddmFormValues =
+					StorageEngineUtil.getDDMFormValues(
+						dlFileEntryMetadata.getDDMStorageId());
+
+				ddmFormValuesMap.put(
+					ddmStructure.getStructureKey(), ddmFormValues);
+			}
+		}
+
+		return ddmFormValuesMap;
 	}
 
 	@Override
@@ -135,38 +174,9 @@ public class DLFileEntryImpl extends DLFileEntryBaseImpl {
 	}
 
 	@Override
-	public Map<String, Fields> getFieldsMap(long fileVersionId)
-		throws PortalException {
-
-		Map<String, Fields> fieldsMap = new HashMap<String, Fields>();
-
-		DLFileVersion dlFileVersion =
-			DLFileVersionLocalServiceUtil.getFileVersion(fileVersionId);
-
-		long fileEntryTypeId = dlFileVersion.getFileEntryTypeId();
-
-		if (fileEntryTypeId <= 0) {
-			return fieldsMap;
-		}
-
-		DLFileEntryType dlFileEntryType = getDLFileEntryType();
-
-		List<DDMStructure> ddmStructures = dlFileEntryType.getDDMStructures();
-
-		for (DDMStructure ddmStructure : ddmStructures) {
-			DLFileEntryMetadata dlFileEntryMetadata =
-				DLFileEntryMetadataLocalServiceUtil.fetchFileEntryMetadata(
-					ddmStructure.getStructureId(), fileVersionId);
-
-			if (dlFileEntryMetadata != null) {
-				Fields fields = StorageEngineUtil.getFields(
-					dlFileEntryMetadata.getDDMStorageId());
-
-				fieldsMap.put(ddmStructure.getStructureKey(), fields);
-			}
-		}
-
-		return fieldsMap;
+	public List<DLFileShortcut> getFileShortcuts() {
+		return DLFileShortcutLocalServiceUtil.getFileShortcuts(
+			getFileEntryId());
 	}
 
 	@Override

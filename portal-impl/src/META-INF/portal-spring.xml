@@ -17,7 +17,6 @@
 	<bean id="com.liferay.portal.service.persistence.ClassNamePersistence" class="com.liferay.portal.service.persistence.impl.ClassNamePersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.ClusterGroupLocalService" class="com.liferay.portal.service.impl.ClusterGroupLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.ClusterGroupPersistence" class="com.liferay.portal.service.persistence.impl.ClusterGroupPersistenceImpl" parent="basePersistence" />
-	<bean id="com.liferay.portal.service.CMISRepositoryLocalService" class="com.liferay.portal.service.impl.CMISRepositoryLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.CompanyLocalService" class="com.liferay.portal.service.impl.CompanyLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.CompanyService" class="com.liferay.portal.service.impl.CompanyServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.CompanyPersistence" class="com.liferay.portal.service.persistence.impl.CompanyPersistenceImpl" parent="basePersistence" />
@@ -29,6 +28,8 @@
 	<bean id="com.liferay.portal.service.EmailAddressLocalService" class="com.liferay.portal.service.impl.EmailAddressLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.EmailAddressService" class="com.liferay.portal.service.impl.EmailAddressServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.EmailAddressPersistence" class="com.liferay.portal.service.persistence.impl.EmailAddressPersistenceImpl" parent="basePersistence" />
+	<bean id="com.liferay.portal.service.ExportImportLocalService" class="com.liferay.portal.service.impl.ExportImportLocalServiceImpl" />
+	<bean id="com.liferay.portal.service.ExportImportService" class="com.liferay.portal.service.impl.ExportImportServiceImpl" />
 	<bean id="com.liferay.portal.service.ExportImportConfigurationLocalService" class="com.liferay.portal.service.impl.ExportImportConfigurationLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.ExportImportConfigurationService" class="com.liferay.portal.service.impl.ExportImportConfigurationServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.ExportImportConfigurationPersistence" class="com.liferay.portal.service.persistence.impl.ExportImportConfigurationPersistenceImpl" parent="basePersistence" />
@@ -64,6 +65,7 @@
 	<bean id="com.liferay.portal.service.LayoutSetPrototypeService" class="com.liferay.portal.service.impl.LayoutSetPrototypeServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.LayoutSetPrototypePersistence" class="com.liferay.portal.service.persistence.impl.LayoutSetPrototypePersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.LayoutTemplateLocalService" class="com.liferay.portal.service.impl.LayoutTemplateLocalServiceImpl" />
+	<bean id="com.liferay.portal.service.ListTypeLocalService" class="com.liferay.portal.service.impl.ListTypeLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.ListTypeService" class="com.liferay.portal.service.impl.ListTypeServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.ListTypePersistence" class="com.liferay.portal.service.persistence.impl.ListTypePersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.LockLocalService" class="com.liferay.portal.service.impl.LockLocalServiceImpl" />
@@ -108,7 +110,6 @@
 	<bean id="com.liferay.portal.service.PortletPreferencesService" class="com.liferay.portal.service.impl.PortletPreferencesServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.PortletPreferencesPersistence" class="com.liferay.portal.service.persistence.impl.PortletPreferencesPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.persistence.PortletPreferencesFinder" class="com.liferay.portal.service.persistence.impl.PortletPreferencesFinderImpl" parent="basePersistence" />
-	<bean id="com.liferay.portal.service.QuartzLocalService" class="com.liferay.portal.service.impl.QuartzLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.RegionService" class="com.liferay.portal.service.impl.RegionServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.RegionPersistence" class="com.liferay.portal.service.persistence.impl.RegionPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.ReleaseLocalService" class="com.liferay.portal.service.impl.ReleaseLocalServiceImpl" />
@@ -140,6 +141,7 @@
 	<bean id="com.liferay.portal.service.persistence.RoleFinder" class="com.liferay.portal.service.persistence.impl.RoleFinderImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.ServiceComponentLocalService" class="com.liferay.portal.service.impl.ServiceComponentLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.ServiceComponentPersistence" class="com.liferay.portal.service.persistence.impl.ServiceComponentPersistenceImpl" parent="basePersistence" />
+	<bean id="com.liferay.portal.service.persistence.ServiceComponentFinder" class="com.liferay.portal.service.persistence.impl.ServiceComponentFinderImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.ShardLocalService" class="com.liferay.portal.service.impl.ShardLocalServiceImpl" />
 	<bean id="com.liferay.portal.service.persistence.ShardPersistence" class="com.liferay.portal.service.persistence.impl.ShardPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portal.service.StagingLocalService" class="com.liferay.portal.service.impl.StagingLocalServiceImpl" />
@@ -221,11 +223,6 @@
 	<bean id="com.liferay.portlet.asset.service.AssetTagService" class="com.liferay.portlet.asset.service.impl.AssetTagServiceImpl" />
 	<bean id="com.liferay.portlet.asset.service.persistence.AssetTagPersistence" class="com.liferay.portlet.asset.service.persistence.impl.AssetTagPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.asset.service.persistence.AssetTagFinder" class="com.liferay.portlet.asset.service.persistence.impl.AssetTagFinderImpl" parent="basePersistence" />
-	<bean id="com.liferay.portlet.asset.service.AssetTagPropertyLocalService" class="com.liferay.portlet.asset.service.impl.AssetTagPropertyLocalServiceImpl" />
-	<bean id="com.liferay.portlet.asset.service.AssetTagPropertyService" class="com.liferay.portlet.asset.service.impl.AssetTagPropertyServiceImpl" />
-	<bean id="com.liferay.portlet.asset.service.persistence.AssetTagPropertyPersistence" class="com.liferay.portlet.asset.service.persistence.impl.AssetTagPropertyPersistenceImpl" parent="basePersistence" />
-	<bean id="com.liferay.portlet.asset.service.persistence.AssetTagPropertyFinder" class="com.liferay.portlet.asset.service.persistence.impl.AssetTagPropertyFinderImpl" parent="basePersistence" />
-	<bean id="com.liferay.portlet.asset.service.persistence.AssetTagPropertyKeyFinder" class="com.liferay.portlet.asset.service.persistence.impl.AssetTagPropertyKeyFinderImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.asset.service.AssetTagStatsLocalService" class="com.liferay.portlet.asset.service.impl.AssetTagStatsLocalServiceImpl" />
 	<bean id="com.liferay.portlet.asset.service.persistence.AssetTagStatsPersistence" class="com.liferay.portlet.asset.service.persistence.impl.AssetTagStatsPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.asset.service.AssetVocabularyLocalService" class="com.liferay.portlet.asset.service.impl.AssetVocabularyLocalServiceImpl" />
@@ -292,6 +289,8 @@
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMStructureService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMStructureServiceImpl" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructurePersistence" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMStructurePersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructureFinder" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMStructureFinderImpl" parent="basePersistence" />
+	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMStructureLayoutLocalService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMStructureLayoutLocalServiceImpl" />
+	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructureLayoutPersistence" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMStructureLayoutPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMStructureLinkLocalServiceImpl" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructureLinkPersistence" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMStructureLinkPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMStructureVersionLocalService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMStructureVersionLocalServiceImpl" />
@@ -301,6 +300,8 @@
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMTemplateServiceImpl" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplatePersistence" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMTemplatePersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplateFinder" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMTemplateFinderImpl" parent="basePersistence" />
+	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLinkLocalService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMTemplateLinkLocalServiceImpl" />
+	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplateLinkPersistence" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMTemplateLinkPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateVersionLocalService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMTemplateVersionLocalServiceImpl" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.DDMTemplateVersionService" class="com.liferay.portlet.dynamicdatamapping.service.impl.DDMTemplateVersionServiceImpl" />
 	<bean id="com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplateVersionPersistence" class="com.liferay.portlet.dynamicdatamapping.service.persistence.impl.DDMTemplateVersionPersistenceImpl" parent="basePersistence" />
@@ -442,13 +443,4 @@
 	<bean id="com.liferay.portlet.trash.service.persistence.TrashEntryPersistence" class="com.liferay.portlet.trash.service.persistence.impl.TrashEntryPersistenceImpl" parent="basePersistence" />
 	<bean id="com.liferay.portlet.trash.service.TrashVersionLocalService" class="com.liferay.portlet.trash.service.impl.TrashVersionLocalServiceImpl" />
 	<bean id="com.liferay.portlet.trash.service.persistence.TrashVersionPersistence" class="com.liferay.portlet.trash.service.persistence.impl.TrashVersionPersistenceImpl" parent="basePersistence" />
-	<bean id="com.liferay.portlet.wiki.service.WikiNodeLocalService" class="com.liferay.portlet.wiki.service.impl.WikiNodeLocalServiceImpl" />
-	<bean id="com.liferay.portlet.wiki.service.WikiNodeService" class="com.liferay.portlet.wiki.service.impl.WikiNodeServiceImpl" />
-	<bean id="com.liferay.portlet.wiki.service.persistence.WikiNodePersistence" class="com.liferay.portlet.wiki.service.persistence.impl.WikiNodePersistenceImpl" parent="basePersistence" />
-	<bean id="com.liferay.portlet.wiki.service.WikiPageLocalService" class="com.liferay.portlet.wiki.service.impl.WikiPageLocalServiceImpl" />
-	<bean id="com.liferay.portlet.wiki.service.WikiPageService" class="com.liferay.portlet.wiki.service.impl.WikiPageServiceImpl" />
-	<bean id="com.liferay.portlet.wiki.service.persistence.WikiPagePersistence" class="com.liferay.portlet.wiki.service.persistence.impl.WikiPagePersistenceImpl" parent="basePersistence" />
-	<bean id="com.liferay.portlet.wiki.service.persistence.WikiPageFinder" class="com.liferay.portlet.wiki.service.persistence.impl.WikiPageFinderImpl" parent="basePersistence" />
-	<bean id="com.liferay.portlet.wiki.service.WikiPageResourceLocalService" class="com.liferay.portlet.wiki.service.impl.WikiPageResourceLocalServiceImpl" />
-	<bean id="com.liferay.portlet.wiki.service.persistence.WikiPageResourcePersistence" class="com.liferay.portlet.wiki.service.persistence.impl.WikiPageResourcePersistenceImpl" parent="basePersistence" />
 </beans>

@@ -14,14 +14,19 @@
 
 package com.liferay.portal.cache.memory;
 
-import com.liferay.portal.cache.AbstractPortalCacheManager;
-import com.liferay.portal.cache.cluster.ClusterLinkCallbackFactory;
+import com.liferay.portal.kernel.cache.AbstractPortalCacheManager;
 import com.liferay.portal.kernel.cache.CacheListenerScope;
 import com.liferay.portal.kernel.cache.PortalCache;
+import com.liferay.portal.kernel.cache.PortalCacheManager;
+import com.liferay.portal.kernel.cache.PortalCacheManagerTypes;
+import com.liferay.portal.kernel.cache.cluster.ClusterLinkCallbackFactory;
 import com.liferay.portal.kernel.cache.configuration.CallbackConfiguration;
 import com.liferay.portal.kernel.cache.configuration.PortalCacheConfiguration;
 import com.liferay.portal.kernel.cache.configuration.PortalCacheManagerConfiguration;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.registry.Registry;
+import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceRegistrar;
 
 import java.io.Serializable;
 
@@ -44,18 +49,22 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 		createMemoryPortalCacheManager(String name) {
 
 		MemoryPortalCacheManager<K, V> memoryPortalCacheManager =
-			new MemoryPortalCacheManager<K, V>();
+			new MemoryPortalCacheManager<>();
 
 		memoryPortalCacheManager.setName(name);
 
-		memoryPortalCacheManager.afterPropertiesSet();
+		memoryPortalCacheManager.initialize();
 
 		return memoryPortalCacheManager;
 	}
 
 	@Override
-	public String getName() {
-		return _name;
+	public void destroy() {
+		if (_serviceRegistrar != null) {
+			_serviceRegistrar.destroy();
+		}
+
+		super.destroy();
 	}
 
 	@Override
@@ -73,10 +82,6 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 		_cacheManagerInitialCapacity = cacheManagerInitialCapacity;
 	}
 
-	public void setName(String name) {
-		_name = name;
-	}
-
 	@Override
 	protected PortalCache<K, V> createPortalCache(String cacheName) {
 		MemoryPortalCache<K, V> portalCache = _memoryPortalCaches.get(
@@ -86,7 +91,7 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 			return portalCache;
 		}
 
-		portalCache = new MemoryPortalCache<K, V>(
+		portalCache = new MemoryPortalCache<>(
 			this, cacheName, _cacheInitialCapacity);
 
 		MemoryPortalCache<K, V> previousPortalCache =
@@ -138,14 +143,13 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 
 		PortalCacheConfiguration defaultPortalCacheConfiguration = null;
 
-		if (clusterAware && PropsValues.CLUSTER_LINK_ENABLED) {
+		if (isClusterAware() && PropsValues.CLUSTER_LINK_ENABLED) {
 			CallbackConfiguration cacheListenerConfiguration =
 				new CallbackConfiguration(
 					ClusterLinkCallbackFactory.INSTANCE, new Properties());
 
 			Map<CallbackConfiguration, CacheListenerScope>
-				cacheListenerConfigurations =
-					new HashMap<CallbackConfiguration, CacheListenerScope>();
+				cacheListenerConfigurations = new HashMap<>();
 
 			cacheListenerConfigurations.put(
 				cacheListenerConfiguration, CacheListenerScope.ALL);
@@ -154,10 +158,9 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 				new CallbackConfiguration(
 					ClusterLinkCallbackFactory.INSTANCE, new Properties());
 
-			defaultPortalCacheConfiguration =
-				new PortalCacheConfiguration(
-					PortalCacheConfiguration.DEFAULT_PORTAL_CACHE_NAME,
-					cacheListenerConfigurations, bootstrapLoaderConfiguration);
+			defaultPortalCacheConfiguration = new PortalCacheConfiguration(
+				PortalCacheConfiguration.DEFAULT_PORTAL_CACHE_NAME,
+				cacheListenerConfigurations, bootstrapLoaderConfiguration);
 		}
 
 		return new PortalCacheManagerConfiguration(
@@ -165,14 +168,34 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 	}
 
 	@Override
-	protected void initPortalCacheManager() {
-		if (_name == null) {
-			throw new NullPointerException("Name is null");
-		}
+	protected String getType() {
+		return PortalCacheManagerTypes.MEMORY;
+	}
 
-		_memoryPortalCaches =
-			new ConcurrentHashMap<String, MemoryPortalCache<K, V>>(
-				_cacheManagerInitialCapacity);
+	@Override
+	protected void initialize() {
+		super.initialize();
+
+		Registry registry = RegistryUtil.getRegistry();
+
+		_serviceRegistrar = registry.getServiceRegistrar(
+			(Class<PortalCacheManager<K, V>>)(Class<?>)
+				PortalCacheManager.class);
+
+		Map<String, Object> properties = new HashMap<>();
+
+		properties.put("portal.cache.manager.name", getName());
+		properties.put("portal.cache.manager.type", getType());
+
+		_serviceRegistrar.registerService(
+			(Class<PortalCacheManager<K, V>>) (Class<?>)
+				PortalCacheManager.class, this, properties);
+	}
+
+	@Override
+	protected void initPortalCacheManager() {
+		_memoryPortalCaches = new ConcurrentHashMap<>(
+			_cacheManagerInitialCapacity);
 
 		aggregatedCacheManagerListener.init();
 	}
@@ -180,6 +203,6 @@ public class MemoryPortalCacheManager<K extends Serializable, V>
 	private int _cacheInitialCapacity = 10000;
 	private int _cacheManagerInitialCapacity = 10000;
 	private ConcurrentMap<String, MemoryPortalCache<K, V>> _memoryPortalCaches;
-	private String _name;
+	private ServiceRegistrar<PortalCacheManager<K, V>> _serviceRegistrar;
 
 }

@@ -20,7 +20,6 @@
 page import="com.liferay.portal.PortletActiveException" %><%@
 page import="com.liferay.portal.RequiredLayoutException" %><%@
 page import="com.liferay.portal.RequiredRoleException" %><%@
-page import="com.liferay.portal.ReservedUserEmailAddressException" %><%@
 page import="com.liferay.portal.UserActiveException" %><%@
 page import="com.liferay.portal.UserEmailAddressException" %><%@
 page import="com.liferay.portal.UserLockoutException" %><%@
@@ -38,7 +37,10 @@ page import="com.liferay.portal.license.util.LicenseManagerUtil" %><%@
 page import="com.liferay.portal.license.util.LicenseUtil" %><%@
 page import="com.liferay.portal.setup.SetupWizardUtil" %><%@
 page import="com.liferay.portal.struts.PortletRequestProcessor" %><%@
-page import="com.liferay.portal.util.PortletCategoryUtil" %>
+page import="com.liferay.portal.util.PortletCategoryUtil" %><%@
+page import="com.liferay.portal.util.TermsOfUseContentProvider" %><%@
+page import="com.liferay.portal.util.TermsOfUseContentProviderRegistryUtil" %><%@
+page import="com.liferay.portlet.admin.util.PortalAdministrationApplicationType" %>
 
 <%@ page import="org.apache.struts.action.ActionMapping" %><%@
 page import="org.apache.struts.taglib.tiles.ComponentConstants" %><%@

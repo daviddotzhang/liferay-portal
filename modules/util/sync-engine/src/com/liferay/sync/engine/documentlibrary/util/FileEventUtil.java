@@ -31,9 +31,7 @@ import com.liferay.sync.engine.documentlibrary.event.UpdateFileEntryEvent;
 import com.liferay.sync.engine.documentlibrary.event.UpdateFolderEvent;
 import com.liferay.sync.engine.documentlibrary.handler.GetAllFolderSyncDLObjectsHandler;
 import com.liferay.sync.engine.model.SyncFile;
-import com.liferay.sync.engine.model.SyncSite;
 import com.liferay.sync.engine.service.SyncFileService;
-import com.liferay.sync.engine.service.SyncSiteService;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.PropsValues;
 
@@ -56,7 +54,7 @@ public class FileEventUtil {
 		Path filePath, long folderId, long repositoryId, long syncAccountId,
 		String checksum, String name, String mimeType, SyncFile syncFile) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("changeLog", "");
 		parameters.put("checksum", checksum);
@@ -66,21 +64,6 @@ public class FileEventUtil {
 		parameters.put("mimeType", mimeType);
 		parameters.put("repositoryId", repositoryId);
 		parameters.put("serviceContext.attributes.overwrite", true);
-
-		SyncSite syncSite = SyncSiteService.fetchSyncSite(
-			repositoryId, syncAccountId);
-
-		if (syncSite.getType() != SyncSite.TYPE_SYSTEM) {
-			parameters.put(
-				"serviceContext.groupPermissions",
-				"ADD_DISCUSSION,DELETE,UPDATE,VIEW");
-		}
-
-		if (syncSite.getType() == SyncSite.TYPE_OPEN) {
-			parameters.put(
-				"serviceContext.guestPermissions", "ADD_DISCUSSION,VIEW");
-		}
-
 		parameters.put("sourceFileName", name);
 		parameters.put("syncFile", syncFile);
 		parameters.put("title", name);
@@ -95,27 +78,13 @@ public class FileEventUtil {
 		long parentFolderId, long repositoryId, long syncAccountId, String name,
 		SyncFile syncFile) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("description", "");
 		parameters.put("name", name);
 		parameters.put("parentFolderId", parentFolderId);
 		parameters.put("repositoryId", repositoryId);
 		parameters.put("serviceContext.attributes.overwrite", true);
-
-		SyncSite syncSite = SyncSiteService.fetchSyncSite(
-			repositoryId, syncAccountId);
-
-		if (syncSite.getType() != SyncSite.TYPE_SYSTEM) {
-			parameters.put(
-				"serviceContext.groupPermissions",
-				"ADD_DOCUMENT,ADD_SUBFOLDER,ADD_SHORTCUT,UPDATE,VIEW");
-		}
-
-		if (syncSite.getType() == SyncSite.TYPE_OPEN) {
-			parameters.put("serviceContext.guestPermissions", "VIEW");
-		}
-
 		parameters.put("syncFile", syncFile);
 
 		AddFolderEvent addFolderEvent = new AddFolderEvent(
@@ -125,7 +94,7 @@ public class FileEventUtil {
 	}
 
 	public static void cancelCheckOut(long syncAccountId, SyncFile syncFile) {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("fileEntryId", syncFile.getTypePK());
 		parameters.put("syncFile", syncFile);
@@ -137,7 +106,7 @@ public class FileEventUtil {
 	}
 
 	public static void checkInFile(long syncAccountId, SyncFile syncFile) {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("changeLog", syncFile.getChangeLog());
 		parameters.put("fileEntryId", syncFile.getTypePK());
@@ -151,7 +120,7 @@ public class FileEventUtil {
 	}
 
 	public static void checkOutFile(long syncAccountId, SyncFile syncFile) {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("fileEntryId", syncFile.getTypePK());
 		parameters.put("syncFile", syncFile);
@@ -163,7 +132,17 @@ public class FileEventUtil {
 	}
 
 	public static void deleteFile(long syncAccountId, SyncFile syncFile) {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		SyncFile parentSyncFile = SyncFileService.fetchSyncFile(
+			syncFile.getRepositoryId(), syncAccountId,
+			syncFile.getParentFolderId());
+
+		if ((parentSyncFile == null) ||
+			(parentSyncFile.getUiEvent() == SyncFile.UI_EVENT_DELETED_LOCAL)) {
+
+			return;
+		}
+
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("fileEntryId", syncFile.getTypePK());
 		parameters.put("syncFile", syncFile);
@@ -175,7 +154,17 @@ public class FileEventUtil {
 	}
 
 	public static void deleteFolder(long syncAccountId, SyncFile syncFile) {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		SyncFile parentSyncFile = SyncFileService.fetchSyncFile(
+			syncFile.getRepositoryId(), syncAccountId,
+			syncFile.getParentFolderId());
+
+		if ((parentSyncFile == null) ||
+			(parentSyncFile.getUiEvent() == SyncFile.UI_EVENT_DELETED_LOCAL)) {
+
+			return;
+		}
+
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("folderId", syncFile.getTypePK());
 		parameters.put("syncFile", syncFile);
@@ -187,8 +176,15 @@ public class FileEventUtil {
 	}
 
 	public static void downloadFile(long syncAccountId, SyncFile syncFile) {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		downloadFile(syncAccountId, syncFile, true);
+	}
 
+	public static void downloadFile(
+		long syncAccountId, SyncFile syncFile, boolean batch) {
+
+		Map<String, Object> parameters = new HashMap<>();
+
+		parameters.put("batch", batch);
 		parameters.put("patch", false);
 		parameters.put("syncFile", syncFile);
 
@@ -199,15 +195,16 @@ public class FileEventUtil {
 	}
 
 	public static void downloadPatch(
-		String sourceVersion, long syncAccountId, SyncFile syncFile,
-		String targetVersion) {
+		long sourceVersionId, long syncAccountId, SyncFile syncFile,
+		long targetVersionId) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
+		parameters.put("batch", true);
 		parameters.put("patch", true);
-		parameters.put("sourceVersion", sourceVersion);
+		parameters.put("sourceVersionId", sourceVersionId);
 		parameters.put("syncFile", syncFile);
-		parameters.put("targetVersion", targetVersion);
+		parameters.put("targetVersionId", targetVersionId);
 
 		DownloadFileEvent downloadFileEvent = new DownloadFileEvent(
 			syncAccountId, parameters);
@@ -218,7 +215,7 @@ public class FileEventUtil {
 	public static List<SyncFile> getAllFolders(
 		long companyId, long repositoryId, long syncAccountId) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("companyId", companyId);
 		parameters.put("repositoryId", repositoryId);
@@ -238,7 +235,7 @@ public class FileEventUtil {
 	public static void moveFile(
 		long folderId, long syncAccountId, SyncFile syncFile) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("fileEntryId", syncFile.getTypePK());
 		parameters.put("newFolderId", folderId);
@@ -255,7 +252,7 @@ public class FileEventUtil {
 	public static void moveFolder(
 		long parentFolderId, long syncAccountId, SyncFile syncFile) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("folderId", syncFile.getTypePK());
 		parameters.put("parentFolderId", parentFolderId);
@@ -270,7 +267,7 @@ public class FileEventUtil {
 	}
 
 	public static void resyncFolder(long syncAccountId, SyncFile syncFile) {
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("companyId", syncFile.getCompanyId());
 		parameters.put("lastAccessTime", 0);
@@ -288,14 +285,19 @@ public class FileEventUtil {
 		throws IOException {
 
 		List<SyncFile> downloadingSyncFiles = SyncFileService.findSyncFiles(
-			syncAccountId, SyncFile.UI_EVENT_DOWNLOADING);
+			syncAccountId, SyncFile.UI_EVENT_DOWNLOADING, "size", true);
 
 		for (SyncFile downloadingSyncFile : downloadingSyncFiles) {
 			downloadFile(syncAccountId, downloadingSyncFile);
 		}
 
+		BatchDownloadEvent batchDownloadEvent =
+			BatchEventManager.getBatchDownloadEvent(syncAccountId);
+
+		batchDownloadEvent.fireBatchEvent();
+
 		List<SyncFile> uploadingSyncFiles = SyncFileService.findSyncFiles(
-			syncAccountId, SyncFile.UI_EVENT_UPLOADING);
+			syncAccountId, SyncFile.UI_EVENT_UPLOADING, "size", true);
 
 		for (SyncFile uploadingSyncFile : uploadingSyncFiles) {
 			Path filePath = Paths.get(uploadingSyncFile.getFilePathName());
@@ -329,7 +331,7 @@ public class FileEventUtil {
 			if (uploadingSyncFile.getTypePK() > 0) {
 				updateFile(
 					filePath, syncAccountId, uploadingSyncFile, null,
-					uploadingSyncFile.getName(), "", null, null, checksum);
+					uploadingSyncFile.getName(), "", null, 0, checksum);
 			}
 			else {
 				addFile(
@@ -339,15 +341,35 @@ public class FileEventUtil {
 					uploadingSyncFile.getMimeType(), uploadingSyncFile);
 			}
 		}
+
+		List<SyncFile> movingSyncFiles = SyncFileService.findSyncFiles(
+			syncAccountId, SyncFile.UI_EVENT_MOVED_LOCAL, "syncFileId", true);
+
+		for (SyncFile movingSyncFile : movingSyncFiles) {
+			if (movingSyncFile.isFolder()) {
+				moveFolder(
+					movingSyncFile.getParentFolderId(), syncAccountId,
+					movingSyncFile);
+			}
+			else {
+				moveFile(
+					movingSyncFile.getParentFolderId(), syncAccountId,
+					movingSyncFile);
+			}
+		}
+
+		BatchEvent batchEvent = BatchEventManager.getBatchEvent(syncAccountId);
+
+		batchEvent.fireBatchEvent();
 	}
 
 	public static void updateFile(
 			Path filePath, long syncAccountId, SyncFile syncFile,
 			Path deltaFilePath, String name, String sourceChecksum,
-			String sourceFileName, String sourceVersion, String targetChecksum)
+			String sourceFileName, long sourceVersionId, String targetChecksum)
 		throws IOException {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("changeLog", syncFile.getChangeLog());
 		parameters.put("checksum", targetChecksum);
@@ -359,17 +381,17 @@ public class FileEventUtil {
 		parameters.put("syncFile", syncFile);
 		parameters.put("title", name);
 
-		if (sourceChecksum.equals(targetChecksum)) {
+		if (FileUtil.checksumsEqual(sourceChecksum, targetChecksum)) {
 			parameters.put("-file", null);
 		}
 		else {
-			if ((deltaFilePath != null) &&
-				(Files.size(filePath) / Files.size(deltaFilePath)) >=
-					PropsValues.SYNC_FILE_PATCHING_THRESHOLD_SIZE_RATIO) {
+			if ((deltaFilePath != null) && (sourceVersionId != 0) &&
+				((Files.size(filePath) / Files.size(deltaFilePath)) >=
+					PropsValues.SYNC_FILE_PATCHING_THRESHOLD_SIZE_RATIO)) {
 
 				parameters.put("deltaFilePath", deltaFilePath);
 				parameters.put("sourceFileName", sourceFileName);
-				parameters.put("sourceVersion", sourceVersion);
+				parameters.put("sourceVersionId", sourceVersionId);
 
 				PatchFileEntryEvent patchFileEntryEvent =
 					new PatchFileEntryEvent(syncAccountId, parameters);
@@ -391,11 +413,11 @@ public class FileEventUtil {
 	public static void updateFolder(
 		Path filePath, long syncAccountId, SyncFile syncFile) {
 
-		Map<String, Object> parameters = new HashMap<String, Object>();
+		Map<String, Object> parameters = new HashMap<>();
 
 		parameters.put("description", syncFile.getDescription());
 		parameters.put("folderId", syncFile.getTypePK());
-		parameters.put("name", filePath.getFileName());
+		parameters.put("name", String.valueOf(filePath.getFileName()));
 		parameters.put("syncFile", syncFile);
 
 		UpdateFolderEvent updateFolderEvent = new UpdateFolderEvent(

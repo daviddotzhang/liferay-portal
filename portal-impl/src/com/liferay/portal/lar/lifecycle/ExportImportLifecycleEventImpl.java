@@ -39,6 +39,11 @@ public class ExportImportLifecycleEventImpl
 	}
 
 	@Override
+	public int getProcessFlag() {
+		return _processFlag;
+	}
+
+	@Override
 	public void setAttributes(Serializable... attributes) {
 		_attributes.addAll(ListUtil.fromArray(attributes));
 	}
@@ -48,8 +53,13 @@ public class ExportImportLifecycleEventImpl
 		_code = code;
 	}
 
-	private final List<Serializable> _attributes =
-		new ArrayList<Serializable>();
+	@Override
+	public void setProcessFlag(int processFlag) {
+		_processFlag = processFlag;
+	}
+
+	private final List<Serializable> _attributes = new ArrayList<>();
 	private int _code;
+	private int _processFlag;
 
 }

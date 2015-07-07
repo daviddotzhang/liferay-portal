@@ -14,25 +14,25 @@
 
 package com.liferay.bookmarks.indexer;
 
-import com.liferay.bookmarks.constants.BookmarksPortletKeys;
 import com.liferay.bookmarks.model.BookmarksEntry;
 import com.liferay.bookmarks.model.BookmarksFolder;
 import com.liferay.bookmarks.model.BookmarksFolderConstants;
 import com.liferay.bookmarks.service.BookmarksEntryLocalServiceUtil;
 import com.liferay.bookmarks.service.BookmarksFolderLocalServiceUtil;
-import com.liferay.bookmarks.service.permission.BookmarksEntryPermission;
+import com.liferay.bookmarks.service.permission.BookmarksEntryPermissionChecker;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BaseIndexer;
-import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -46,35 +46,31 @@ import java.util.Locale;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.PortletURL;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Brian Wing Shun Chan
  * @author Bruno Farache
  * @author Raymond Augé
  */
+@Component(immediate = true, service = Indexer.class)
 public class BookmarksEntryIndexer extends BaseIndexer {
 
-	public static final String[] CLASS_NAMES = {BookmarksEntry.class.getName()};
-
-	public static final String PORTLET_ID = BookmarksPortletKeys.BOOKMARKS;
+	public static final String CLASS_NAME = BookmarksEntry.class.getName();
 
 	public BookmarksEntryIndexer() {
 		setDefaultSelectedFieldNames(
-			Field.COMPANY_ID, Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK,
-			Field.TITLE, Field.UID, Field.URL);
+			Field.ASSET_TAG_NAMES, Field.COMPANY_ID, Field.ENTRY_CLASS_NAME,
+			Field.ENTRY_CLASS_PK, Field.GROUP_ID, Field.MODIFIED_DATE,
+			Field.SCOPE_GROUP_ID, Field.TITLE, Field.UID, Field.URL);
 		setFilterSearch(true);
 		setPermissionAware(true);
 	}
 
 	@Override
-	public String[] getClassNames() {
-		return CLASS_NAMES;
-	}
-
-	@Override
-	public String getPortletId() {
-		return PORTLET_ID;
+	public String getClassName() {
+		return CLASS_NAME;
 	}
 
 	@Override
@@ -83,16 +79,16 @@ public class BookmarksEntryIndexer extends BaseIndexer {
 			long entryClassPK, String actionId)
 		throws Exception {
 
-		return BookmarksEntryPermission.contains(
+		return BookmarksEntryPermissionChecker.contains(
 			permissionChecker, entryClassPK, ActionKeys.VIEW);
 	}
 
 	@Override
-	public void postProcessContextQuery(
-			BooleanQuery contextQuery, SearchContext searchContext)
+	public void postProcessContextBooleanFilter(
+			BooleanFilter contextBooleanFilter, SearchContext searchContext)
 		throws Exception {
 
-		addStatus(contextQuery, searchContext);
+		addStatus(contextBooleanFilter, searchContext);
 	}
 
 	@Override
@@ -106,7 +102,7 @@ public class BookmarksEntryIndexer extends BaseIndexer {
 	protected Document doGetDocument(Object obj) throws Exception {
 		BookmarksEntry entry = (BookmarksEntry)obj;
 
-		Document document = getBaseModelDocument(PORTLET_ID, entry);
+		Document document = getBaseModelDocument(CLASS_NAME, entry);
 
 		document.addText(Field.DESCRIPTION, entry.getDescription());
 		document.addKeyword(Field.FOLDER_ID, entry.getFolderId());
@@ -121,17 +117,10 @@ public class BookmarksEntryIndexer extends BaseIndexer {
 
 	@Override
 	protected Summary doGetSummary(
-		Document document, Locale locale, String snippet, PortletURL portletURL,
+		Document document, Locale locale, String snippet,
 		PortletRequest portletRequest, PortletResponse portletResponse) {
 
-		String entryId = document.get(Field.ENTRY_CLASS_PK);
-
-		portletURL.setParameter("struts_action", "/bookmarks/view_entry");
-		portletURL.setParameter("entryId", entryId);
-
 		Summary summary = createSummary(document, Field.TITLE, Field.URL);
-
-		summary.setPortletURL(portletURL);
 
 		return summary;
 	}
@@ -160,11 +149,6 @@ public class BookmarksEntryIndexer extends BaseIndexer {
 
 		reindexFolders(companyId);
 		reindexRoot(companyId);
-	}
-
-	@Override
-	protected String getPortletId(SearchContext searchContext) {
-		return PORTLET_ID;
 	}
 
 	protected void reindexEntries(

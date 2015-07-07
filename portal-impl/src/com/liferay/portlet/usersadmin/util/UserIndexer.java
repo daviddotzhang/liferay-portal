@@ -17,10 +17,11 @@ package com.liferay.portlet.usersadmin.util;
 import com.liferay.portal.NoSuchContactException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.BaseIndexer;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.BooleanQuery;
-import com.liferay.portal.kernel.search.BooleanQueryFactoryUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Indexer;
@@ -28,6 +29,8 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -40,7 +43,6 @@ import com.liferay.portal.security.auth.FullNameGenerator;
 import com.liferay.portal.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
@@ -54,41 +56,40 @@ import java.util.Set;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.PortletURL;
 
 /**
  * @author Raymond Augé
  * @author Zsigmond Rab
  * @author Hugo Huijser
  */
+@OSGiBeanProperties
 public class UserIndexer extends BaseIndexer {
 
-	public static final String[] CLASS_NAMES = {User.class.getName()};
+	public static final String CLASS_NAME = User.class.getName();
 
-	public static final String PORTLET_ID = PortletKeys.USERS_ADMIN;
+	public static long getUserId(Document document) {
+		return GetterUtil.getLong(document.get(Field.USER_ID));
+	}
 
 	public UserIndexer() {
 		setCommitImmediately(true);
 		setDefaultSelectedFieldNames(
-			Field.COMPANY_ID, Field.UID, Field.USER_ID);
+			Field.ASSET_TAG_NAMES, Field.COMPANY_ID, Field.ENTRY_CLASS_NAME,
+			Field.ENTRY_CLASS_PK, Field.GROUP_ID, Field.MODIFIED_DATE,
+			Field.SCOPE_GROUP_ID, Field.UID, Field.USER_ID);
 		setIndexerEnabled(PropsValues.USERS_INDEXER_ENABLED);
 		setPermissionAware(true);
 		setStagingAware(false);
 	}
 
 	@Override
-	public String[] getClassNames() {
-		return CLASS_NAMES;
+	public String getClassName() {
+		return CLASS_NAME;
 	}
 
 	@Override
-	public String getPortletId() {
-		return PORTLET_ID;
-	}
-
-	@Override
-	public void postProcessContextQuery(
-			BooleanQuery contextQuery, SearchContext searchContext)
+	public void postProcessContextBooleanFilter(
+			BooleanFilter contextBooleanFilter, SearchContext searchContext)
 		throws Exception {
 
 		int status = GetterUtil.getInteger(
@@ -96,7 +97,7 @@ public class UserIndexer extends BaseIndexer {
 			WorkflowConstants.STATUS_APPROVED);
 
 		if (status != WorkflowConstants.STATUS_ANY) {
-			contextQuery.addRequiredTerm(Field.STATUS, status);
+			contextBooleanFilter.addRequiredTerm(Field.STATUS, status);
 		}
 
 		LinkedHashMap<String, Object> params =
@@ -124,13 +125,15 @@ public class UserIndexer extends BaseIndexer {
 				}
 			}
 
-			addContextQueryParams(contextQuery, searchContext, key, value);
+			addContextQueryParams(
+				contextBooleanFilter, searchContext, key, value);
 		}
 	}
 
 	@Override
 	public void postProcessSearchQuery(
-			BooleanQuery searchQuery, SearchContext searchContext)
+			BooleanQuery searchQuery, BooleanFilter fullQueryBooleanFilter,
+			SearchContext searchContext)
 		throws Exception {
 
 		addSearchTerm(searchQuery, searchContext, "city", false);
@@ -158,59 +161,64 @@ public class UserIndexer extends BaseIndexer {
 	}
 
 	protected void addContextQueryParams(
-			BooleanQuery contextQuery, SearchContext searchContext, String key,
-			Object value)
+			BooleanFilter contextFilter, SearchContext searchContext,
+			String key, Object value)
 		throws Exception {
 
 		if (key.equals("usersGroups")) {
 			if (value instanceof Long[]) {
 				Long[] values = (Long[])value;
 
-				BooleanQuery usersGroupsQuery = BooleanQueryFactoryUtil.create(
-					searchContext);
+				BooleanFilter userGroupsBooleanFilter = new BooleanFilter();
 
 				for (long groupId : values) {
-					usersGroupsQuery.addTerm("groupIds", groupId);
+					userGroupsBooleanFilter.addTerm("groupIds", groupId);
 				}
 
-				contextQuery.add(usersGroupsQuery, BooleanClauseOccur.MUST);
+				if (userGroupsBooleanFilter.hasClauses()) {
+					contextFilter.add(
+						userGroupsBooleanFilter, BooleanClauseOccur.MUST);
+				}
 			}
 			else {
-				contextQuery.addRequiredTerm("groupIds", String.valueOf(value));
+				contextFilter.addRequiredTerm(
+					"groupIds", String.valueOf(value));
 			}
 		}
 		else if (key.equals("usersOrgs")) {
 			if (value instanceof Long[]) {
 				Long[] values = (Long[])value;
 
-				BooleanQuery usersOrgsQuery = BooleanQueryFactoryUtil.create(
-					searchContext);
+				BooleanFilter userOrgsFilter = new BooleanFilter();
 
 				for (long organizationId : values) {
-					usersOrgsQuery.addTerm("organizationIds", organizationId);
-					usersOrgsQuery.addTerm(
+					userOrgsFilter.addTerm("organizationIds", organizationId);
+					userOrgsFilter.addTerm(
 						"ancestorOrganizationIds", organizationId);
 				}
 
-				contextQuery.add(usersOrgsQuery, BooleanClauseOccur.MUST);
+				if (userOrgsFilter.hasClauses()) {
+					contextFilter.add(userOrgsFilter, BooleanClauseOccur.MUST);
+				}
 			}
 			else {
-				contextQuery.addRequiredTerm(
+				contextFilter.addRequiredTerm(
 					"organizationIds", String.valueOf(value));
 			}
 		}
 		else if (key.equals("usersOrgsCount")) {
-			contextQuery.addRequiredTerm(
+			contextFilter.addRequiredTerm(
 				"organizationCount", String.valueOf(value));
 		}
 		else if (key.equals("usersRoles")) {
-			contextQuery.addRequiredTerm("roleIds", String.valueOf(value));
+			contextFilter.addRequiredTerm("roleIds", String.valueOf(value));
 		}
 		else if (key.equals("usersTeams")) {
-			contextQuery.addRequiredTerm("teamIds", String.valueOf(value));
+			contextFilter.addRequiredTerm("teamIds", String.valueOf(value));
 		}
 		else if (key.equals("usersUserGroups")) {
-			contextQuery.addRequiredTerm("userGroupIds", String.valueOf(value));
+			contextFilter.addRequiredTerm(
+				"userGroupIds", String.valueOf(value));
 		}
 	}
 
@@ -234,7 +242,7 @@ public class UserIndexer extends BaseIndexer {
 	protected Document doGetDocument(Object obj) throws Exception {
 		User user = (User)obj;
 
-		Document document = getBaseModelDocument(PORTLET_ID, user);
+		Document document = getBaseModelDocument(CLASS_NAME, user);
 
 		long[] organizationIds = user.getOrganizationIds();
 
@@ -293,7 +301,7 @@ public class UserIndexer extends BaseIndexer {
 
 	@Override
 	protected Summary doGetSummary(
-		Document document, Locale locale, String snippet, PortletURL portletURL,
+		Document document, Locale locale, String snippet,
 		PortletRequest portletRequest, PortletResponse portletResponse) {
 
 		String firstName = document.get("firstName");
@@ -308,12 +316,7 @@ public class UserIndexer extends BaseIndexer {
 
 		String content = null;
 
-		String userId = document.get(Field.USER_ID);
-
-		portletURL.setParameter("struts_action", "/users_admin/edit_user");
-		portletURL.setParameter("p_u_i_d", userId);
-
-		return new Summary(title, content, portletURL);
+		return new Summary(title, content);
 	}
 
 	@Override
@@ -328,8 +331,7 @@ public class UserIndexer extends BaseIndexer {
 		else if (obj instanceof long[]) {
 			long[] userIds = (long[])obj;
 
-			Map<Long, Collection<Document>> documentsMap =
-				new HashMap<Long, Collection<Document>>();
+			Map<Long, Collection<Document>> documentsMap = new HashMap<>();
 
 			for (long userId : userIds) {
 				User user = UserLocalServiceUtil.getUserById(userId);
@@ -345,7 +347,7 @@ public class UserIndexer extends BaseIndexer {
 				Collection<Document> documents = documentsMap.get(companyId);
 
 				if (documents == null) {
-					documents = new ArrayList<Document>();
+					documents = new ArrayList<>();
 
 					documentsMap.put(companyId, documents);
 				}
@@ -383,10 +385,13 @@ public class UserIndexer extends BaseIndexer {
 			try {
 				indexer.reindex(user.getContact());
 			}
-			catch (NoSuchContactException nscce) {
+			catch (NoSuchContactException nsce) {
 
 				// This is a temporary workaround for LPS-46825
 
+				if (_log.isDebugEnabled()) {
+					_log.debug(nsce, nsce);
+				}
 			}
 		}
 	}
@@ -408,7 +413,7 @@ public class UserIndexer extends BaseIndexer {
 	protected long[] getAncestorOrganizationIds(long[] organizationIds)
 		throws Exception {
 
-		Set<Long> ancestorOrganizationIds = new HashSet<Long>();
+		Set<Long> ancestorOrganizationIds = new HashSet<>();
 
 		for (long organizationId : organizationIds) {
 			Organization organization =
@@ -422,11 +427,6 @@ public class UserIndexer extends BaseIndexer {
 		}
 
 		return ArrayUtil.toLongArray(ancestorOrganizationIds);
-	}
-
-	@Override
-	protected String getPortletId(SearchContext searchContext) {
-		return PORTLET_ID;
 	}
 
 	protected void reindexUsers(long companyId) throws PortalException {
@@ -455,5 +455,7 @@ public class UserIndexer extends BaseIndexer {
 
 		actionableDynamicQuery.performActions();
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(UserIndexer.class);
 
 }

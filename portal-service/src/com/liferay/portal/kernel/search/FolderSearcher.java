@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.search;
 
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class FolderSearcher extends BaseSearcher {
 		setFilterSearch(true);
 		setPermissionAware(true);
 
-		List<String> folderClassNames = new ArrayList<String>();
+		List<String> folderClassNames = new ArrayList<>();
 
 		for (Indexer indexer : IndexerRegistryUtil.getIndexers()) {
 			if (indexer instanceof FolderIndexer) {
@@ -50,27 +52,27 @@ public class FolderSearcher extends BaseSearcher {
 	}
 
 	@Override
-	public String[] getClassNames() {
+	public String[] getSearchClassNames() {
 		return _classNames;
 	}
 
 	@Override
 	protected BooleanQuery createFullQuery(
-			BooleanQuery contextQuery, SearchContext searchContext)
+			BooleanFilter fullQueryBooleanFilter, SearchContext searchContext)
 		throws Exception {
 
 		long[] folderIds = searchContext.getFolderIds();
 
-		BooleanQuery entryClassPKQuery = BooleanQueryFactoryUtil.create(
-			searchContext);
+		BooleanFilter entryClassPKBooleanFilter = new BooleanFilter();
 
 		for (long folderId : folderIds) {
-			entryClassPKQuery.addTerm(Field.ENTRY_CLASS_PK, folderId);
+			entryClassPKBooleanFilter.addTerm(Field.ENTRY_CLASS_PK, folderId);
 		}
 
-		contextQuery.add(entryClassPKQuery, BooleanClauseOccur.MUST);
+		fullQueryBooleanFilter.add(
+			entryClassPKBooleanFilter, BooleanClauseOccur.MUST);
 
-		return super.createFullQuery(contextQuery, searchContext);
+		return super.createFullQuery(fullQueryBooleanFilter, searchContext);
 	}
 
 	private final String[] _classNames;

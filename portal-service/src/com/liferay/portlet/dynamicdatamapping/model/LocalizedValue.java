@@ -14,7 +14,9 @@
 
 package com.liferay.portlet.dynamicdatamapping.model;
 
+import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -50,6 +52,27 @@ public class LocalizedValue implements Value {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof LocalizedValue)) {
+			return false;
+		}
+
+		LocalizedValue localizedValue = (LocalizedValue)obj;
+
+		if (Validator.equals(_defaultLocale, localizedValue._defaultLocale) &&
+			Validator.equals(_values, localizedValue._values)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
 	public Set<Locale> getAvailableLocales() {
 		return _values.keySet();
 	}
@@ -76,6 +99,13 @@ public class LocalizedValue implements Value {
 	}
 
 	@Override
+	public int hashCode() {
+		int hash = HashUtil.hash(0, _defaultLocale);
+
+		return HashUtil.hash(hash, _values);
+	}
+
+	@Override
 	public boolean isLocalized() {
 		return true;
 	}
@@ -86,6 +116,6 @@ public class LocalizedValue implements Value {
 	}
 
 	private Locale _defaultLocale;
-	private final Map<Locale, String> _values = new HashMap<Locale, String>();
+	private final Map<Locale, String> _values = new HashMap<>();
 
 }

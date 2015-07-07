@@ -27,10 +27,10 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryServiceUtil;
 
 /**
  * Provides the HTTP utility for the
- * {@link com.liferay.portlet.documentlibrary.service.DLFileEntryServiceUtil} service utility. The
+ * {@link DLFileEntryServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it requires an additional
- * {@link com.liferay.portal.security.auth.HttpPrincipal} parameter.
+ * {@link HttpPrincipal} parameter.
  *
  * <p>
  * The benefits of using the HTTP utility is that it is fast and allows for
@@ -49,8 +49,8 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryServiceUtil;
  *
  * @author Brian Wing Shun Chan
  * @see DLFileEntryServiceSoap
- * @see com.liferay.portal.security.auth.HttpPrincipal
- * @see com.liferay.portlet.documentlibrary.service.DLFileEntryServiceUtil
+ * @see HttpPrincipal
+ * @see DLFileEntryServiceUtil
  * @generated
  */
 @ProviderType
@@ -61,7 +61,7 @@ public class DLFileEntryServiceHttp {
 		java.lang.String mimeType, java.lang.String title,
 		java.lang.String description, java.lang.String changeLog,
 		long fileEntryTypeId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.Fields> fieldsMap,
+		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
 		java.io.File file, java.io.InputStream is, long size,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -71,8 +71,8 @@ public class DLFileEntryServiceHttp {
 
 			MethodHandler methodHandler = new MethodHandler(methodKey, groupId,
 					repositoryId, folderId, sourceFileName, mimeType, title,
-					description, changeLog, fileEntryTypeId, fieldsMap, file,
-					is, size, serviceContext);
+					description, changeLog, fileEntryTypeId, ddmFormValuesMap,
+					file, is, size, serviceContext);
 
 			Object returnObj = null;
 
@@ -1396,7 +1396,7 @@ public class DLFileEntryServiceHttp {
 		java.lang.String sourceFileName, java.lang.String mimeType,
 		java.lang.String title, java.lang.String description,
 		java.lang.String changeLog, boolean majorVersion, long fileEntryTypeId,
-		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.Fields> fieldsMap,
+		java.util.Map<java.lang.String, com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues> ddmFormValuesMap,
 		java.io.File file, java.io.InputStream is, long size,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -1406,8 +1406,8 @@ public class DLFileEntryServiceHttp {
 
 			MethodHandler methodHandler = new MethodHandler(methodKey,
 					fileEntryId, sourceFileName, mimeType, title, description,
-					changeLog, majorVersion, fileEntryTypeId, fieldsMap, file,
-					is, size, serviceContext);
+					changeLog, majorVersion, fileEntryTypeId, ddmFormValuesMap,
+					file, is, size, serviceContext);
 
 			Object returnObj = null;
 

@@ -15,9 +15,12 @@
 package com.liferay.portlet.dynamicdatamapping.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.theme.ThemeDisplay;
+import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
+import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayout;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.storage.Field;
@@ -25,13 +28,28 @@ import com.liferay.portlet.dynamicdatamapping.storage.Fields;
 
 import java.io.Serializable;
 
+import javax.portlet.PortletRequest;
+
 /**
  * @author Eduardo Lundgren
  * @author Marcellus Tavares
  */
 public interface DDM {
 
-	public DDMDisplay getDDMDisplay(ServiceContext serviceContext);
+	public DDMDisplay getDDMDisplay(long classNameId) throws PortalException;
+
+	public DDMForm getDDMForm(long classNameId, long classPK)
+		throws PortalException;
+
+	public DDMForm getDDMForm(PortletRequest portletRequest)
+		throws PortalException;
+
+	public JSONArray getDDMFormFieldsJSONArray(
+		DDMStructure ddmStructure, String script);
+
+	public DDMPermissionHandler getDDMPermissionHandler(long classNameId);
+
+	public DDMFormLayout getDefaultDDMFormLayout(DDMForm ddmForm);
 
 	public Serializable getDisplayFieldValue(
 			ThemeDisplay themeDisplay, Serializable fieldValue, String type)

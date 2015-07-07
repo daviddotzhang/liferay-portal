@@ -15,6 +15,7 @@
 package com.liferay.portal.service.impl;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
@@ -33,6 +34,7 @@ import com.liferay.portlet.expando.model.ExpandoBridge;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -222,6 +224,20 @@ public class RoleServiceImpl extends RoleServiceBaseImpl {
 		return role;
 	}
 
+	@Override
+	public List<Role> getRoles(int type, String subtype)
+		throws PortalException {
+
+		return filterRoles(roleLocalService.getRoles(type, subtype));
+	}
+
+	@Override
+	public List<Role> getRoles(long companyId, int[] types)
+		throws PortalException {
+
+		return filterRoles(roleLocalService.getRoles(companyId, types));
+	}
+
 	/**
 	 * Returns all the user's roles within the user group.
 	 *
@@ -352,6 +368,25 @@ public class RoleServiceImpl extends RoleServiceBaseImpl {
 			userId, companyId, names, inherited);
 	}
 
+	@Override
+	public List<Role> search(
+		long companyId, String keywords, Integer[] types,
+		LinkedHashMap<String, Object> params, int start, int end,
+		OrderByComparator<Role> obc) {
+
+		return roleFinder.filterFindByKeywords(
+			companyId, keywords, types, params, start, end, obc);
+	}
+
+	@Override
+	public int searchCount(
+		long companyId, String keywords, Integer[] types,
+		LinkedHashMap<String, Object> params) {
+
+		return roleFinder.filterCountByKeywords(
+			companyId, keywords, types, params);
+	}
+
 	/**
 	 * Removes the matching roles associated with the user. The user is
 	 * reindexed after the roles are removed.
@@ -445,7 +480,7 @@ public class RoleServiceImpl extends RoleServiceBaseImpl {
 	}
 
 	protected List<Role> filterRoles(List<Role> roles) throws PortalException {
-		List<Role> filteredRoles = new ArrayList<Role>();
+		List<Role> filteredRoles = new ArrayList<>();
 
 		for (Role role : roles) {
 			if (RolePermissionUtil.contains(

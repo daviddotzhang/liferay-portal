@@ -14,11 +14,13 @@
 
 package com.liferay.portal.kernel.search;
 
+import com.liferay.portal.kernel.search.test.BaseSearchResultUtilTestCase;
 import com.liferay.portal.kernel.search.test.SearchTestUtil;
 import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
 import com.liferay.portlet.messageboards.model.MBMessage;
 import com.liferay.portlet.messageboards.service.MBMessageLocalService;
 import com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil;
+import com.liferay.registry.collections.ServiceTrackerCollections;
 
 import java.util.List;
 
@@ -39,7 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @PrepareForTest( {
 	AssetRendererFactoryRegistryUtil.class, IndexerRegistryUtil.class,
-	MBMessageLocalServiceUtil.class
+	MBMessageLocalServiceUtil.class, ServiceTrackerCollections.class
 })
 @RunWith(PowerMockRunner.class)
 public class SearchResultUtilMBMessageTest
@@ -109,50 +111,6 @@ public class SearchResultUtilMBMessageTest
 	}
 
 	@Test
-	public void testMBMessageAttachmentMissing() throws Exception {
-		when(
-			_mbMessageLocalService.getMessage(SearchTestUtil.ENTRY_CLASS_PK)
-		).thenReturn(
-			null
-		);
-
-		SearchResult searchResult = assertOneSearchResult(
-			SearchTestUtil.createAttachmentDocument(_MB_MESSAGE_CLASS_NAME));
-
-		Assert.assertEquals(
-			SearchTestUtil.ATTACHMENT_OWNER_CLASS_NAME,
-			searchResult.getClassName());
-		Assert.assertEquals(
-			SearchTestUtil.ATTACHMENT_OWNER_CLASS_PK,
-			searchResult.getClassPK());
-
-		List<MBMessage> mbMessages = searchResult.getMBMessages();
-
-		Assert.assertTrue(mbMessages.isEmpty());
-
-		Mockito.verify(
-			_mbMessageLocalService
-		).getMessage(
-			SearchTestUtil.ENTRY_CLASS_PK
-		);
-
-		Assert.assertNull(searchResult.getSummary());
-
-		verifyStatic();
-
-		AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
-			SearchTestUtil.ATTACHMENT_OWNER_CLASS_NAME);
-
-		verifyStatic();
-
-		IndexerRegistryUtil.getIndexer(
-			SearchTestUtil.ATTACHMENT_OWNER_CLASS_NAME);
-
-		assertEmptyFileEntryTuples(searchResult);
-		assertEmptyVersions(searchResult);
-	}
-
-	@Test
 	public void testTwoDocumentsWithSameAttachmentOwner() {
 		Document document1 = SearchTestUtil.createAttachmentDocument(
 			_MB_MESSAGE_CLASS_NAME, SearchTestUtil.ENTRY_CLASS_PK);
@@ -160,7 +118,7 @@ public class SearchResultUtilMBMessageTest
 			_MB_MESSAGE_CLASS_NAME, SearchTestUtil.ENTRY_CLASS_PK + 1);
 
 		List<SearchResult> searchResults = SearchTestUtil.getSearchResults(
-			portletURL, document1, document2);
+			document1, document2);
 
 		Assert.assertEquals( 1, searchResults.size());
 

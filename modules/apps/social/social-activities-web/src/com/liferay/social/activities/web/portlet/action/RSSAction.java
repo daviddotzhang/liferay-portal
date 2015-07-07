@@ -35,6 +35,7 @@ import com.liferay.portlet.social.model.SocialActivity;
 import com.liferay.portlet.social.model.SocialActivityFeedEntry;
 import com.liferay.portlet.social.service.SocialActivityInterpreterLocalServiceUtil;
 import com.liferay.portlet.social.service.SocialActivityLocalServiceUtil;
+import com.liferay.social.activities.web.constants.SocialActivitiesPortletKeys;
 import com.liferay.util.RSSUtil;
 
 import com.sun.syndication.feed.synd.SyndContent;
@@ -54,6 +55,7 @@ import java.util.List;
 import javax.portlet.ActionRequest;
 import javax.portlet.MimeResponse;
 import javax.portlet.PortletException;
+import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.ResourceURL;
@@ -70,7 +72,7 @@ import org.osgi.service.component.annotations.Component;
 	immediate = true,
 	property = {
 		"action.command.name=rss",
-		"javax.portlet.name=com_liferay_social_activities_web_portlet_SocialActivitiesPortlet"
+		"javax.portlet.name=" + SocialActivitiesPortletKeys.SOCIAL_ACTIVITIES
 	},
 	service = ActionCommand.class
 )
@@ -82,6 +84,22 @@ public class RSSAction implements ActionCommand {
 		throws PortletException {
 
 		if (!(portletResponse instanceof MimeResponse)) {
+			return false;
+		}
+
+		PortletPreferences portletPreferences = portletRequest.getPreferences();
+
+		boolean enableRss = GetterUtil.getBoolean(
+			portletPreferences.getValue("enableRss", null));
+
+		if (!PortalUtil.isRSSFeedsEnabled() || !enableRss) {
+			try {
+				PortalUtil.sendRSSFeedsDisabledError(
+					portletRequest, portletResponse);
+			}
+			catch (Exception e) {
+			}
+
 			return false;
 		}
 
@@ -114,7 +132,7 @@ public class RSSAction implements ActionCommand {
 
 		syndFeed.setDescription(GetterUtil.getString(description, title));
 
-		List<SyndEntry> syndEntries = new ArrayList<SyndEntry>();
+		List<SyndEntry> syndEntries = new ArrayList<>();
 
 		syndFeed.setEntries(syndEntries);
 
@@ -161,7 +179,7 @@ public class RSSAction implements ActionCommand {
 
 		syndFeed.setFeedType(RSSUtil.getFeedType(format, version));
 
-		List<SyndLink> syndLinks = new ArrayList<SyndLink>();
+		List<SyndLink> syndLinks = new ArrayList<>();
 
 		syndFeed.setLinks(syndLinks);
 

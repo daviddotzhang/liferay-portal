@@ -17,9 +17,9 @@ package com.liferay.portal.kernel.search;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsUtil;
-import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.util.DLFileEntryIndexer;
 import com.liferay.portlet.messageboards.model.MBMessage;
@@ -33,7 +33,6 @@ import java.util.Locale;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.PortletURL;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -190,6 +189,14 @@ public class BaseIndexerGetFullQueryTest extends PowerMockito {
 		).toReturn(
 			new String[0]
 		);
+
+		stub(
+			method(
+				SearchEngineUtil.class, "getSearchEngine", String.class
+			)
+		).toReturn(
+			new BaseSearchEngine()
+		);
 	}
 
 	private static final String _CLASS_NAME = RandomTestUtil.randomString();
@@ -200,13 +207,8 @@ public class BaseIndexerGetFullQueryTest extends PowerMockito {
 	private class TestIndexer extends BaseIndexer {
 
 		@Override
-		public String[] getClassNames() {
-			return new String[] {_CLASS_NAME};
-		}
-
-		@Override
-		public String getPortletId() {
-			return null;
+		public String getClassName() {
+			return _CLASS_NAME;
 		}
 
 		@Override
@@ -220,9 +222,9 @@ public class BaseIndexerGetFullQueryTest extends PowerMockito {
 
 		@Override
 		protected Summary doGetSummary(
-			Document document, Locale locale, String snippet,
-			PortletURL portletURL, PortletRequest portletRequest,
-			PortletResponse portletResponse) throws Exception {
+				Document document, Locale locale, String snippet,
+				PortletRequest portletRequest, PortletResponse portletResponse)
+			throws Exception {
 
 			return null;
 		}
@@ -238,11 +240,6 @@ public class BaseIndexerGetFullQueryTest extends PowerMockito {
 
 		@Override
 		protected void doReindex(String[] ids) throws Exception {
-		}
-
-		@Override
-		protected String getPortletId(SearchContext searchContext) {
-			return null;
 		}
 
 	}

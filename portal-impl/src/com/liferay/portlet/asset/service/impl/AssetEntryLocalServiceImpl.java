@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.asset.service.impl;
 
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.increment.BufferedIncrement;
@@ -46,14 +47,8 @@ import com.liferay.portlet.asset.model.AssetTag;
 import com.liferay.portlet.asset.service.base.AssetEntryLocalServiceBaseImpl;
 import com.liferay.portlet.asset.service.persistence.AssetEntryQuery;
 import com.liferay.portlet.asset.util.AssetEntryValidator;
-import com.liferay.portlet.assetpublisher.util.AssetSearcher;
-import com.liferay.portlet.blogs.model.BlogsEntry;
-import com.liferay.portlet.documentlibrary.model.DLFileEntry;
-import com.liferay.portlet.documentlibrary.util.DLUtil;
-import com.liferay.portlet.journal.model.JournalArticle;
-import com.liferay.portlet.messageboards.model.MBMessage;
+import com.liferay.portlet.asset.util.AssetSearcher;
 import com.liferay.portlet.social.model.SocialActivityConstants;
-import com.liferay.portlet.wiki.model.WikiPage;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -148,7 +143,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	public List<AssetEntry> getAncestorEntries(long entryId)
 		throws PortalException {
 
-		List<AssetEntry> entries = new ArrayList<AssetEntry>();
+		List<AssetEntry> entries = new ArrayList<>();
 
 		AssetEntry parentEntry = getParentEntry(entryId);
 
@@ -165,7 +160,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	public List<AssetEntry> getChildEntries(long entryId)
 		throws PortalException {
 
-		List<AssetEntry> entries = new ArrayList<AssetEntry>();
+		List<AssetEntry> entries = new ArrayList<>();
 
 		List<AssetLink> links = assetLinkLocalService.getDirectLinks(
 			entryId, AssetLinkConstants.TYPE_CHILD);
@@ -197,8 +192,37 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	}
 
 	@Override
+	public List<AssetEntry> getEntries(
+		long[] groupIds, long[] classNameIds, String keywords, String userName,
+		String title, String description, boolean advancedSearch,
+		boolean andOperator, int start, int end, String orderByCol1,
+		String orderByCol2, String orderByType1, String orderByType2) {
+
+		AssetEntryQuery assetEntryQuery = getAssetEntryQuery(
+			groupIds, classNameIds, keywords, userName, title, description,
+			advancedSearch, andOperator, start, end, orderByCol1, orderByCol2,
+			orderByType1, orderByType2);
+
+		return getEntries(assetEntryQuery);
+	}
+
+	@Override
 	public int getEntriesCount(AssetEntryQuery entryQuery) {
 		return assetEntryFinder.countEntries(entryQuery);
+	}
+
+	@Override
+	public int getEntriesCount(
+		long[] groupIds, long[] classNameIds, String keywords, String userName,
+		String title, String description, boolean advancedSearch,
+		boolean andOperator) {
+
+		AssetEntryQuery assetEntryQuery = getAssetEntryQuery(
+			groupIds, classNameIds, keywords, userName, title, description,
+			advancedSearch, andOperator, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			null, null, null, null);
+
+		return getEntriesCount(assetEntryQuery);
 	}
 
 	@Override
@@ -236,7 +260,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			List<AssetEntry> childEntries = getChildEntries(entryId);
 
 			if (childEntries.isEmpty()) {
-				throw new NoSuchEntryException("{entryId=" + entryId + "}");
+				throw nsee;
 			}
 
 			return childEntries.get(0);
@@ -354,7 +378,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	}
 
 	@BufferedIncrement(
-		configuration = "AssetEntry", incrementClass = NumberIncrement.class)
+		configuration = "AssetEntry", incrementClass = NumberIncrement.class
+	)
 	@Override
 	public void incrementViewCounter(
 		long userId, String className, long classPK, int increment) {
@@ -526,8 +551,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long[] categoryIds, String[] tagNames, boolean visible,
 			Date startDate, Date endDate, Date expirationDate, String mimeType,
 			String title, String description, String summary, String url,
-			String layoutUuid, int height, int width, Integer priority,
-			boolean sync)
+			String layoutUuid, int height, int width, Integer priority)
 		throws PortalException {
 
 		// Entry
@@ -677,63 +701,36 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 
 		assetEntryPersistence.update(entry);
 
-		// Synchronize
-
-		if (sync) {
-			if (className.equals(BlogsEntry.class.getName())) {
-				BlogsEntry blogsEntry = blogsEntryPersistence.findByPrimaryKey(
-					classPK);
-
-				blogsEntry.setTitle(title);
-
-				blogsEntryPersistence.update(blogsEntry);
-			}
-			else if (className.equals(DLFileEntry.class.getName())) {
-				DLFileEntry dlFileEntry =
-					dlFileEntryPersistence.findByPrimaryKey(classPK);
-
-				String fileName = DLUtil.getSanitizedFileName(
-					title, dlFileEntry.getExtension());
-
-				dlFileEntry.setFileName(fileName);
-
-				dlFileEntry.setTitle(title);
-				dlFileEntry.setDescription(description);
-
-				dlFileEntryPersistence.update(dlFileEntry);
-			}
-			else if (className.equals(JournalArticle.class.getName())) {
-				JournalArticle journalArticle =
-					journalArticlePersistence.findByPrimaryKey(classPK);
-
-				journalArticle.setTitle(title);
-				journalArticle.setDescription(description);
-
-				journalArticlePersistence.update(journalArticle);
-			}
-			else if (className.equals(MBMessage.class.getName())) {
-				MBMessage mbMessage = mbMessagePersistence.findByPrimaryKey(
-					classPK);
-
-				mbMessage.setSubject(title);
-
-				mbMessagePersistence.update(mbMessage);
-			}
-			else if (className.equals(WikiPage.class.getName())) {
-				WikiPage wikiPage = wikiPagePersistence.findByPrimaryKey(
-					classPK);
-
-				wikiPage.setTitle(title);
-
-				wikiPagePersistence.update(wikiPage);
-			}
-		}
-
 		// Indexer
 
 		reindex(entry);
 
 		return entry;
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, long,
+	 *             Date, Date, String, long, String, long, long[], String[],
+	 *             boolean, Date, Date, Date, String, String, String, String,
+	 *             String, String, int, int, Integer)}
+	 */
+	@Deprecated
+	@Override
+	public AssetEntry updateEntry(
+			long userId, long groupId, Date createDate, Date modifiedDate,
+			String className, long classPK, String classUuid, long classTypeId,
+			long[] categoryIds, String[] tagNames, boolean visible,
+			Date startDate, Date endDate, Date expirationDate, String mimeType,
+			String title, String description, String summary, String url,
+			String layoutUuid, int height, int width, Integer priority,
+			boolean sync)
+		throws PortalException {
+
+		return updateEntry(
+			userId, groupId, createDate, modifiedDate, className, classPK,
+			classUuid, classTypeId, categoryIds, tagNames, visible, startDate,
+			endDate, expirationDate, mimeType, title, description, summary, url,
+			layoutUuid, height, width, priority);
 	}
 
 	@Override
@@ -756,14 +753,13 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 				entry.getExpirationDate(), entry.getMimeType(),
 				entry.getTitle(), entry.getDescription(), entry.getSummary(),
 				entry.getUrl(), entry.getLayoutUuid(), entry.getHeight(),
-				entry.getWidth(), GetterUtil.getInteger(entry.getPriority()),
-				false);
+				entry.getWidth(), GetterUtil.getInteger(entry.getPriority()));
 		}
 
 		return updateEntry(
 			userId, groupId, null, null, className, classPK, null, 0,
 			categoryIds, tagNames, true, null, null, null, null, null, null,
-			null, null, null, 0, 0, null, false);
+			null, null, null, 0, 0, null);
 	}
 
 	/**
@@ -812,7 +808,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			userId, groupId, null, null, className, classPK, classUuid,
 			classTypeId, categoryIds, tagNames, visible, startDate, endDate,
 			expirationDate, mimeType, title, description, summary, url,
-			layoutUuid, height, width, priority, sync);
+			layoutUuid, height, width, priority);
 	}
 
 	@Override
@@ -903,6 +899,36 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		validate(
 			groupId, className, AssetCategoryConstants.ALL_CLASS_TYPE_PK,
 			categoryIds, tagNames);
+	}
+
+	protected AssetEntryQuery getAssetEntryQuery(
+		long[] groupIds, long[] classNameIds, String keywords, String userName,
+		String title, String description, boolean advancedSearch,
+		boolean andOperator, int start, int end, String orderByCol1,
+		String orderByCol2, String orderByType1, String orderByType2) {
+
+		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
+
+		if (advancedSearch) {
+			assetEntryQuery.setAndOperator(andOperator);
+			assetEntryQuery.setDescription(description);
+			assetEntryQuery.setTitle(title);
+			assetEntryQuery.setUserName(userName);
+		}
+		else {
+			assetEntryQuery.setKeywords(keywords);
+		}
+
+		assetEntryQuery.setClassNameIds(classNameIds);
+		assetEntryQuery.setEnd(end);
+		assetEntryQuery.setGroupIds(groupIds);
+		assetEntryQuery.setOrderByCol1(orderByCol1);
+		assetEntryQuery.setOrderByCol2(orderByCol2);
+		assetEntryQuery.setOrderByType1(orderByType1);
+		assetEntryQuery.setOrderByType2(orderByType2);
+		assetEntryQuery.setStart(start);
+
+		return assetEntryQuery;
 	}
 
 	protected long[] getClassNameIds(long companyId, String className) {

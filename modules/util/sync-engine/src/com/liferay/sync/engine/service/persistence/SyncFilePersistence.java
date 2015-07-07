@@ -21,11 +21,15 @@ import com.j256.ormlite.stmt.Where;
 
 import com.liferay.sync.engine.model.SyncFile;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+
 import java.sql.SQLException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -46,10 +50,9 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 		Where<SyncFile, Long> where = queryBuilder.where();
 
 		where.eq("syncAccountId", syncAccountId);
-
-		where.and();
-
 		where.eq("uiEvent", uiEvent);
+
+		where.and(2);
 
 		return where.countOf();
 	}
@@ -67,7 +70,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public SyncFile fetchByFilePathName(String filePathName)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("filePathName", filePathName);
 
@@ -80,28 +83,28 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 		return syncFiles.get(0);
 	}
 
-	public SyncFile fetchByFK_S(String fileKey, long syncAccountId)
+	public List<SyncFile> findByParentFilePathName(String parentFilePathName)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		QueryBuilder<SyncFile, Long> queryBuilder = queryBuilder();
 
-		fieldValues.put("fileKey", fileKey);
-		fieldValues.put("syncAccountId", syncAccountId);
+		Where<SyncFile, Long> where = queryBuilder.where();
 
-		List<SyncFile> syncFiles = queryForFieldValues(fieldValues);
+		FileSystem fileSystem = FileSystems.getDefault();
 
-		if ((syncFiles == null) || syncFiles.isEmpty()) {
-			return null;
-		}
+		parentFilePathName = StringUtils.replace(
+			parentFilePathName + fileSystem.getSeparator(), "\\", "\\\\");
 
-		return syncFiles.get(0);
+		where.like("filePathName", new SelectArg(parentFilePathName + "%"));
+
+		return query(queryBuilder.prepare());
 	}
 
 	public SyncFile fetchByR_S_T(
 			long repositoryId, long syncAccountId, long typePK)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("repositoryId", repositoryId);
 		fieldValues.put("syncAccountId", syncAccountId);
@@ -122,28 +125,28 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 		return queryForEq("syncAccountId", syncAccountId);
 	}
 
-	public List<SyncFile> findByF_L(String filePathName, long localSyncTime)
+	public List<SyncFile> findByPF_L(
+			String parentFilePathName, long localSyncTime)
 		throws SQLException {
 
 		QueryBuilder<SyncFile, Long> queryBuilder = queryBuilder();
 
 		Where<SyncFile, Long> where = queryBuilder.where();
 
-		filePathName = StringUtils.replace(filePathName, "\\", "\\\\");
+		FileSystem fileSystem = FileSystems.getDefault();
 
-		where.like("filePathName", new SelectArg(filePathName + "%"));
+		parentFilePathName = StringUtils.replace(
+			parentFilePathName + fileSystem.getSeparator(), "\\", "\\\\");
 
-		where.and();
-
+		where.like("filePathName", new SelectArg(parentFilePathName + "%"));
 		where.lt("localSyncTime", localSyncTime);
-
-		where.and();
-
+		where.or(
+			where.eq("state", SyncFile.STATE_SYNCED),
+			where.eq("uiEvent", SyncFile.UI_EVENT_DELETED_LOCAL),
+			where.eq("uiEvent", SyncFile.UI_EVENT_UPLOADING));
 		where.ne("type", SyncFile.TYPE_SYSTEM);
 
-		where.and();
-
-		where.ne("uiEvent", SyncFile.UI_EVENT_DOWNLOADING);
+		where.and(4);
 
 		return query(queryBuilder.prepare());
 	}
@@ -151,7 +154,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public List<SyncFile> findByP_S(long parentFolderId, long syncAccountId)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("parentFolderId", parentFolderId);
 		fieldValues.put("syncAccountId", syncAccountId);
@@ -162,7 +165,7 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 	public List<SyncFile> findByR_S(long repositoryId, long syncAccountId)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		Map<String, Object> fieldValues = new HashMap<>();
 
 		fieldValues.put("repositoryId", repositoryId);
 		fieldValues.put("syncAccountId", syncAccountId);
@@ -170,15 +173,57 @@ public class SyncFilePersistence extends BasePersistenceImpl<SyncFile, Long> {
 		return queryForFieldValues(fieldValues);
 	}
 
-	public List<SyncFile> findByS_U(long syncAccountId, int uiEvent)
+	public List<SyncFile> findByS_U(
+			long syncAccountId, int uiEvent, String orderByColumn,
+			boolean ascending)
 		throws SQLException {
 
-		Map<String, Object> fieldValues = new HashMap<String, Object>();
+		QueryBuilder<SyncFile, Long> queryBuilder = queryBuilder();
 
-		fieldValues.put("syncAccountId", syncAccountId);
-		fieldValues.put("uiEvent", uiEvent);
+		Where<SyncFile, Long> where = queryBuilder.where();
 
-		return queryForFieldValues(fieldValues);
+		where.eq("syncAccountId", syncAccountId);
+		where.eq("uiEvent", uiEvent);
+
+		where.and(2);
+
+		queryBuilder.orderBy(orderByColumn, ascending);
+
+		return query(queryBuilder.prepare());
+	}
+
+	public void renameByFilePathName(
+			final String sourceFilePathName, final String targetFilePathName)
+		throws SQLException {
+
+		Callable<Object> callable = new Callable<Object>() {
+
+			@Override
+			public Object call() throws Exception {
+				FileSystem fileSystem = FileSystems.getDefault();
+
+				List<SyncFile> syncFiles = findByParentFilePathName(
+					sourceFilePathName);
+
+				for (SyncFile syncFile : syncFiles) {
+					String filePathName = syncFile.getFilePathName();
+
+					filePathName = StringUtils.replaceOnce(
+						filePathName,
+						sourceFilePathName + fileSystem.getSeparator(),
+						targetFilePathName + fileSystem.getSeparator());
+
+					syncFile.setFilePathName(filePathName);
+
+					update(syncFile);
+				}
+
+				return null;
+			}
+
+		};
+
+		callBatchTasks(callable);
 	}
 
 	public void updateByFilePathName(

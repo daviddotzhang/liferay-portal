@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Provides the SOAP utility for the
- * {@link com.liferay.portlet.dynamicdatalists.service.DDLRecordSetServiceUtil} service utility. The
+ * {@link DDLRecordSetServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -64,7 +64,7 @@ import java.util.Map;
  * @author Brian Wing Shun Chan
  * @see DDLRecordSetServiceHttp
  * @see com.liferay.portlet.dynamicdatalists.model.DDLRecordSetSoap
- * @see com.liferay.portlet.dynamicdatalists.service.DDLRecordSetServiceUtil
+ * @see DDLRecordSetServiceUtil
  * @generated
  */
 @ProviderType
@@ -114,6 +114,21 @@ public class DDLRecordSetServiceSoap {
 			com.liferay.portlet.dynamicdatalists.model.DDLRecordSet returnValue = DDLRecordSetServiceUtil.getRecordSet(recordSetId);
 
 			return com.liferay.portlet.dynamicdatalists.model.DDLRecordSetSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.dynamicdatalists.model.DDLRecordSetSoap[] getRecordSets(
+		long[] groupIds) throws RemoteException {
+		try {
+			java.util.List<com.liferay.portlet.dynamicdatalists.model.DDLRecordSet> returnValue =
+				DDLRecordSetServiceUtil.getRecordSets(groupIds);
+
+			return com.liferay.portlet.dynamicdatalists.model.DDLRecordSetSoap.toSoapModels(returnValue);
 		}
 		catch (Exception e) {
 			_log.error(e, e);

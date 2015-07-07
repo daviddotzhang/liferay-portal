@@ -17,6 +17,8 @@ package com.liferay.nested.portlets.web.portlet.action;
 import aQute.bnd.annotation.metatype.Configurable;
 
 import com.liferay.nested.portlets.web.configuration.NestedPortletsConfiguration;
+import com.liferay.nested.portlets.web.constants.NestedPortletsPortletKeys;
+import com.liferay.nested.portlets.web.display.context.NestedPortletsDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
 import com.liferay.portal.kernel.portlet.DefaultConfigurationAction;
@@ -45,7 +47,6 @@ import java.util.regex.Pattern;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
-import javax.portlet.PortletPreferences;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -59,10 +60,10 @@ import org.osgi.service.component.annotations.Modified;
  * @author Peter Fellwock
  */
 @Component(
-	configurationPid = "com.liferay.nested.portlets.web",
+	configurationPid = "com.liferay.nested.portlets.web.configuration.NestedPortletsConfiguration",
 	configurationPolicy = ConfigurationPolicy.OPTIONAL, immediate = true,
 	property = {
-		"javax.portlet.name=com_liferay_nested_portlets_web_portlet_NestedPortletsPortlet"
+		"javax.portlet.name=" + NestedPortletsPortletKeys.NESTED_PORTLETS
 	},
 	service = ConfigurationAction.class
 )
@@ -81,11 +82,13 @@ public class NestedPortletsConfigurationAction
 		String portletResource = ParamUtil.getString(
 			actionRequest, "portletResource");
 
-		PortletPreferences portletPreferences = actionRequest.getPreferences();
+		NestedPortletsDisplayContext nestedPortletsDisplayContext =
+			new NestedPortletsDisplayContext(
+				PortalUtil.getHttpServletRequest(actionRequest),
+				_nestedPortletsConfiguration);
 
-		String oldLayoutTemplateId = portletPreferences.getValue(
-			"layoutTemplateId",
-			_nestedPortletsConfiguration.getLayoutTemplateDefault());
+		String oldLayoutTemplateId =
+			nestedPortletsDisplayContext.getLayoutTemplateId();
 
 		if (!oldLayoutTemplateId.equals(layoutTemplateId)) {
 			reorganizeNestedColumns(
@@ -119,7 +122,7 @@ public class NestedPortletsConfigurationAction
 	protected List<String> getColumnNames(String content, String portletId) {
 		Matcher matcher = _pattern.matcher(content);
 
-		Set<String> columnIds = new HashSet<String>();
+		Set<String> columnIds = new HashSet<>();
 
 		while (matcher.find()) {
 			if (Validator.isNotNull(matcher.group(1))) {
@@ -127,7 +130,7 @@ public class NestedPortletsConfigurationAction
 			}
 		}
 
-		Set<String> columnNames = new LinkedHashSet<String>();
+		Set<String> columnNames = new LinkedHashSet<>();
 
 		for (String columnId : columnIds) {
 			if (!columnId.contains(portletId)) {
@@ -137,7 +140,7 @@ public class NestedPortletsConfigurationAction
 			}
 		}
 
-		return new ArrayList<String>(columnNames);
+		return new ArrayList<>(columnNames);
 	}
 
 	protected void reorganizeNestedColumns(

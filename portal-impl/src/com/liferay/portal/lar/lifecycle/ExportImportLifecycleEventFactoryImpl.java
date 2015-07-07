@@ -27,13 +27,14 @@ public class ExportImportLifecycleEventFactoryImpl
 
 	@Override
 	public ExportImportLifecycleEvent create(
-		int code, Serializable... attributes) {
+		int code, int processFlag, Serializable... attributes) {
 
 		ExportImportLifecycleEvent exportImportLifecycleEvent =
 			new ExportImportLifecycleEventImpl();
 
 		exportImportLifecycleEvent.setAttributes(attributes);
 		exportImportLifecycleEvent.setCode(code);
+		exportImportLifecycleEvent.setProcessFlag(processFlag);
 
 		return exportImportLifecycleEvent;
 	}

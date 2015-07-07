@@ -1,4 +1,4 @@
-@import "compass";
+@import "bourbon";
 
 .lfr-tree {
 	.tree-label {
@@ -38,10 +38,4 @@
 	.tree-container, .tree-root-container {
 		margin-left: 15px;
 	}
-}
-
-/* Skin */
-
-.lfr-tree a {
-	text-decoration: none;
 }

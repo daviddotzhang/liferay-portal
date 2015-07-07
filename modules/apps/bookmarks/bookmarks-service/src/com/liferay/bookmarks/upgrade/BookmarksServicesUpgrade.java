@@ -14,9 +14,11 @@
 
 package com.liferay.bookmarks.upgrade;
 
+import com.liferay.bookmarks.upgrade.v1_0_0.UpgradeClassNames;
 import com.liferay.bookmarks.upgrade.v1_0_0.UpgradePortletId;
 import com.liferay.bookmarks.upgrade.v1_0_0.UpgradePortletSettings;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.service.ReleaseLocalService;
 
@@ -32,9 +34,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * @author Miguel Pastor
  */
-@Component(
-	immediate = true, service = BookmarksServicesUpgrade.class
-)
+@Component(immediate = true, service = BookmarksServicesUpgrade.class)
 public class BookmarksServicesUpgrade {
 
 	@Reference(
@@ -54,18 +54,25 @@ public class BookmarksServicesUpgrade {
 		_releaseLocalService = releaseLocalService;
 	}
 
+	@Reference(unbind = "-")
+	protected void setSettingsFactory(SettingsFactory settingsFactory) {
+		_settingsFactory = settingsFactory;
+	}
+
 	@Activate
 	protected void upgrade() throws PortalException {
 		List<UpgradeProcess> upgradeProcesses = new ArrayList<>();
 
 		upgradeProcesses.add(new UpgradePortletId());
 
-		upgradeProcesses.add(new UpgradePortletSettings());
+		upgradeProcesses.add(new UpgradeClassNames());
+		upgradeProcesses.add(new UpgradePortletSettings(_settingsFactory));
 
 		_releaseLocalService.updateRelease(
-			"com.liferay.bookmarks.service", upgradeProcesses, 1, 0, false);
+			"com.liferay.bookmarks.service", upgradeProcesses, 1, 1, false);
 	}
 
 	private ReleaseLocalService _releaseLocalService;
+	private SettingsFactory _settingsFactory;
 
 }

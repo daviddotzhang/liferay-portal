@@ -17,6 +17,8 @@ package com.liferay.portal.lar.messaging;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.messaging.BaseMessageStatusMessageListener;
+import com.liferay.portal.kernel.messaging.sender.SingleDestinationMessageSender;
+import com.liferay.portal.kernel.messaging.sender.SingleDestinationMessageSenderFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.User;
@@ -40,6 +42,18 @@ import java.util.Map;
  */
 public abstract class BasePublisherMessageListener
 	extends BaseMessageStatusMessageListener {
+
+	public void afterPropertiesSet() {
+		SingleDestinationMessageSender singleDestinationMessageSender =
+			SingleDestinationMessageSenderFactoryUtil.
+				createSingleDestinationMessageSender(_destinationName);
+
+		setStatusSender(singleDestinationMessageSender);
+	}
+
+	public void setDestinationName(String destinationName) {
+		_destinationName = destinationName;
+	}
 
 	protected void initThreadLocals(
 			long userId, Map<String, String[]> parameterMap)
@@ -69,8 +83,7 @@ public abstract class BasePublisherMessageListener
 		serviceContext.setSignedIn(!user.isDefaultUser());
 		serviceContext.setUserId(user.getUserId());
 
-		Map<String, Serializable> attributes =
-			new HashMap<String, Serializable>();
+		Map<String, Serializable> attributes = new HashMap<>();
 
 		for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
 			String param = entry.getKey();
@@ -97,5 +110,7 @@ public abstract class BasePublisherMessageListener
 		PrincipalThreadLocal.setName(null);
 		ServiceContextThreadLocal.popServiceContext();
 	}
+
+	private String _destinationName;
 
 }

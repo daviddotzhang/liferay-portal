@@ -1,4 +1,5 @@
 /*/*/bin
+/*/*/build
 /*/*/docroot/WEB-INF/classes
 /*/*/docroot/WEB-INF/lib
 /*/*/docroot/WEB-INF/tld
@@ -8,7 +9,9 @@
 /*/*/lib
 /*/*/test-classes
 /*/*/test-results
+/*/*/tmp
 /*/*/*/bin
+/*/*/*/build
 /*/*/*/docroot/WEB-INF/classes
 /*/*/*/docroot/WEB-INF/lib
 /*/*/*/docroot/WEB-INF/tld
@@ -18,3 +21,15 @@
 /*/*/*/lib
 /*/*/*/test-classes
 /*/*/*/test-results
+/*/*/*/tmp
+/*/*/*/*/bin
+/*/*/*/*/docroot/WEB-INF/classes
+/*/*/*/*/docroot/WEB-INF/lib
+/*/*/*/*/docroot/WEB-INF/tld
+/*/*/*/*/classes
+/*/*/*/*/ivy.xml.MD5
+/*/*/*/*/javadoc
+/*/*/*/*/lib
+/*/*/*/*/test-classes
+/*/*/*/*/test-results
+/*/*/*/*/tmp

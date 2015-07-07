@@ -56,7 +56,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 	/>
 
 	<div class="form-search">
-		<liferay-ui:input-search autoFocus="<%= (windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook()) %>" placeholder='<%= LanguageUtil.get(locale, "keywords") %>' title='<%= LanguageUtil.get(locale, "search-messages") %>' />
+		<liferay-ui:input-search autoFocus="<%= (windowState.equals(WindowState.MAXIMIZED) && !themeDisplay.isFacebook()) %>" placeholder='<%= LanguageUtil.get(request, "keywords") %>' title='<%= LanguageUtil.get(request, "search-messages") %>' />
 	</div>
 
 	<%
@@ -98,9 +98,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 
 			searchContainer.setTotal(hits.getLength());
 
-			PortletURL hitURL = renderResponse.createRenderURL();
-
-			results = SearchResultUtil.getSearchResults(hits, locale, hitURL);
+			results = SearchResultUtil.getSearchResults(hits, locale);
 
 			searchContainer.setResults(results);
 			%>

@@ -1,4 +1,4 @@
-@import "compass";
+@import "bourbon";
 @import "mixins";
 
 .app-view-entry-taglib.entry-display-style {
@@ -23,7 +23,6 @@
 		.entry-title {
 			clear: both;
 			font-size: 1em;
-			font-weight: normal;
 			padding: 0 10px;
 		}
 
@@ -102,11 +101,5 @@
 
 	.tags {
 		margin-top: 5px;
-	}
-}
-
-.ie6, .ie7 {
-	.entry-display-style.display-descriptive {
-		zoom: 1;
 	}
 }

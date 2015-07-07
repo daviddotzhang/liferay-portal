@@ -14,6 +14,9 @@
 
 package com.liferay.portlet.dynamicdatamapping.model;
 
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.Validator;
+
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -97,7 +100,7 @@ public class DDMFormField implements Serializable {
 
 	public Map<String, DDMFormField> getNestedDDMFormFieldsMap() {
 		Map<String, DDMFormField> nestedDDMFormFieldsMap =
-			new LinkedHashMap<String, DDMFormField>();
+			new LinkedHashMap<>();
 
 		for (DDMFormField nestedDDMFormField : _nestedDDMFormFields) {
 			nestedDDMFormFieldsMap.put(
@@ -148,6 +151,14 @@ public class DDMFormField implements Serializable {
 
 	public boolean isShowLabel() {
 		return _showLabel;
+	}
+
+	public boolean isTransient() {
+		if (Validator.isNull(_dataType)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public void setDataType(String dataType) {
@@ -232,14 +243,13 @@ public class DDMFormField implements Serializable {
 	private DDMForm _ddmForm;
 	private DDMFormFieldOptions _ddmFormFieldOptions =
 		new DDMFormFieldOptions();
-	private String _indexType;
+	private String _indexType = StringPool.BLANK;
 	private LocalizedValue _label = new LocalizedValue();
 	private boolean _localizable;
 	private boolean _multiple;
 	private String _name;
 	private String _namespace;
-	private List<DDMFormField> _nestedDDMFormFields =
-		new ArrayList<DDMFormField>();
+	private List<DDMFormField> _nestedDDMFormFields = new ArrayList<>();
 	private LocalizedValue _predefinedValue = new LocalizedValue();
 	private boolean _readOnly;
 	private boolean _repeatable;

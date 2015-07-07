@@ -48,6 +48,10 @@ public class PortletDataContextFactoryImpl
 	public PortletDataContext clonePortletDataContext(
 		PortletDataContext portletDataContext) {
 
+		if (portletDataContext == null) {
+			return null;
+		}
+
 		PortletDataContext clonePortletDataContext =
 			new PortletDataContextImpl();
 
@@ -64,6 +68,12 @@ public class PortletDataContextFactoryImpl
 
 		clonePortletDataContext.setManifestSummary(
 			(ManifestSummary)manifestSummary.clone());
+
+		Map<String, Map<?, ?>> cloneNewPrimaryKeysMaps =
+			clonePortletDataContext.getNewPrimaryKeysMaps();
+
+		cloneNewPrimaryKeysMaps.putAll(
+			portletDataContext.getNewPrimaryKeysMaps());
 
 		clonePortletDataContext.setParameterMap(
 			portletDataContext.getParameterMap());
@@ -123,8 +133,6 @@ public class PortletDataContextFactoryImpl
 
 		portletDataContext.setNewLayouts(new ArrayList<Layout>());
 		portletDataContext.setParameterMap(parameterMap);
-		portletDataContext.setPortetDataContextListener(
-			new PortletDataContextListenerImpl(portletDataContext));
 		portletDataContext.setUserIdStrategy(userIdStrategy);
 		portletDataContext.setZipReader(zipReader);
 

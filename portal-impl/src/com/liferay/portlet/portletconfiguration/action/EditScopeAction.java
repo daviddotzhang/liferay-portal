@@ -14,11 +14,11 @@
 
 package com.liferay.portlet.portletconfiguration.action;
 
-import com.liferay.portal.NoSuchLayoutException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Tuple;
@@ -34,6 +34,10 @@ import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.portletconfiguration.util.PortletConfigurationUtil;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -69,10 +73,11 @@ public class EditScopeAction extends PortletAction {
 			portlet = ActionUtil.getPortlet(actionRequest);
 		}
 		catch (PrincipalException pe) {
-			SessionErrors.add(
-				actionRequest, PrincipalException.class.getName());
+			SessionErrors.add(actionRequest, pe.getClass());
 
 			setForward(actionRequest, "portlet.portlet_configuration.error");
+
+			return;
 		}
 
 		PortletPreferences portletPreferences =
@@ -124,8 +129,7 @@ public class EditScopeAction extends PortletAction {
 			portlet = ActionUtil.getPortlet(renderRequest);
 		}
 		catch (PrincipalException pe) {
-			SessionErrors.add(
-				renderRequest, PrincipalException.class.getName());
+			SessionErrors.add(renderRequest, pe.getClass());
 
 			return actionMapping.findForward(
 				"portlet.portlet_configuration.error");
@@ -172,15 +176,19 @@ public class EditScopeAction extends PortletAction {
 					layout.isPrivateLayout());
 
 			if (!scopeLayout.hasScopeGroup()) {
+				Map<Locale, String> nameMap = new HashMap<>();
+
 				String name = String.valueOf(scopeLayout.getPlid());
+
+				nameMap.put(LocaleUtil.getDefault(), name);
 
 				GroupLocalServiceUtil.addGroup(
 					themeDisplay.getUserId(),
 					GroupConstants.DEFAULT_PARENT_GROUP_ID,
 					Layout.class.getName(), scopeLayout.getPlid(),
-					GroupConstants.DEFAULT_LIVE_GROUP_ID, name, null, 0, true,
-					GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null, false,
-					true, null);
+					GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap, null, 0,
+					true, GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION, null,
+					false, true, null);
 			}
 
 			scopeGroupId = scopeLayout.getGroupId();
@@ -221,15 +229,13 @@ public class EditScopeAction extends PortletAction {
 			String scopeLayoutUuid = GetterUtil.getString(
 				portletPreferences.getValue("lfrScopeLayoutUuid", null));
 
-			try {
-				Layout scopeLayout =
-					LayoutLocalServiceUtil.getLayoutByUuidAndGroupId(
-						scopeLayoutUuid, layout.getGroupId(),
-						layout.isPrivateLayout());
+			Layout scopeLayout =
+				LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(
+					scopeLayoutUuid, layout.getGroupId(),
+					layout.isPrivateLayout());
 
+			if (scopeLayout != null) {
 				scopeName = scopeLayout.getName(themeDisplay.getLocale());
-			}
-			catch (NoSuchLayoutException nsle) {
 			}
 		}
 		else {

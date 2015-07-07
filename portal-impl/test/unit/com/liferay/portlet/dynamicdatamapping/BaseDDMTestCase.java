@@ -15,10 +15,10 @@
 package com.liferay.portlet.dynamicdatamapping;
 
 import com.liferay.portal.json.JSONFactoryImpl;
-import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -29,16 +29,18 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
+import com.liferay.portal.kernel.xml.UnsecureSAXReaderUtil;
 import com.liferay.portal.util.HtmlImpl;
 import com.liferay.portal.util.LocalizationImpl;
-import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.xml.SAXReaderImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerImpl;
-import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDSerializerUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerImpl;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONDeserializerUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONSerializerImpl;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormJSONSerializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
+import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayoutColumn;
+import com.liferay.portlet.dynamicdatamapping.model.DDMFormLayoutRow;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.model.LocalizedValue;
@@ -135,7 +137,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 	}
 
 	protected Set<Locale> createAvailableLocales(Locale... locales) {
-		Set<Locale> availableLocales = new LinkedHashSet<Locale>();
+		Set<Locale> availableLocales = new LinkedHashSet<>();
 
 		for (Locale locale : locales) {
 			availableLocales.add(locale);
@@ -180,6 +182,30 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		String name, Value value) {
 
 		return createDDMFormFieldValue(StringUtil.randomString(), name, value);
+	}
+
+	protected List<DDMFormLayoutColumn> createDDMFormLayoutColumns(
+		String... fieldNames) {
+
+		List<DDMFormLayoutColumn> ddmFormLayoutColumns = new ArrayList<>();
+
+		int size = 12 / fieldNames.length;
+
+		for (String fieldName : fieldNames) {
+			ddmFormLayoutColumns.add(new DDMFormLayoutColumn(fieldName, size));
+		}
+
+		return ddmFormLayoutColumns;
+	}
+
+	protected DDMFormLayoutRow createDDMFormLayoutRow(
+		List<DDMFormLayoutColumn> ddmFormLayoutColumns) {
+
+		DDMFormLayoutRow ddmFormLayoutRow = new DDMFormLayoutRow();
+
+		ddmFormLayoutRow.setDDMFormLayoutColumns(ddmFormLayoutColumns);
+
+		return ddmFormLayoutRow;
 	}
 
 	protected DDMFormValues createDDMFormValues(DDMForm ddmForm) {
@@ -289,7 +315,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 	protected DDMStructure createStructure(String name, DDMForm ddmForm) {
 		return createStructure(
-			name, DDMFormXSDSerializerUtil.serialize(ddmForm));
+			name, DDMFormJSONSerializerUtil.serialize(ddmForm));
 	}
 
 	protected DDMStructure createStructure(String name, String definition) {
@@ -348,7 +374,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 	}
 
 	protected List<Serializable> createValuesList(String... valuesString) {
-		List<Serializable> values = new ArrayList<Serializable>();
+		List<Serializable> values = new ArrayList<>();
 
 		for (String valueString : valuesString) {
 			values.add(valueString);
@@ -360,8 +386,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 	protected Map<Locale, List<Serializable>> createValuesMap(
 		List<Serializable> enValues, List<Serializable> ptValues) {
 
-		Map<Locale, List<Serializable>> valuesMap =
-			new HashMap<Locale, List<Serializable>>();
+		Map<Locale, List<Serializable>> valuesMap = new HashMap<>();
 
 		if (enValues != null) {
 			valuesMap.put(LocaleUtil.US, enValues);
@@ -401,20 +426,20 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		return StringUtil.read(inputStream);
 	}
 
-	protected void setUpDDMFormXSDDeserializerUtil() {
-		DDMFormXSDDeserializerUtil ddmFormXSDDeserializerUtil =
-			new DDMFormXSDDeserializerUtil();
+	protected void setUpDDMFormJSONDeserializerUtil() {
+		DDMFormJSONDeserializerUtil ddmFormJSONDeserializerUtil =
+			new DDMFormJSONDeserializerUtil();
 
-		ddmFormXSDDeserializerUtil.setDDMFormXSDDeserializer(
-			new DDMFormXSDDeserializerImpl());
+		ddmFormJSONDeserializerUtil.setDDMFormJSONDeserializer(
+			new DDMFormJSONDeserializerImpl());
 	}
 
-	protected void setUpDDMFormXSDSerializerUtil() {
-		DDMFormXSDSerializerUtil ddmFormXSDSerializerUtil =
-			new DDMFormXSDSerializerUtil();
+	protected void setUpDDMFormJSONSerializerUtil() {
+		DDMFormJSONSerializerUtil ddmFormJSONSerializerUtil =
+			new DDMFormJSONSerializerUtil();
 
-		ddmFormXSDSerializerUtil.setDDMFormXSDSerializer(
-			new DDMFormXSDSerializerImpl());
+		ddmFormJSONSerializerUtil.setDDMFormJSONSerializer(
+			new DDMFormJSONSerializerImpl());
 	}
 
 	protected void setUpDDMStructureLocalServiceUtil() {
@@ -573,32 +598,16 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 			"51200"
 		);
 
-		String ddmStructurePrivateFieldDataTypeKey =
-			PropsKeys.DYNAMIC_DATA_MAPPING_STRUCTURE_PRIVATE_FIELD_DATATYPE;
-
-		when(
-			props.get(
-				Matchers.eq(ddmStructurePrivateFieldDataTypeKey),
-				Matchers.any(Filter.class))
-		).thenReturn(
-			"string"
-		);
-
-		String ddmStructurePrivateFieldRepeatableKey =
-			PropsKeys.DYNAMIC_DATA_MAPPING_STRUCTURE_PRIVATE_FIELD_REPEATABLE;
-
-		when(
-			props.get(
-				Matchers.eq(ddmStructurePrivateFieldRepeatableKey),
-				Matchers.any(Filter.class))
-		).thenReturn(
-			"false"
-		);
-
 		when(
 			props.get(PropsKeys.INDEX_DATE_FORMAT_PATTERN)
 		).thenReturn(
 			"yyyyMMddHHmmss"
+		);
+
+		when(
+			props.get(PropsKeys.XML_SECURITY_ENABLED)
+		).thenReturn(
+			Boolean.TRUE.toString()
 		);
 
 		PropsUtil.setProps(props);
@@ -607,7 +616,18 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 	protected void setUpSAXReaderUtil() {
 		SAXReaderUtil saxReaderUtil = new SAXReaderUtil();
 
-		saxReaderUtil.setSAXReader(new SAXReaderImpl());
+		SAXReaderImpl secureSAXReader = new SAXReaderImpl();
+
+		secureSAXReader.setSecure(true);
+
+		saxReaderUtil.setSAXReader(secureSAXReader);
+
+		UnsecureSAXReaderUtil unsecureSAXReaderUtil =
+			new UnsecureSAXReaderUtil();
+
+		SAXReaderImpl unsecureSAXReader = new SAXReaderImpl();
+
+		unsecureSAXReaderUtil.setSAXReader(unsecureSAXReader);
 	}
 
 	protected void whenLanguageGet(
@@ -641,10 +661,8 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 	@Mock
 	protected Language _language;
 
-	protected Map<Long, DDMStructure> structures =
-		new HashMap<Long, DDMStructure>();
-	protected Map<Long, DDMTemplate> templates =
-		new HashMap<Long, DDMTemplate>();
+	protected Map<Long, DDMStructure> structures = new HashMap<>();
+	protected Map<Long, DDMTemplate> templates = new HashMap<>();
 
 	protected class MockField extends Field {
 

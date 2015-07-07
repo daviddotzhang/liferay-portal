@@ -19,9 +19,7 @@ import com.liferay.portal.AddressStreetException;
 import com.liferay.portal.AddressZipException;
 import com.liferay.portal.CompanyMaxUsersException;
 import com.liferay.portal.ContactBirthdayException;
-import com.liferay.portal.ContactFirstNameException;
-import com.liferay.portal.ContactFullNameException;
-import com.liferay.portal.ContactLastNameException;
+import com.liferay.portal.ContactNameException;
 import com.liferay.portal.DuplicateOpenIdException;
 import com.liferay.portal.EmailAddressException;
 import com.liferay.portal.GroupFriendlyURLException;
@@ -34,8 +32,6 @@ import com.liferay.portal.OrganizationParentException;
 import com.liferay.portal.PhoneNumberException;
 import com.liferay.portal.RequiredFieldException;
 import com.liferay.portal.RequiredUserException;
-import com.liferay.portal.ReservedUserEmailAddressException;
-import com.liferay.portal.ReservedUserScreenNameException;
 import com.liferay.portal.TermsOfUseException;
 import com.liferay.portal.UserEmailAddressException;
 import com.liferay.portal.UserIdException;
@@ -50,6 +46,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PwdGenerator;
 import com.liferay.portal.kernel.util.Validator;
@@ -135,9 +132,7 @@ public class CreateAccountAction extends PortletAction {
 				e instanceof CaptchaTextException ||
 				e instanceof CompanyMaxUsersException ||
 				e instanceof ContactBirthdayException ||
-				e instanceof ContactFirstNameException ||
-				e instanceof ContactFullNameException ||
-				e instanceof ContactLastNameException ||
+				e instanceof ContactNameException ||
 				e instanceof DuplicateOpenIdException ||
 				e instanceof EmailAddressException ||
 				e instanceof GroupFriendlyURLException ||
@@ -149,8 +144,6 @@ public class CreateAccountAction extends PortletAction {
 				e instanceof PhoneNumberException ||
 				e instanceof RequiredFieldException ||
 				e instanceof RequiredUserException ||
-				e instanceof ReservedUserEmailAddressException ||
-				e instanceof ReservedUserScreenNameException ||
 				e instanceof TermsOfUseException ||
 				e instanceof UserEmailAddressException ||
 				e instanceof UserIdException ||
@@ -246,11 +239,12 @@ public class CreateAccountAction extends PortletAction {
 			actionRequest, "emailAddress");
 		long facebookId = ParamUtil.getLong(actionRequest, "facebookId");
 		String openId = ParamUtil.getString(actionRequest, "openId");
+		String languageId = ParamUtil.getString(actionRequest, "languageId");
 		String firstName = ParamUtil.getString(actionRequest, "firstName");
 		String middleName = ParamUtil.getString(actionRequest, "middleName");
 		String lastName = ParamUtil.getString(actionRequest, "lastName");
-		int prefixId = ParamUtil.getInteger(actionRequest, "prefixId");
-		int suffixId = ParamUtil.getInteger(actionRequest, "suffixId");
+		long prefixId = ParamUtil.getInteger(actionRequest, "prefixId");
+		long suffixId = ParamUtil.getInteger(actionRequest, "suffixId");
 		boolean male = ParamUtil.getBoolean(actionRequest, "male", true);
 		int birthdayMonth = ParamUtil.getInteger(
 			actionRequest, "birthdayMonth");
@@ -288,10 +282,10 @@ public class CreateAccountAction extends PortletAction {
 		User user = UserServiceUtil.addUserWithWorkflow(
 			company.getCompanyId(), autoPassword, password1, password2,
 			autoScreenName, screenName, emailAddress, facebookId, openId,
-			themeDisplay.getLocale(), firstName, middleName, lastName, prefixId,
-			suffixId, male, birthdayMonth, birthdayDay, birthdayYear, jobTitle,
-			groupIds, organizationIds, roleIds, userGroupIds, sendEmail,
-			serviceContext);
+			LocaleUtil.fromLanguageId(languageId), firstName, middleName,
+			lastName, prefixId, suffixId, male, birthdayMonth, birthdayDay,
+			birthdayYear, jobTitle, groupIds, organizationIds, roleIds,
+			userGroupIds, sendEmail, serviceContext);
 
 		if (openIdPending) {
 			session.setAttribute(
@@ -429,8 +423,8 @@ public class CreateAccountAction extends PortletAction {
 		String firstName = ParamUtil.getString(actionRequest, "firstName");
 		String middleName = ParamUtil.getString(actionRequest, "middleName");
 		String lastName = ParamUtil.getString(actionRequest, "lastName");
-		int prefixId = ParamUtil.getInteger(actionRequest, "prefixId");
-		int suffixId = ParamUtil.getInteger(actionRequest, "suffixId");
+		long prefixId = ParamUtil.getInteger(actionRequest, "prefixId");
+		long suffixId = ParamUtil.getInteger(actionRequest, "suffixId");
 		boolean male = ParamUtil.getBoolean(actionRequest, "male", true);
 		int birthdayMonth = ParamUtil.getInteger(
 			actionRequest, "birthdayMonth");

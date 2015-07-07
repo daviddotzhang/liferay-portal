@@ -180,7 +180,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 			setCountryId(countryId);
 		}
 
-		Integer typeId = (Integer)attributes.get("typeId");
+		Long typeId = (Long)attributes.get("typeId");
 
 		if (typeId != null) {
 			setTypeId(typeId);
@@ -290,7 +290,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @return the create date of this address
 	*/
 	@Override
-	public java.util.Date getCreateDate() {
+	public Date getCreateDate() {
 		return _address.getCreateDate();
 	}
 
@@ -315,7 +315,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @return the modified date of this address
 	*/
 	@Override
-	public java.util.Date getModifiedDate() {
+	public Date getModifiedDate() {
 		return _address.getModifiedDate();
 	}
 
@@ -410,7 +410,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @return the type ID of this address
 	*/
 	@Override
-	public int getTypeId() {
+	public long getTypeId() {
 		return _address.getTypeId();
 	}
 
@@ -585,13 +585,12 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @param createDate the create date of this address
 	*/
 	@Override
-	public void setCreateDate(java.util.Date createDate) {
+	public void setCreateDate(Date createDate) {
 		_address.setCreateDate(createDate);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
+	public void setExpandoBridgeAttributes(BaseModel<?> baseModel) {
 		_address.setExpandoBridgeAttributes(baseModel);
 	}
 
@@ -623,7 +622,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @param modifiedDate the modified date of this address
 	*/
 	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
+	public void setModifiedDate(Date modifiedDate) {
 		_address.setModifiedDate(modifiedDate);
 	}
 
@@ -713,7 +712,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	* @param typeId the type ID of this address
 	*/
 	@Override
-	public void setTypeId(int typeId) {
+	public void setTypeId(long typeId) {
 		_address.setTypeId(typeId);
 	}
 
@@ -768,7 +767,7 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<com.liferay.portal.model.Address> toCacheModel() {
+	public CacheModel<com.liferay.portal.model.Address> toCacheModel() {
 		return _address.toCacheModel();
 	}
 

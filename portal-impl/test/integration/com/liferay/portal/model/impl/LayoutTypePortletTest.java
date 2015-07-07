@@ -14,8 +14,13 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.test.AggregateTestRule;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutTemplate;
@@ -25,15 +30,10 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.PortletLocalService;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.impl.PortletLocalServiceImpl;
-import com.liferay.portal.test.DeleteAfterTestRun;
-import com.liferay.portal.test.LiferayIntegrationTestRule;
-import com.liferay.portal.test.MainServletTestRule;
-import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.test.LayoutTestUtil;
-import com.liferay.portal.util.test.RandomTestUtil;
-import com.liferay.portal.util.test.TestPropsValues;
-import com.liferay.portal.util.test.UserTestUtil;
-import com.liferay.portlet.util.PortletKeys;
+import com.liferay.portlet.util.test.PortletKeys;
 
 import java.util.List;
 
@@ -162,8 +162,7 @@ public class LayoutTypePortletTest {
 	public void testAddPortletIdCheckColumn() throws Exception {
 		Layout layout = _layoutTypePortlet.getLayout();
 
-		_user = UserTestUtil.addUser(
-			RandomTestUtil.randomString(), layout.getGroupId());
+		_user = UserTestUtil.addUser(layout.getGroupId());
 
 		String portletId = PortletKeys.TEST;
 
@@ -189,8 +188,7 @@ public class LayoutTypePortletTest {
 	public void testAddPortletIdColumn2() throws Exception {
 		Layout layout = _layoutTypePortlet.getLayout();
 
-		_user = UserTestUtil.addUser(
-			RandomTestUtil.randomString(), layout.getGroupId());
+		_user = UserTestUtil.addUser(layout.getGroupId());
 
 		String portletId = PortletKeys.TEST;
 
@@ -221,8 +219,7 @@ public class LayoutTypePortletTest {
 	public void testAddPortletIdWithInvalidId() throws Exception {
 		Layout layout = _layoutTypePortlet.getLayout();
 
-		_user = UserTestUtil.addUser(
-			RandomTestUtil.randomString(), layout.getGroupId());
+		_user = UserTestUtil.addUser(layout.getGroupId());
 
 		String portletId = RandomTestUtil.randomString();
 
@@ -236,8 +233,7 @@ public class LayoutTypePortletTest {
 	public void testAddPortletIdWithValidId() throws Exception {
 		Layout layout = _layoutTypePortlet.getLayout();
 
-		_user = UserTestUtil.addUser(
-			RandomTestUtil.randomString(), layout.getGroupId());
+		_user = UserTestUtil.addUser(layout.getGroupId());
 
 		String portletId = PortletKeys.TEST;
 
@@ -251,8 +247,7 @@ public class LayoutTypePortletTest {
 	public void testGetAllPortlets() throws Exception {
 		Layout layout = _layoutTypePortlet.getLayout();
 
-		_user = UserTestUtil.addUser(
-			RandomTestUtil.randomString(), layout.getGroupId());
+		_user = UserTestUtil.addUser(layout.getGroupId());
 
 		final String portletId = _layoutTypePortlet.addPortletId(
 			_user.getUserId(), PortletKeys.TEST);
@@ -293,7 +288,7 @@ public class LayoutTypePortletTest {
 		try {
 			portlets = _layoutTypePortlet.getAllPortlets();
 
-			Assert.assertTrue(portlets.isEmpty());
+			Assert.assertEquals(1, portlets.size());
 		}
 		finally {
 			ReflectionTestUtil.setFieldValue(

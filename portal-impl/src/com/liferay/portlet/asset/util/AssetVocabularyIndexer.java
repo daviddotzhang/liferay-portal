@@ -28,11 +28,12 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
+import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.util.PortletKeys;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.asset.service.permission.AssetVocabularyPermission;
@@ -41,17 +42,14 @@ import java.util.Locale;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
-import javax.portlet.PortletURL;
 
 /**
  * @author Istvan Andras Dezsi
  */
+@OSGiBeanProperties
 public class AssetVocabularyIndexer extends BaseIndexer {
 
-	public static final String[] CLASS_NAMES =
-		{AssetVocabulary.class.getName()};
-
-	public static final String PORTLET_ID = PortletKeys.ASSET_CATEGORIES_ADMIN;
+	public static final String CLASS_NAME = AssetVocabulary.class.getName();
 
 	public AssetVocabularyIndexer() {
 		setCommitImmediately(true);
@@ -63,13 +61,8 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 	}
 
 	@Override
-	public String[] getClassNames() {
-		return CLASS_NAMES;
-	}
-
-	@Override
-	public String getPortletId() {
-		return PORTLET_ID;
+	public String getClassName() {
+		return CLASS_NAME;
 	}
 
 	@Override
@@ -87,7 +80,8 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 
 	@Override
 	public void postProcessSearchQuery(
-			BooleanQuery searchQuery, SearchContext searchContext)
+			BooleanQuery searchQuery, BooleanFilter fullQueryBooleanFilter,
+			SearchContext searchContext)
 		throws Exception {
 
 		String title = (String)searchContext.getAttribute(Field.TITLE);
@@ -109,7 +103,7 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 
 		Document document = new DocumentImpl();
 
-		document.addUID(PORTLET_ID, vocabulary.getVocabularyId());
+		document.addUID(CLASS_NAME, vocabulary.getVocabularyId());
 
 		SearchEngineUtil.deleteDocument(
 			getSearchEngineId(), vocabulary.getCompanyId(),
@@ -124,7 +118,7 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 			_log.debug("Indexing vocabulary " + vocabulary);
 		}
 
-		Document document = getBaseModelDocument(PORTLET_ID, vocabulary);
+		Document document = getBaseModelDocument(CLASS_NAME, vocabulary);
 
 		document.addKeyword(
 			Field.ASSET_VOCABULARY_ID, vocabulary.getVocabularyId());
@@ -142,7 +136,7 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 
 	@Override
 	protected Summary doGetSummary(
-		Document document, Locale locale, String snippet, PortletURL portletURL,
+		Document document, Locale locale, String snippet,
 		PortletRequest portletRequest, PortletResponse portletResponse) {
 
 		return null;
@@ -174,11 +168,6 @@ public class AssetVocabularyIndexer extends BaseIndexer {
 		long companyId = GetterUtil.getLong(ids[0]);
 
 		reindexVocabularies(companyId);
-	}
-
-	@Override
-	protected String getPortletId(SearchContext searchContext) {
-		return PORTLET_ID;
 	}
 
 	protected void reindexVocabularies(final long companyId)

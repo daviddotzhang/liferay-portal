@@ -26,6 +26,8 @@ String paramName = GetterUtil.getString((String)request.getAttribute("liferay-ui
 String uploadURL = GetterUtil.getString((String)request.getAttribute("liferay-ui:image-selector:uploadURL"));
 String validExtensions = GetterUtil.getString((String)request.getAttribute("liferay-ui:image-selector:validExtensions"));
 
+String cropRegion = ParamUtil.getString(request, paramName + "CropRegion");
+
 String imageURL = null;
 
 if (fileEntryId != 0) {
@@ -35,9 +37,9 @@ if (fileEntryId != 0) {
 }
 %>
 
-<div class="taglib-image-selector <%= fileEntryId == 0 ? "drop-enabled" : StringPool.BLANK %> <%= !draggableImage.equals("none") ? "draggable-image " + draggableImage : StringPool.BLANK %>" id="<%= randomNamespace %>taglibImageSelector">
+<div class="taglib-image-selector <%= fileEntryId == 0 ? "drop-zone" : StringPool.BLANK %> <%= !draggableImage.equals("none") ? "draggable-image " + draggableImage : StringPool.BLANK %>" id="<%= randomNamespace %>taglibImageSelector">
 	<aui:input name='<%= paramName + "Id" %>' type="hidden" value="<%= fileEntryId %>" />
-	<aui:input name='<%= paramName + "CropRegion" %>' type="hidden" />
+	<aui:input name='<%= paramName + "CropRegion" %>' type="hidden" value="<%= cropRegion %>" />
 
 	<div class="image-wrapper">
 		<img alt="<liferay-ui:message escapeAttribute="<%= true %>" key="current-image" />" class="current-image <%= Validator.isNull(imageURL) ? "hide" : StringPool.BLANK %>" id="<%= randomNamespace %>image" src="<%= HtmlUtil.escape(Validator.isNotNull(imageURL) ? imageURL : StringPool.BLANK) %>" />
@@ -65,9 +67,7 @@ if (fileEntryId != 0) {
 
 	<i class="glyphicon glyphicon-ok"></i>
 
-	<div class="drop-here-info">
-		<liferay-ui:message key="drop-files-here" />
-	</div>
+	<liferay-ui:drop-here-info message="drop-files-here" />
 
 	<div class="error-wrapper hide">
 		<aui:alert closeable="<%= true %>" id='<%= randomNamespace + "errorAlert" %>' type="danger">
@@ -94,15 +94,45 @@ if (fileEntryId != 0) {
 	</div>
 </div>
 
-<liferay-portlet:renderURL portletName="<%= PortletKeys.DOCUMENT_SELECTOR %>" varImpl="documentSelectorURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-	<portlet:param name="struts_action" value="/document_selector/view" />
-	<portlet:param name="tabs1Names" value="documents" />
-	<portlet:param name="groupId" value="<%= String.valueOf(scopeGroupId) %>" />
-	<portlet:param name="checkContentDisplayPage" value="true" />
-	<portlet:param name="eventName" value='<%= randomNamespace + "selectImage" %>' />
-</liferay-portlet:renderURL>
-
 <%
+PortletURL itemSelectorURL = liferayPortletResponse.createRenderURL(PortletKeys.ITEM_SELECTOR);
+
+itemSelectorURL.setParameter("criteria", "com.liferay.document.library.item.selector.web.DLItemSelectorCriterion");
+itemSelectorURL.setParameter("itemSelectedEventName", liferayPortletResponse.getNamespace() + "selectImage");
+
+JSONObject itemSelectorJSONParamJSONObject = JSONFactoryUtil.createJSONObject();
+
+JSONArray desiredReturnTypesJSONArray = JSONFactoryUtil.createJSONArray();
+
+desiredReturnTypesJSONArray.put(URL.class.getName());
+desiredReturnTypesJSONArray.put(FileEntry.class.getName());
+
+itemSelectorJSONParamJSONObject.put("desiredReturnTypes", desiredReturnTypesJSONArray);
+
+itemSelectorJSONParamJSONObject.put("folderId", DLFolderConstants.DEFAULT_PARENT_FOLDER_ID);
+
+JSONArray mimeTypesJSONArray = JSONFactoryUtil.createJSONArray();
+
+mimeTypesJSONArray.put("image/bmp");
+mimeTypesJSONArray.put("image/gif");
+mimeTypesJSONArray.put("image/jpeg");
+mimeTypesJSONArray.put("image/pjpeg");
+mimeTypesJSONArray.put("image/tiff");
+mimeTypesJSONArray.put("image/x-citrix-jpeg");
+mimeTypesJSONArray.put("image/x-citrix-png");
+mimeTypesJSONArray.put("image/x-ms-bmp");
+mimeTypesJSONArray.put("image/x-png");
+mimeTypesJSONArray.put("image/x-tiff");
+
+itemSelectorJSONParamJSONObject.put("mimeTypes", mimeTypesJSONArray);
+
+itemSelectorJSONParamJSONObject.put("repositoryId", scopeGroupId);
+
+itemSelectorURL.setParameter("0_json", itemSelectorJSONParamJSONObject.toString());
+
+itemSelectorURL.setPortletMode(PortletMode.VIEW);
+itemSelectorURL.setWindowState(LiferayWindowState.POP_UP);
+
 String modules = "liferay-image-selector";
 
 if (!draggableImage.equals("none")) {
@@ -113,9 +143,9 @@ if (!draggableImage.equals("none")) {
 <aui:script use="<%= modules %>">
 	var imageSelector = new Liferay.ImageSelector(
 		{
-			documentSelectorURL: '<%= documentSelectorURL.toString() %>',
 			errorNode: '#<%= randomNamespace + "errorAlert" %>',
 			fileEntryImageNode: '#<%= randomNamespace %>image',
+			itemSelectorURL: '<%= itemSelectorURL.toString() %>',
 			maxFileSize: <%= maxFileSize %>,
 			namespace: '<%= randomNamespace %>',
 			paramName: '<portlet:namespace /><%= paramName %>',
