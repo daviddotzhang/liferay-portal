@@ -20,6 +20,8 @@
 Discussion discussion = (Discussion)request.getAttribute("liferay-ui:discussion:discussion");
 DiscussionComment discussionComment = (DiscussionComment)request.getAttribute("liferay-ui:discussion:discussionComment");
 
+boolean workflowEnabled = WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, MBDiscussion.class.getName());
+
 int index = GetterUtil.getInteger(request.getAttribute("liferay-ui:discussion:index"));
 
 index++;
@@ -141,10 +143,22 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 					%>
 
 					<c:if test="<%= createDate.before(modifiedDate) %>">
-						<strong onmouseover="Liferay.Portal.ToolTip.show(this, '<%= HtmlUtil.escapeJS(dateFormatDateTime.format(modifiedDate)) %>');">
-							- <liferay-ui:message key="edited" />
-						</strong>
+						<c:choose>
+							<c:when test="<%= workflowEnabled %>">
+								<c:if test="<%= !commentTreeDisplayContext.isCommentApproved() %>">
+									<strong onmouseover="Liferay.Portal.ToolTip.show(this, '<%= HtmlUtil.escapeJS(dateFormatDateTime.format(modifiedDate)) %>');">
+										- <liferay-ui:message key="edited" />
+									</strong>
+								</c:if>
+							</c:when>
+							<c:otherwise>
+								<strong onmouseover="Liferay.Portal.ToolTip.show(this, '<%= HtmlUtil.escapeJS(dateFormatDateTime.format(modifiedDate)) %>');">
+									- <liferay-ui:message key="edited" />
+								</strong>
+							</c:otherwise>
+						</c:choose>
 					</c:if>
+
 				</header>
 
 				<div class="lfr-discussion-message-body" id='<%= namespace + randomNamespace + "discussionMessage" + index %>'>
