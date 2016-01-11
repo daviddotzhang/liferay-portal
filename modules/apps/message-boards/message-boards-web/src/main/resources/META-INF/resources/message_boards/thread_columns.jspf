@@ -16,19 +16,21 @@
 
 <%@ include file="/message_boards/thread_priority.jspf" %>
 
-<liferay-ui:search-container-column-text
-	href="<%= rowURL %>"
-	name="flag"
->
-	<c:choose>
-		<c:when test="<%= MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId()) %>">
-			<liferay-ui:message key="resolved" />
-		</c:when>
-		<c:when test="<%= thread.isQuestion() %>">
-			<liferay-ui:message key="waiting-for-an-answer" />
-		</c:when>
-	</c:choose>
-</liferay-ui:search-container-column-text>
+<c:if test="<%= thread.isQuestion() %>">
+	<liferay-ui:search-container-column-text
+		href="<%= rowURL %>"
+		name="flag"
+	>
+		<c:choose>
+			<c:when test="<%= MBThreadLocalServiceUtil.hasAnswerMessage(thread.getThreadId()) %>">
+				<liferay-ui:message key="resolved" />
+			</c:when>
+			<c:when test="<%= thread.isQuestion() %>">
+				<liferay-ui:message key="waiting-for-an-answer" />
+			</c:when>
+		</c:choose>
+	</liferay-ui:search-container-column-text>
+</c:if>
 
 <liferay-ui:search-container-column-text
 	href="<%= rowURL %>"
