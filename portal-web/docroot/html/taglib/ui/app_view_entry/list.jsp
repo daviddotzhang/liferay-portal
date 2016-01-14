@@ -26,7 +26,7 @@
 		localizeMessage="<%= false %>"
 		message="<%= HtmlUtil.escape(title) %>"
 		method="get"
-		src="<%= thumbnailSrc %>"
+		src="<%= HtmlUtil.escapeAttribute(thumbnailSrc) %>"
 		url="<%= url %>"
 	/>
 
