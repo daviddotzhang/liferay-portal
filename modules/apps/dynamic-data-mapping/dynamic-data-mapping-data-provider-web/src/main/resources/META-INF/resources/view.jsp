@@ -57,7 +57,6 @@ ddmDataProviderSearch.setOrderByType(orderByType);
 			<liferay-ui:search-container-row
 				className="com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance"
 				cssClass="entry-display-style"
-				escapedModel="<%= true %>"
 				keyProperty="dataProviderInstanceId"
 				modelVar="dataProviderInstance"
 			>
