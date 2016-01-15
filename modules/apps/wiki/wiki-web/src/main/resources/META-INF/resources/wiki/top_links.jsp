@@ -64,7 +64,7 @@ if (portletTitleBasedNavigation) {
 				PortletURL viewPageURL = wikiURLHelper.getViewFrontPagePageURL(curNode);
 			%>
 
-				<aui:nav-item cssClass="<%= cssClass %>" href="<%= viewPageURL.toString() %>" label="<%= HtmlUtil.escape(curNode.getName()) %>" />
+				<aui:nav-item cssClass="<%= cssClass %>" href="<%= viewPageURL.toString() %>" label="<%= curNode.getName() %>" />
 
 			<%
 			}

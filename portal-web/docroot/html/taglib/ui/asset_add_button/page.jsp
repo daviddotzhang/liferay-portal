@@ -62,7 +62,7 @@ for (long groupId : groupIds) {
 
 					<aui:nav-item
 						href="<%= _getURL(curGroupId, plid, entry.getValue(), assetRendererFactory.getPortletId(), message, addDisplayPageParameter, layout, pageContext, portletResponse) %>"
-						label='<%= LanguageUtil.format(request, (groupIds.length == 1) ? "add-x" : "add-x-in-x", new Object[] {HtmlUtil.escape(message), HtmlUtil.escape((GroupLocalServiceUtil.getGroup(groupId)).getDescriptiveName(locale))}, false) %>'
+						label='<%= LanguageUtil.format(request, (groupIds.length == 1) ? "add-x" : "add-x-in-x", new Object[] {message, (GroupLocalServiceUtil.getGroup(groupId)).getDescriptiveName(locale)}, false) %>'
 					/>
 				</c:when>
 				<c:otherwise>
@@ -88,7 +88,7 @@ for (long groupId : groupIds) {
 
 							<aui:nav-item
 								href="<%= _getURL(curGroupId, plid, entry.getValue(), assetRendererFactory.getPortletId(), message, addDisplayPageParameter, layout, pageContext, portletResponse) %>"
-								label="<%= HtmlUtil.escape(message) %>"
+								label="<%= message %>"
 							/>
 
 						<%
