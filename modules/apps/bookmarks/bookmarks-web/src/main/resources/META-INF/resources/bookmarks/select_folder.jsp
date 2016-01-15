@@ -81,7 +81,7 @@ if (folder != null) {
 					label="<%= true %>"
 					localizeMessage="<%= false %>"
 					markupView="lexicon"
-					message="<%= HtmlUtil.escape(curFolder.getName()) %>"
+					message="<%= curFolder.getName() %>"
 					url="<%= viewFolderURL %>"
 				/>
 			</liferay-ui:search-container-column-text>

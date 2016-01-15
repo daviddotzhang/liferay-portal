@@ -78,7 +78,7 @@ PanelCategory panelCategory = (PanelCategory)request.getAttribute(ApplicationLis
 
 									<liferay-ui:icon
 										data="<%= data %>"
-										message="<%= HtmlUtil.escape(curScopeLayout.getName(locale)) %>"
+										message="<%= curScopeLayout.getName(locale) %>"
 										url="<%= portletURL.toString() %>"
 									/>
 

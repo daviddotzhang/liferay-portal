@@ -199,7 +199,7 @@ if (Validator.isNotNull(keywords)) {
 			>
 				<liferay-ui:icon
 					label="<%= true %>"
-					message="<%= HtmlUtil.escape(trashRenderer.getTitle(locale)) %>"
+					message="<%= trashRenderer.getTitle(locale) %>"
 					method="get"
 					url="<%= viewContentURLString %>"
 				/>
@@ -228,7 +228,7 @@ if (Validator.isNotNull(keywords)) {
 					<liferay-util:buffer var="rootEntryIcon">
 						<liferay-ui:icon
 							label="<%= true %>"
-							message="<%= HtmlUtil.escape(rootTrashRenderer.getTitle(locale)) %>"
+							message="<%= rootTrashRenderer.getTitle(locale) %>"
 							method="get"
 							url="<%= viewRootContentURLString %>"
 						/>

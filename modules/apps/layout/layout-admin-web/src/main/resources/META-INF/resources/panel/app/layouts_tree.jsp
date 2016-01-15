@@ -36,7 +36,7 @@ LayoutsTreeDisplayContext layoutsTreeDisplayContext = new LayoutsTreeDisplayCont
 							<liferay-ui:icon
 								cssClass="<%= layoutsTreeDisplayContext.getLayoutSetBranchCssClass(curLayoutSetBranch) %>"
 								data="<%= layoutsTreeDisplayContext.getLayoutSetBranchURLData() %>"
-								message="<%= HtmlUtil.escape(curLayoutSetBranch.getName()) %>"
+								message="<%= curLayoutSetBranch.getName() %>"
 								url="<%= layoutsTreeDisplayContext.getLayoutSetBranchURL(curLayoutSetBranch) %>"
 							/>
 

@@ -216,7 +216,7 @@ List fileEntries = DLAppServiceUtil.getGroupFileEntries(scopeGroupId, 0, folderI
 							<liferay-ui:icon
 								cssClass="lfr-asset-avatar"
 								image='<%= "../file_system/large/" + ((total > 0) ? "folder_full_image" : "folder_empty") %>'
-								message='<%= (folder != null) ? HtmlUtil.escape(folder.getName()) : LanguageUtil.get(request, "home") %>'
+								message='<%= (folder != null) ? folder.getName() : LanguageUtil.get(request, "home") %>'
 							/>
 
 							<div class="lfr-asset-name">

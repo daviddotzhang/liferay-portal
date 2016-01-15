@@ -189,7 +189,7 @@ if (portletTitleBasedNavigation) {
 								label="<%= true %>"
 								localizeMessage="<%= false %>"
 								markupView="lexicon"
-								message="<%= HtmlUtil.escape(folder.getName()) %>"
+								message="<%= folder.getName() %>"
 								url="<%= rowURL %>"
 							/>
 						</liferay-ui:search-container-column-text>
