@@ -77,7 +77,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 			<liferay-ui:icon
 				iconCssClass="<%= RolesAdminUtil.getIconCssClass(role) %>"
 				label="<%= true %>"
-				message="<%= HtmlUtil.escape(role.getTitle(locale)) %>"
+				message="<%= role.getTitle(locale) %>"
 			/>
 		</liferay-ui:search-container-column-text>
 
@@ -177,7 +177,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 			<liferay-ui:icon
 				iconCssClass="<%= RolesAdminUtil.getIconCssClass(groupRoles.get(0)) %>"
 				label="<%= true %>"
-				message="<%= HtmlUtil.escape(ListUtil.toString(groupRoles, Role.NAME_ACCESSOR)) %>"
+				message="<%= ListUtil.toString(groupRoles, Role.NAME_ACCESSOR) %>"
 			/>
 		</liferay-ui:search-container-column-text>
 
@@ -219,7 +219,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 				<liferay-ui:icon
 					iconCssClass="<%= RolesAdminUtil.getIconCssClass(userGroupRole.getRole()) %>"
 					label="<%= true %>"
-					message="<%= HtmlUtil.escape(userGroupRole.getRole().getTitle(locale)) %>"
+					message="<%= userGroupRole.getRole().getTitle(locale) %>"
 				/>
 			</liferay-ui:search-container-column-text>
 
@@ -389,7 +389,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 					<liferay-ui:icon
 						iconCssClass="<%= RolesAdminUtil.getIconCssClass(userGroupRole.getRole()) %>"
 						label="<%= true %>"
-						message="<%= HtmlUtil.escape(userGroupRole.getRole().getTitle(locale)) %>"
+						message="<%= userGroupRole.getRole().getTitle(locale) %>"
 					/>
 				</liferay-ui:search-container-column-text>
 
@@ -557,7 +557,7 @@ String organizationRoleSyncEntitiesEventName = liferayPortletResponse.getNamespa
 				<liferay-ui:icon
 					iconCssClass="<%= RolesAdminUtil.getIconCssClass(userGroupGroupRole.getRole()) %>"
 					label="<%= true %>"
-					message="<%= HtmlUtil.escape(userGroupGroupRole.getRole().getTitle(locale)) %>"
+					message="<%= userGroupGroupRole.getRole().getTitle(locale) %>"
 				/>
 			</liferay-ui:search-container-column-text>
 

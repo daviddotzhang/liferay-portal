@@ -136,7 +136,7 @@ if (folder != null) {
 				AssetRenderer<?> assetRenderer = assetRendererFactory.getAssetRenderer(curFile.getFileEntryId());
 				%>
 
-				<liferay-ui:icon icon="<%= assetRenderer.getIconCssClass() %>" label="<%= true %>" markupView="lexicon" message="<%= HtmlUtil.escape(curFile.getTitle()) %>" />
+				<liferay-ui:icon icon="<%= assetRenderer.getIconCssClass() %>" label="<%= true %>" markupView="lexicon" message="<%= curFile.getTitle() %>" />
 
 				<c:if test="<%= Validator.isNotNull(curFile.getDescription()) %>">
 					<br />

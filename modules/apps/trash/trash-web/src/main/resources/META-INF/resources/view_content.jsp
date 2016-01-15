@@ -268,7 +268,7 @@ renderResponse.setTitle(trashRenderer.getTitle(locale));
 								>
 									<liferay-ui:icon
 										label="<%= true %>"
-										message="<%= HtmlUtil.escape(curTrashRenderer.getTitle(locale)) %>"
+										message="<%= curTrashRenderer.getTitle(locale) %>"
 										method="get"
 										url="<%= rowURL.toString() %>"
 									/>
@@ -326,7 +326,7 @@ renderResponse.setTitle(trashRenderer.getTitle(locale));
 								>
 									<liferay-ui:icon
 										label="<%= true %>"
-										message="<%= HtmlUtil.escape(curTrashRenderer.getTitle(locale)) %>"
+										message="<%= curTrashRenderer.getTitle(locale) %>"
 										method="get"
 										url="<%= rowURL.toString() %>"
 									/>

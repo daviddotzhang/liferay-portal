@@ -133,7 +133,7 @@ summary.setQueryTerms(queryTerms);
 							icon="<%= assetRenderer.getIconCssClass() %>"
 							label="<%= true %>"
 							markupView="lexicon"
-							message='<%= LanguageUtil.format(locale, "attachment-added-by-x", HtmlUtil.escape(fileEntry.getUserName()), false) %>'
+							message='<%= LanguageUtil.format(locale, "attachment-added-by-x", fileEntry.getUserName(), false) %>'
 						/>
 					</span>
 
@@ -175,7 +175,7 @@ summary.setQueryTerms(queryTerms);
 						<liferay-ui:icon
 							iconCssClass="icon-comment"
 							label="<%= true %>"
-							message='<%= LanguageUtil.format(locale, "comment-by-x", HtmlUtil.escape(userDisplay.getFullName()), false) %>'
+							message='<%= LanguageUtil.format(locale, "comment-by-x", userDisplay.getFullName(), false) %>'
 						/>
 					</span>
 
