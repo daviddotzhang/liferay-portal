@@ -14,6 +14,7 @@
 
 package com.liferay.portal.security.membershippolicy.util.test;
 
+import com.liferay.announcements.kernel.model.AnnouncementsDelivery;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.test.randomizerbumpers.NumericStringRandomizerBumper;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -43,7 +44,6 @@ import com.liferay.portal.service.RoleServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserGroupServiceUtil;
 import com.liferay.portal.service.UserServiceUtil;
-import com.liferay.portlet.announcements.model.AnnouncementsDelivery;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetTag;
 import com.liferay.portlet.asset.model.AssetVocabulary;
@@ -190,16 +190,10 @@ public class MembershipPolicyTestUtil {
 		String jobTitle = StringPool.BLANK;
 		String smsSn =
 			"UserServiceTestSmsSn." + RandomTestUtil.nextInt() + "@liferay.com";
-		String aimSn = RandomTestUtil.randomString();
 		String facebookSn = RandomTestUtil.randomString();
-		String icqSn = RandomTestUtil.randomString();
 		String jabberSn = RandomTestUtil.randomString();
-		String msnSn =
-			"UserServiceTestMsnSn." + RandomTestUtil.nextInt() + "@liferay.com";
-		String mySpaceSn = RandomTestUtil.randomString();
 		String skypeSn = RandomTestUtil.randomString();
 		String twitterSn = RandomTestUtil.randomString();
-		String ymSn = RandomTestUtil.randomString();
 
 		List<Address> addresses = new ArrayList<>();
 		List<EmailAddress> emailAddresses = new ArrayList<>();
@@ -215,10 +209,10 @@ public class MembershipPolicyTestUtil {
 			emailAddress, facebookId, openId, false, null, languageId,
 			timeZoneId, greeting, comments, firstName, middleName, lastName,
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
-			skypeSn, twitterSn, ymSn, jobTitle, siteIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, addresses, emailAddresses,
-			phones, websites, announcementsDelivers, serviceContext);
+			smsSn, facebookSn, jabberSn, skypeSn, twitterSn, jobTitle, siteIds,
+			organizationIds, roleIds, userGroupRoles, userGroupIds, addresses,
+			emailAddresses, phones, websites, announcementsDelivers,
+			serviceContext);
 	}
 
 	protected static Map<String, Serializable> addExpandoMap(Class<?> clazz)

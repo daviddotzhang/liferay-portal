@@ -64,6 +64,8 @@ public interface LiferayPortletURL
 	 */
 	public Set<String> getParametersIncludedInPath();
 
+	public long getPlid();
+
 	/**
 	 * Returns the ID of this URL's target portlet.
 	 *
@@ -294,6 +296,8 @@ public interface LiferayPortletURL
 	 * Sets the ID of the target portlet.
 	 */
 	public void setPortletId(String portletId);
+
+	public void setRefererGroupId(long refererGroupId);
 
 	/**
 	 * Sets the referer layout ID.

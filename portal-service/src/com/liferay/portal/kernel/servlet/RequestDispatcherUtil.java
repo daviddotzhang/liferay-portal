@@ -17,6 +17,9 @@ package com.liferay.portal.kernel.servlet;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 
+import java.util.Enumeration;
+
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -39,17 +42,66 @@ public class RequestDispatcherUtil {
 			new HttpServletRequestWrapper(request) {
 
 				@Override
+				public long getDateHeader(String name) {
+					if (name.equals(HttpHeaders.IF_MODIFIED_SINCE)) {
+						return -1;
+					}
+
+					return super.getDateHeader(name);
+				}
+
+				@Override
+				public String getHeader(String name) {
+					if (name.equals(HttpHeaders.IF_MODIFIED_SINCE) ||
+						name.equals(HttpHeaders.IF_NONE_MATCH) ||
+						name.equals(HttpHeaders.LAST_MODIFIED)) {
+
+						return null;
+					}
+
+					return super.getHeader(name);
+				}
+
+				@Override
+				public Enumeration<String> getHeaders(String name) {
+					if (name.equals(HttpHeaders.IF_MODIFIED_SINCE) ||
+						name.equals(HttpHeaders.IF_NONE_MATCH) ||
+						name.equals(HttpHeaders.LAST_MODIFIED)) {
+
+						return null;
+					}
+
+					return super.getHeaders(name);
+				}
+
+				@Override
 				public String getMethod() {
 					return HttpMethods.GET;
 				}
 
-			}, bufferCacheServletResponse);
+			},
+			bufferCacheServletResponse);
 
 		return new ObjectValuePair<>(
 			bufferCacheServletResponse.getString(),
 			GetterUtil.getLong(
 				bufferCacheServletResponse.getHeader(HttpHeaders.LAST_MODIFIED),
 				-1));
+	}
+
+	public static String getEffectivePath(HttpServletRequest request) {
+		DispatcherType dispatcherType = request.getDispatcherType();
+
+		if (dispatcherType.equals(DispatcherType.FORWARD)) {
+			return (String)request.getAttribute(
+				RequestDispatcher.FORWARD_SERVLET_PATH);
+		}
+		else if (dispatcherType.equals(DispatcherType.INCLUDE)) {
+			return (String)request.getAttribute(
+				RequestDispatcher.INCLUDE_SERVLET_PATH);
+		}
+
+		return request.getServletPath();
 	}
 
 	public static long getLastModifiedTime(
@@ -68,7 +120,8 @@ public class RequestDispatcherUtil {
 					return HttpMethods.HEAD;
 				}
 
-			}, metaInfoCacheServletResponse);
+			},
+			metaInfoCacheServletResponse);
 
 		return GetterUtil.getLong(
 			metaInfoCacheServletResponse.getHeader(HttpHeaders.LAST_MODIFIED),

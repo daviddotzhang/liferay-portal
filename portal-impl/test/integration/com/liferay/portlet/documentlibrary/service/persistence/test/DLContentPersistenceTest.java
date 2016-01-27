@@ -35,7 +35,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.documentlibrary.NoSuchContentException;
+import com.liferay.portlet.documentlibrary.exception.NoSuchContentException;
 import com.liferay.portlet.documentlibrary.model.DLContent;
 import com.liferay.portlet.documentlibrary.service.DLContentLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.persistence.DLContentPersistence;
@@ -339,11 +339,9 @@ public class DLContentPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLContentLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLContent>() {
 				@Override
-				public void performAction(Object object) {
-					DLContent dlContent = (DLContent)object;
-
+				public void performAction(DLContent dlContent) {
 					Assert.assertNotNull(dlContent);
 
 					count.increment();

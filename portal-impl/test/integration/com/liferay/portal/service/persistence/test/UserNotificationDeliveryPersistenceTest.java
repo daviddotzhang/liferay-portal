@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchUserNotificationDeliveryException;
+import com.liferay.portal.exception.NoSuchUserNotificationDeliveryException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -318,11 +318,10 @@ public class UserNotificationDeliveryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = UserNotificationDeliveryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<UserNotificationDelivery>() {
 				@Override
-				public void performAction(Object object) {
-					UserNotificationDelivery userNotificationDelivery = (UserNotificationDelivery)object;
-
+				public void performAction(
+					UserNotificationDelivery userNotificationDelivery) {
 					Assert.assertNotNull(userNotificationDelivery);
 
 					count.increment();

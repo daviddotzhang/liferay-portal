@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchPreferencesException;
+import com.liferay.portal.exception.NoSuchPreferencesException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -281,11 +281,9 @@ public class PortalPreferencesPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = PortalPreferencesLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<PortalPreferences>() {
 				@Override
-				public void performAction(Object object) {
-					PortalPreferences portalPreferences = (PortalPreferences)object;
-
+				public void performAction(PortalPreferences portalPreferences) {
 					Assert.assertNotNull(portalPreferences);
 
 					count.increment();

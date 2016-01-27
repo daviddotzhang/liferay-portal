@@ -14,139 +14,142 @@
 
 package com.liferay.portal.kernel.portlet;
 
-import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.Portlet;
-import com.liferay.registry.Filter;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.ServiceReference;
-import com.liferay.registry.ServiceRegistration;
-import com.liferay.registry.ServiceTracker;
-import com.liferay.registry.ServiceTrackerCustomizer;
-import com.liferay.registry.collections.StringServiceRegistrationMap;
-import com.liferay.registry.collections.StringServiceRegistrationMapImpl;
+import com.liferay.portal.kernel.util.ResourceBundleUtil.ResourceBundleLoader;
+import com.liferay.registry.collections.ServiceReferenceMapperFactory;
+import com.liferay.registry.collections.ServiceTrackerCollections;
+import com.liferay.registry.collections.ServiceTrackerMap;
+import com.liferay.registry.collections.ServiceTrackerMapListener;
 
 import java.io.Closeable;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Raymond Augé
+ * @author Tomas Polesovsky
+ * @author Carlos Sierra Andrés
  */
 public class ResourceBundleTracker implements Closeable {
 
-	public ResourceBundleTracker(ClassLoader classLoader, Portlet portlet) {
-		_classLoader = classLoader;
-		_portlet = portlet;
-
-		Registry registry = RegistryUtil.getRegistry();
-
-		Filter filter = registry.getFilter(
-			"(&(javax.portlet.name=" + portlet.getPortletId() +
-				")(language.id=*)(objectClass=" +
-					ResourceBundle.class.getName() + "))");
-
-		_serviceTracker = registry.trackServices(
-			filter, new ResourceBundleServiceTrackerCustomizer());
-
-		_serviceTracker.open();
-	}
-
-	public void clear() {
-		Set<Entry<String, ServiceRegistration<ResourceBundle>>> set =
-			_serviceRegistrations.entrySet();
-
-		Iterator<Entry<String, ServiceRegistration<ResourceBundle>>> iterator =
-			set.iterator();
-
-		while (iterator.hasNext()) {
-			Entry<String, ServiceRegistration<ResourceBundle>> entry =
-				iterator.next();
-
-			ServiceRegistration<ResourceBundle> serviceRegistration =
-				entry.getValue();
-
-			serviceRegistration.unregister();
-
-			iterator.remove();
-		}
+	public ResourceBundleTracker(String portletId) {
+		_serviceTrackerMap = ServiceTrackerCollections.openMultiValueMap(
+			ResourceBundle.class,
+			"(&(javax.portlet.name=" + portletId + ")(language.id=*))",
+			ServiceReferenceMapperFactory.<String, Object>create("language.id"),
+			new ResourceBundleTrackerServiceTrackerMapListener());
 	}
 
 	@Override
 	public void close() {
-		clear();
-
-		_serviceTracker.close();
+		_serviceTrackerMap.close();
 	}
 
 	public ResourceBundle getResourceBundle(String languageId) {
-		if (languageId == null) {
-			languageId = StringPool.BLANK;
-		}
-
 		ResourceBundle resourceBundle = _resourceBundles.get(languageId);
 
 		if (resourceBundle != null) {
 			return resourceBundle;
 		}
 
-		return ResourceBundleUtil.getBundle(
-			_portlet.getResourceBundle(), LocaleUtil.fromLanguageId(languageId),
-			_classLoader);
+		synchronized (_resourceBundles) {
+			resourceBundle = _resourceBundles.get(languageId);
+
+			if (resourceBundle == null) {
+				ResourceBundleUtil.loadResourceBundles(
+					_resourceBundles, languageId,
+					new ResourceBundleLoader() {
+
+						@Override
+						public ResourceBundle loadResourceBundle(
+							String languageId) {
+
+							List<ResourceBundle> resourceBundles =
+								_serviceTrackerMap.getService(languageId);
+
+							if ((resourceBundles == null) ||
+								resourceBundles.isEmpty()) {
+
+								return null;
+							}
+
+							int size = resourceBundles.size();
+
+							if (size == 1) {
+								return resourceBundles.get(0);
+							}
+
+							return new AggregateResourceBundle(
+								resourceBundles.toArray(
+									new ResourceBundle[size]));
+						}
+
+					});
+
+				resourceBundle = _resourceBundles.get(languageId);
+			}
+		}
+
+		return resourceBundle;
 	}
 
-	private final ClassLoader _classLoader;
-	private final Portlet _portlet;
 	private final Map<String, ResourceBundle> _resourceBundles =
 		new ConcurrentHashMap<>();
-	private final StringServiceRegistrationMap<ResourceBundle>
-		_serviceRegistrations = new StringServiceRegistrationMapImpl<>();
-	private final ServiceTracker<ResourceBundle, ResourceBundle>
-		_serviceTracker;
+	private final ServiceTrackerMap<String, List<ResourceBundle>>
+		_serviceTrackerMap;
 
-	private class ResourceBundleServiceTrackerCustomizer
-		implements ServiceTrackerCustomizer<ResourceBundle, ResourceBundle> {
+	private class ResourceBundleTrackerServiceTrackerMapListener
+		implements ServiceTrackerMapListener
+			<String, ResourceBundle, List<ResourceBundle>> {
 
 		@Override
-		public ResourceBundle addingService(
-			ServiceReference<ResourceBundle> serviceReference) {
+		public void keyEmitted(
+			ServiceTrackerMap<String, List<ResourceBundle>>
+				serviceTrackerMap,
+			String languageId, ResourceBundle resourceBundle,
+			List<ResourceBundle> resourceBundles) {
 
-			Registry registry = RegistryUtil.getRegistry();
+			synchronized (_resourceBundles) {
+				Set<String> keySet = _resourceBundles.keySet();
+				Iterator<String> iterator = keySet.iterator();
 
-			ResourceBundle resourceBundle = registry.getService(
-				serviceReference);
+				while (iterator.hasNext()) {
+					String sublanguageId = iterator.next();
 
-			_resourceBundles.put(
-				(String)serviceReference.getProperty("language.id"),
-				resourceBundle);
+					if (!languageId.equals(sublanguageId) &&
+						sublanguageId.startsWith(languageId)) {
 
-			return resourceBundle;
+						iterator.remove();
+					}
+				}
+			}
 		}
 
 		@Override
-		public void modifiedService(
-			ServiceReference<ResourceBundle> serviceReference,
-			ResourceBundle resourceBundle) {
-		}
+		public void keyRemoved(
+			ServiceTrackerMap<String, List<ResourceBundle>>
+				serviceTrackerMap,
+			String languageId, ResourceBundle resourceBundle,
+			List<ResourceBundle> resourceBundles) {
 
-		@Override
-		public void removedService(
-			ServiceReference<ResourceBundle> serviceReference,
-			ResourceBundle resourceBundle) {
+			synchronized (_resourceBundles) {
+				Set<String> keySet = _resourceBundles.keySet();
+				Iterator<String> iterator = keySet.iterator();
 
-			Registry registry = RegistryUtil.getRegistry();
+				while (iterator.hasNext()) {
+					String sublanguageId = iterator.next();
 
-			registry.ungetService(serviceReference);
-
-			_resourceBundles.remove(
-				serviceReference.getProperty("language.id"));
+					if (sublanguageId.startsWith(languageId)) {
+						iterator.remove();
+					}
+				}
+			}
 		}
 
 	}

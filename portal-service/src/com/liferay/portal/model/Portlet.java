@@ -16,6 +16,7 @@ package com.liferay.portal.model;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
 import com.liferay.portal.kernel.util.Accessor;
 
 /**
@@ -27,6 +28,7 @@ import com.liferay.portal.kernel.util.Accessor;
  * @see com.liferay.portal.model.impl.PortletModelImpl
  * @generated
  */
+@ImplementationClassName("com.liferay.portal.model.impl.PortletImpl")
 @ProviderType
 public interface Portlet extends PortletModel, PersistedModel {
 	/*
@@ -69,6 +71,14 @@ public interface Portlet extends PortletModel, PersistedModel {
 		};
 
 	/**
+	* Adds an application type.
+	*
+	* @param applicationType an application type
+	*/
+	public void addApplicationType(
+		com.liferay.portal.kernel.application.type.ApplicationType applicationType);
+
+	/**
 	* Adds a processing event.
 	*/
 	public void addProcessingEvent(
@@ -93,14 +103,6 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*/
 	public void addSchedulerEntry(
 		com.liferay.portal.kernel.scheduler.SchedulerEntry schedulerEntry);
-
-	/**
-	* Adds an application type.
-	*
-	* @param applicationType an application type
-	*/
-	public void addApplicationType(
-		com.liferay.portal.kernel.application.type.ApplicationType applicationType);
 
 	/**
 	* Checks whether this portlet is equal to the specified object.
@@ -554,7 +556,7 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*
 	* @return the permission propagator instance of the portlet
 	*/
-	public com.liferay.portal.security.permission.PermissionPropagator getPermissionPropagatorInstance();
+	public com.liferay.portal.kernel.security.permission.PermissionPropagator getPermissionPropagatorInstance();
 
 	/**
 	* Returns the plugin ID of the portlet.
@@ -920,15 +922,6 @@ public interface Portlet extends PortletModel, PersistedModel {
 	* @return the social activity interpreter instances of the portlet
 	*/
 	public java.util.List<com.liferay.portlet.social.model.SocialActivityInterpreter> getSocialActivityInterpreterInstances();
-
-	/**
-	* Returns <code>true</code> if the portlet uses Social Interactions
-	* Configuration
-	*
-	* @return <code>true</code> if the portlet uses Social Interactions
-	Configuration
-	*/
-	public boolean getSocialInteractionsConfiguration();
 
 	/**
 	* Returns the name of the social request interpreter class of the portlet.
@@ -1452,15 +1445,6 @@ public interface Portlet extends PortletModel, PersistedModel {
 	* @return <code>true</code> if the portlet uses Single Page Application
 	*/
 	public boolean isSinglePageApplication();
-
-	/**
-	* Returns <code>true</code> if the portlet uses Social Interactions
-	* Configuration
-	*
-	* @return <code>true</code> if the portlet uses Social Interactions
-	Configuration
-	*/
-	public boolean isSocialInteractionsConfiguration();
 
 	/**
 	* Returns <code>true</code> if the portlet is a static portlet that is
@@ -2187,9 +2171,6 @@ public interface Portlet extends PortletModel, PersistedModel {
 	*/
 	public void setSocialActivityInterpreterClasses(
 		java.util.List<java.lang.String> socialActivityInterpreterClasses);
-
-	public void setSocialInteractionsConfiguration(
-		boolean socialInteractionsConfiguration);
 
 	/**
 	* Sets the name of the social request interpreter class of the portlet.

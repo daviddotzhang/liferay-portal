@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.comment.DiscussionPermission;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.servlet.BrowserSnifferUtil;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
@@ -30,21 +32,19 @@ import com.liferay.portal.kernel.util.Function;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFunction;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.servlet.NamespaceServletRequest;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.WebKeys;
-import com.liferay.portlet.messageboards.DiscussionMaxCommentsException;
-import com.liferay.portlet.messageboards.MessageBodyException;
-import com.liferay.portlet.messageboards.NoSuchMessageException;
-import com.liferay.portlet.messageboards.RequiredMessageException;
+import com.liferay.portlet.messageboards.exception.DiscussionMaxCommentsException;
+import com.liferay.portlet.messageboards.exception.MessageBodyException;
+import com.liferay.portlet.messageboards.exception.NoSuchMessageException;
+import com.liferay.portlet.messageboards.exception.RequiredMessageException;
 
 import java.io.IOException;
 
@@ -110,8 +110,8 @@ public class EditDiscussionStrutsAction extends BaseStrutsAction {
 			}
 		}
 		catch (DiscussionMaxCommentsException | MessageBodyException |
-			NoSuchMessageException | PrincipalException |
-			RequiredMessageException e) {
+			   NoSuchMessageException | PrincipalException |
+			   RequiredMessageException e) {
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 

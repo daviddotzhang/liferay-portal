@@ -14,6 +14,9 @@
 
 package com.liferay.portal.security.auth;
 
+import com.liferay.portal.kernel.security.auth.AuthException;
+import com.liferay.portal.kernel.security.auth.AuthFailure;
+import com.liferay.portal.kernel.security.auth.Authenticator;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.model.CompanyConstants;
@@ -115,15 +118,10 @@ public class AuthPipeline {
 	}
 
 	private AuthPipeline() {
-		_authFailures = ServiceTrackerCollections.multiValueMap(
-			AuthFailure.class, "key");
-
-		_authFailures.open();
-
-		_authenticators = ServiceTrackerCollections.multiValueMap(
+		_authenticators = ServiceTrackerCollections.openMultiValueMap(
 			Authenticator.class, "key");
-
-		_authenticators.open();
+		_authFailures = ServiceTrackerCollections.openMultiValueMap(
+			AuthFailure.class, "key");
 	}
 
 	private int _authenticate(

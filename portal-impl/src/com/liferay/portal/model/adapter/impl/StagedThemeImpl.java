@@ -14,11 +14,11 @@
 
 package com.liferay.portal.model.adapter.impl;
 
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Theme;
 import com.liferay.portal.model.adapter.StagedTheme;
 import com.liferay.portal.model.impl.ThemeImpl;
-import com.liferay.portal.security.auth.CompanyThreadLocal;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 import com.liferay.portlet.exportimport.lar.StagedModelType;
 
@@ -54,11 +54,6 @@ public class StagedThemeImpl extends ThemeImpl implements StagedTheme {
 
 	@Override
 	public ExpandoBridge getExpandoBridge() {
-		return null;
-	}
-
-	@Override
-	public Date getLastPublishDate() {
 		return null;
 	}
 
@@ -100,10 +95,6 @@ public class StagedThemeImpl extends ThemeImpl implements StagedTheme {
 	@Override
 	public void setCreateDate(Date createDate) {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
 	}
 
 	@Override

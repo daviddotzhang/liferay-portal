@@ -84,23 +84,6 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 			serviceContext);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by more general {@link #addFolder(long,
-	long, long, boolean, long, String, String, boolean,
-	ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.documentlibrary.model.DLFolder addFolder(
-		long userId, long groupId, long repositoryId, boolean mountPoint,
-		long parentFolderId, java.lang.String name,
-		java.lang.String description,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _dlFolderLocalService.addFolder(userId, groupId, repositoryId,
-			mountPoint, parentFolderId, name, description, serviceContext);
-	}
-
 	@Override
 	public void clearDLFileEntryTypeDLFolders(long fileEntryTypeId) {
 		_dlFolderLocalService.clearDLFileEntryTypeDLFolders(fileEntryTypeId);
@@ -363,16 +346,6 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 		return _dlFolderLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _dlFolderLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getCompanyFolders(
 		long companyId, int start, int end) {
@@ -523,36 +496,11 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 			folderId, queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFileEntriesAndFileShortcuts(long, long, QueryDefinition)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<java.lang.Object> getFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, int start, int end) {
-		return _dlFolderLocalService.getFileEntriesAndFileShortcuts(groupId,
-			folderId, status, start, end);
-	}
-
 	@Override
 	public int getFileEntriesAndFileShortcutsCount(long groupId, long folderId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<?> queryDefinition) {
 		return _dlFolderLocalService.getFileEntriesAndFileShortcutsCount(groupId,
 			folderId, queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFileEntriesAndFileShortcutsCount(long, long,
-	QueryDefinition)}
-	*/
-	@Deprecated
-	@Override
-	public int getFileEntriesAndFileShortcutsCount(long groupId, long folderId,
-		int status) {
-		return _dlFolderLocalService.getFileEntriesAndFileShortcutsCount(groupId,
-			folderId, status);
 	}
 
 	@Override
@@ -633,36 +581,6 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 			folderId, mimeTypes, includeMountFolders, queryDefinition);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcuts(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, boolean includeMountFolders,
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc) {
-		return _dlFolderLocalService.getFoldersAndFileEntriesAndFileShortcuts(groupId,
-			folderId, status, includeMountFolders, start, end, obc);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	@Override
-	public java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, java.lang.String[] mimeTypes,
-		boolean includeMountFolders, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc) {
-		return _dlFolderLocalService.getFoldersAndFileEntriesAndFileShortcuts(groupId,
-			folderId, status, mimeTypes, includeMountFolders, start, end, obc);
-	}
-
 	@Override
 	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
 		long folderId, java.lang.String[] mimeTypes,
@@ -670,33 +588,6 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<?> queryDefinition) {
 		return _dlFolderLocalService.getFoldersAndFileEntriesAndFileShortcutsCount(groupId,
 			folderId, mimeTypes, includeMountFolders, queryDefinition);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	@Override
-	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
-		long folderId, int status, boolean includeMountFolders) {
-		return _dlFolderLocalService.getFoldersAndFileEntriesAndFileShortcutsCount(groupId,
-			folderId, status, includeMountFolders);
-	}
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@Deprecated
-	@Override
-	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
-		long folderId, int status, java.lang.String[] mimeTypes,
-		boolean includeMountFolders) {
-		return _dlFolderLocalService.getFoldersAndFileEntriesAndFileShortcutsCount(groupId,
-			folderId, status, mimeTypes, includeMountFolders);
 	}
 
 	@Override
@@ -731,6 +622,11 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _dlFolderLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFolder getMountFolder(
 		long repositoryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -754,6 +650,16 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 	@Override
 	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getNoAssetFolders() {
 		return _dlFolderLocalService.getNoAssetFolders();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _dlFolderLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -819,6 +725,12 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 	}
 
 	@Override
+	public boolean hasInheritableLock(long folderId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _dlFolderLocalService.hasInheritableLock(folderId);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.lock.Lock lockFolder(long userId,
 		long folderId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -855,16 +767,6 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_dlFolderLocalService.rebuildTree(companyId, parentFolderId,
 			parentTreePath, reindex);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_dlFolderLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	@Override
@@ -1009,21 +911,11 @@ public class DLFolderLocalServiceWrapper implements DLFolderLocalService,
 			workflowContext, serviceContext);
 	}
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public DLFolderLocalService getWrappedDLFolderLocalService() {
-		return _dlFolderLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedDLFolderLocalService(
-		DLFolderLocalService dlFolderLocalService) {
-		_dlFolderLocalService = dlFolderLocalService;
+	@Override
+	public boolean verifyInheritableLock(long folderId,
+		java.lang.String lockUuid)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _dlFolderLocalService.verifyInheritableLock(folderId, lockUuid);
 	}
 
 	@Override

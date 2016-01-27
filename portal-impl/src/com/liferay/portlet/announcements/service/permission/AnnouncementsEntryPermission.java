@@ -14,15 +14,15 @@
 
 package com.liferay.portlet.announcements.service.permission;
 
+import com.liferay.announcements.kernel.model.AnnouncementsEntry;
+import com.liferay.announcements.kernel.service.AnnouncementsEntryLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.impl.VirtualLayout;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
-import com.liferay.portlet.announcements.model.AnnouncementsEntry;
-import com.liferay.portlet.announcements.service.AnnouncementsEntryLocalServiceUtil;
 
 /**
  * @author Raymond Augé
@@ -94,9 +94,8 @@ public class AnnouncementsEntryPermission {
 	}
 
 	public static boolean contains(
-			PermissionChecker permissionChecker, Layout layout, String name,
-			String actionId)
-		throws PortalException {
+		PermissionChecker permissionChecker, Layout layout, String name,
+		String actionId) {
 
 		if (layout instanceof VirtualLayout) {
 			VirtualLayout virtualLayout = (VirtualLayout)layout;
@@ -104,14 +103,11 @@ public class AnnouncementsEntryPermission {
 			layout = virtualLayout.getSourceLayout();
 		}
 
-		if (permissionChecker.isGroupAdmin(layout.getGroupId()) ||
-			permissionChecker.isGroupOwner(layout.getGroupId())) {
+		String primKey = PortletPermissionUtil.getPrimaryKey(
+			layout.getPlid(), name);
 
-			return true;
-		}
-
-		return PortletPermissionUtil.contains(
-			permissionChecker, layout, name, actionId);
+		return permissionChecker.hasPermission(
+			layout.getGroupId(), name, primKey, actionId);
 	}
 
 	public static boolean contains(
@@ -125,9 +121,8 @@ public class AnnouncementsEntryPermission {
 	}
 
 	public static boolean contains(
-			PermissionChecker permissionChecker, long plid, String name,
-			String actionId)
-		throws PortalException {
+		PermissionChecker permissionChecker, long plid, String name,
+		String actionId) {
 
 		Layout layout = LayoutLocalServiceUtil.fetchLayout(plid);
 

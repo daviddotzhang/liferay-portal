@@ -80,13 +80,13 @@ public class ExportImportLocalServiceWrapper implements ExportImportLocalService
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _exportImportLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _exportImportLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -210,16 +210,6 @@ public class ExportImportLocalServiceWrapper implements ExportImportLocalService
 			exportImportConfigurationId, inputStream);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_exportImportLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public com.liferay.portlet.exportimport.lar.MissingReferences validateImportLayoutsFile(
 		com.liferay.portlet.exportimport.model.ExportImportConfiguration exportImportConfiguration,
@@ -254,23 +244,6 @@ public class ExportImportLocalServiceWrapper implements ExportImportLocalService
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _exportImportLocalService.validateImportPortletInfo(exportImportConfiguration,
 			inputStream);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ExportImportLocalService getWrappedExportImportLocalService() {
-		return _exportImportLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedExportImportLocalService(
-		ExportImportLocalService exportImportLocalService) {
-		_exportImportLocalService = exportImportLocalService;
 	}
 
 	@Override

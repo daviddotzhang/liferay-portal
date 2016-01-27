@@ -152,7 +152,8 @@ public class ToolsUtil {
 		String fileName = StringUtil.replace(
 			file.toString(), StringPool.BACK_SLASH, StringPool.SLASH);
 
-		int x = fileName.lastIndexOf("/com/liferay/");
+		int x = Math.max(
+			fileName.lastIndexOf("/com/"), fileName.lastIndexOf("/org/"));
 		int y = fileName.lastIndexOf(StringPool.SLASH);
 
 		String packagePath = fileName.substring(x + 1, y);
@@ -162,20 +163,50 @@ public class ToolsUtil {
 	}
 
 	public static boolean isInsideQuotes(String s, int pos) {
+		int start = s.lastIndexOf(CharPool.NEW_LINE, pos);
+
+		if (start == -1) {
+			start = 0;
+		}
+
+		int end = s.indexOf(CharPool.NEW_LINE, pos);
+
+		if (end == -1) {
+			end = s.length();
+		}
+
+		String line = s.substring(start, end);
+
+		pos -= start;
+
+		char delimeter = CharPool.SPACE;
 		boolean insideQuotes = false;
 
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
+		for (int i = 0; i < line.length(); i++) {
+			char c = line.charAt(i);
 
 			if (insideQuotes) {
-				if ((c == CharPool.QUOTE) &&
-					((c <= 1) || (s.charAt(i - 1) != CharPool.BACK_SLASH) ||
-					 (s.charAt(i - 2) == CharPool.BACK_SLASH))) {
+				if (c == delimeter) {
+					int precedingBackSlashCount = 0;
 
-					insideQuotes = false;
+					for (int j = (i - 1); j >= 0; j--) {
+						if (line.charAt(j) == CharPool.BACK_SLASH) {
+							precedingBackSlashCount += 1;
+						}
+						else {
+							break;
+						}
+					}
+
+					if ((precedingBackSlashCount == 0) ||
+						((precedingBackSlashCount % 2) == 0)) {
+
+						insideQuotes = false;
+					}
 				}
 			}
-			else if (c == CharPool.QUOTE) {
+			else if ((c == CharPool.APOSTROPHE) || (c == CharPool.QUOTE)) {
+				delimeter = c;
 				insideQuotes = true;
 			}
 

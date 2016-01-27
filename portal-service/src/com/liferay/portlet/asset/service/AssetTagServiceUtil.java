@@ -57,15 +57,6 @@ public class AssetTagServiceUtil {
 		getService().deleteTags(tagIds);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static java.util.List<com.liferay.portlet.asset.model.AssetTag> getGroupTags(
 		long groupId) {
 		return getService().getGroupTags(groupId);
@@ -92,14 +83,12 @@ public class AssetTagServiceUtil {
 	}
 
 	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getGroupTagsDisplay(long,
-	String, int, int)}
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
 	*/
-	@Deprecated
-	public static com.liferay.portal.kernel.json.JSONObject getJSONGroupTags(
-		long groupId, java.lang.String name, int start, int end)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService().getJSONGroupTags(groupId, name, start, end);
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portlet.asset.model.AssetTag getTag(long tagId)
@@ -130,8 +119,20 @@ public class AssetTagServiceUtil {
 	}
 
 	public static java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
+		long groupId, java.lang.String name, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetTag> obc) {
+		return getService().getTags(groupId, name, start, end, obc);
+	}
+
+	public static java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
 		long[] groupIds, java.lang.String name, int start, int end) {
 		return getService().getTags(groupIds, name, start, end);
+	}
+
+	public static java.util.List<com.liferay.portlet.asset.model.AssetTag> getTags(
+		long[] groupIds, java.lang.String name, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetTag> obc) {
+		return getService().getTags(groupIds, name, start, end, obc);
 	}
 
 	public static int getTagsCount(long groupId, java.lang.String name) {
@@ -168,15 +169,6 @@ public class AssetTagServiceUtil {
 		return getService().search(groupIds, name, start, end);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static com.liferay.portlet.asset.model.AssetTag updateTag(
 		long tagId, java.lang.String name,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -193,13 +185,6 @@ public class AssetTagServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(AssetTagService service) {
 	}
 
 	private static AssetTagService _service;

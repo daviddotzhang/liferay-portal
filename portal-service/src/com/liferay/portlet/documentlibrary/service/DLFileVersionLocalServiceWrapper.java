@@ -212,16 +212,6 @@ public class DLFileVersionLocalServiceWrapper
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _dlFileVersionLocalService.getBeanIdentifier();
-	}
-
-	/**
 	* Returns the document library file version with the primary key.
 	*
 	* @param fileVersionId the primary key of the document library file version
@@ -350,6 +340,11 @@ public class DLFileVersionLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _dlFileVersionLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFileVersion getLatestFileVersion(
 		long fileEntryId, boolean excludeWorkingCopy)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -365,6 +360,16 @@ public class DLFileVersionLocalServiceWrapper
 			fileEntryId);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _dlFileVersionLocalService.getOSGiServiceIdentifier();
+	}
+
 	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
@@ -376,16 +381,6 @@ public class DLFileVersionLocalServiceWrapper
 	public void rebuildTree(long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_dlFileVersionLocalService.rebuildTree(companyId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_dlFileVersionLocalService.setBeanIdentifier(beanIdentifier);
 	}
 
 	@Override
@@ -404,23 +399,6 @@ public class DLFileVersionLocalServiceWrapper
 	public com.liferay.portlet.documentlibrary.model.DLFileVersion updateDLFileVersion(
 		com.liferay.portlet.documentlibrary.model.DLFileVersion dlFileVersion) {
 		return _dlFileVersionLocalService.updateDLFileVersion(dlFileVersion);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public DLFileVersionLocalService getWrappedDLFileVersionLocalService() {
-		return _dlFileVersionLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedDLFileVersionLocalService(
-		DLFileVersionLocalService dlFileVersionLocalService) {
-		_dlFileVersionLocalService = dlFileVersionLocalService;
 	}
 
 	@Override

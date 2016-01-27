@@ -42,98 +42,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	 */
 
 	/**
-	* Adds an activity counter with a default period length.
-	*
-	* <p>
-	* This method uses the lock service to guard against multiple threads
-	* trying to insert the same counter because this service is called
-	* asynchronously from the social activity service.
-	* </p>
-	*
-	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's class this
-	counter belongs to
-	* @param classPK the primary key of the entity this counter belongs to
-	* @param name the counter's name
-	* @param ownerType the counter's owner type. Acceptable values are
-	<code>TYPE_ACTOR</code>, <code>TYPE_ASSET</code> and
-	<code>TYPE_CREATOR</code> defined in {@link
-	SocialActivityCounterConstants}.
-	* @param currentValue the counter's current value (optionally
-	<code>0</code>)
-	* @param totalValue the counter's total value (optionally
-	<code>0</code>)
-	* @param startPeriod the counter's start period
-	* @param endPeriod the counter's end period
-	* @return the added activity counter
-	* @throws PortalException if the group or the previous activity counter
-	could not be found
-	* @deprecated As of 6.2.0, replaced by {@link #addActivityCounter(long,
-	long, long, String, int, int, long, int)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.social.model.SocialActivityCounter addActivityCounter(
-		long groupId, long classNameId, long classPK, java.lang.String name,
-		int ownerType, int currentValue, int totalValue, int startPeriod,
-		int endPeriod)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addActivityCounter(groupId, classNameId, classPK, name,
-			ownerType, currentValue, totalValue, startPeriod, endPeriod);
-	}
-
-	/**
-	* Adds an activity counter specifying a previous activity and period
-	* length.
-	*
-	* <p>
-	* This method uses the lock service to guard against multiple threads
-	* trying to insert the same counter because this service is called
-	* asynchronously from the social activity service.
-	* </p>
-	*
-	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's class this
-	counter belongs to
-	* @param classPK the primary key of the entity this counter belongs to
-	* @param name the counter name
-	* @param ownerType the counter's owner type. Acceptable values are
-	<code>TYPE_ACTOR</code>, <code>TYPE_ASSET</code> and
-	<code>TYPE_CREATOR</code> defined in {@link
-	SocialActivityCounterConstants}.
-	* @param currentValue the current value of the counter (optionally
-	<code>0</code>)
-	* @param totalValue the counter's total value (optionally
-	<code>0</code>)
-	* @param startPeriod the counter's start period
-	* @param endPeriod the counter's end period
-	* @param previousActivityCounterId the primary key of the activity
-	counter for the previous time period (optionally
-	<code>0</code>, if this is the first)
-	* @param periodLength the period length in days,
-	<code>PERIOD_LENGTH_INFINITE</code> for never ending counters
-	or <code>PERIOD_LENGTH_SYSTEM</code> for the period length
-	defined in <code>portal-ext.properties</code>. For more
-	information see {@link SocialActivityCounterConstants}.
-	* @return the added activity counter
-	* @throws PortalException if the group or the previous activity counter
-	could not be found
-	* @deprecated As of 6.2.0, replaced by {@link #addActivityCounter(long,
-	long, long, String, int, int, long, int)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.social.model.SocialActivityCounter addActivityCounter(
-		long groupId, long classNameId, long classPK, java.lang.String name,
-		int ownerType, int currentValue, int totalValue, int startPeriod,
-		int endPeriod, long previousActivityCounterId, int periodLength)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .addActivityCounter(groupId, classNameId, classPK, name,
-			ownerType, currentValue, totalValue, startPeriod, endPeriod,
-			previousActivityCounterId, periodLength);
-	}
-
-	/**
 	* Adds an activity counter specifying a previous activity and period
 	* length.
 	*
@@ -162,8 +70,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	in <code>portal-ext.properties</code>. For more information see
 	{@link SocialActivityCounterConstants}.
 	* @return the added activity counter
-	* @throws PortalException if the group or the previous activity counter
-	could not be found
 	*/
 	public static com.liferay.portlet.social.model.SocialActivityCounter addActivityCounter(
 		long groupId, long classNameId, long classPK, java.lang.String name,
@@ -194,8 +100,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	* </p>
 	*
 	* @param activity the social activity
-	* @throws PortalException if an expected group or expected previous
-	activity counters could not be found
 	*/
 	public static void addActivityCounters(
 		com.liferay.portlet.social.model.SocialActivity activity)
@@ -212,92 +116,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	public static com.liferay.portlet.social.model.SocialActivityCounter addSocialActivityCounter(
 		com.liferay.portlet.social.model.SocialActivityCounter socialActivityCounter) {
 		return getService().addSocialActivityCounter(socialActivityCounter);
-	}
-
-	/**
-	* Creates an activity counter with a default period length, adding it into
-	* the database.
-	*
-	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's class this
-	counter belongs to
-	* @param classPK the primary key of the entity this counter belongs to
-	* @param name the counter's name
-	* @param ownerType the counter's owner type. Acceptable values are
-	<code>TYPE_ACTOR</code>, <code>TYPE_ASSET</code> and
-	<code>TYPE_CREATOR</code> defined in {@link
-	SocialActivityCounterConstants}.
-	* @param currentValue the counter's current value (optionally
-	<code>0</code>)
-	* @param totalValue the counter's total value (optionally
-	<code>0</code>)
-	* @param startPeriod the counter's start period
-	* @param endPeriod the counter's end period
-	* @return the created activity counter
-	* @throws PortalException if the group or a previous activity counter
-	could not be found
-	* @deprecated As of 6.2.0, replaced by {@link #addActivityCounter(long,
-	long, long, String, int, int, long, int)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.social.model.SocialActivityCounter createActivityCounter(
-		long groupId, long classNameId, long classPK, java.lang.String name,
-		int ownerType, int currentValue, int totalValue, int startPeriod,
-		int endPeriod)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .createActivityCounter(groupId, classNameId, classPK, name,
-			ownerType, currentValue, totalValue, startPeriod, endPeriod);
-	}
-
-	/**
-	* Creates an activity counter, adding it into the database.
-	*
-	* <p>
-	* This method actually creates the counter in the database. It requires a
-	* new transaction so that other threads can find the new counter when the
-	* lock in the calling method is released.
-	* </p>
-	*
-	* @param groupId the primary key of the group
-	* @param classNameId the primary key of the entity's class this
-	counter belongs to
-	* @param classPK the primary key of the entity this counter belongs to
-	* @param name the counter's name
-	* @param ownerType the counter's owner type. Acceptable values are
-	<code>TYPE_ACTOR</code>, <code>TYPE_ASSET</code> and
-	<code>TYPE_CREATOR</code> defined in {@link
-	SocialActivityCounterConstants}.
-	* @param currentValue the counter's current value (optionally
-	<code>0</code>)
-	* @param totalValue the counter's total value of the counter
-	(optionally <code>0</code>)
-	* @param startPeriod the counter's start period
-	* @param endPeriod the counter's end period
-	* @param previousActivityCounterId the primary key of the activity
-	counter for the previous time period (optionally
-	<code>0</code>, if this is the first)
-	* @param periodLength the period length in days,
-	<code>PERIOD_LENGTH_INFINITE</code> for never ending counters
-	or <code>PERIOD_LENGTH_SYSTEM</code> for the period length
-	defined in <code>portal-ext.properties</code>. For more
-	information see {@link SocialActivityConstants}.
-	* @return the created activity counter
-	* @throws PortalException if the group or the previous activity counter
-	could not be found
-	* @deprecated As of 6.2.0, replaced by {@link #addActivityCounter(long,
-	long, long, String, int, int, long, int)}
-	*/
-	@Deprecated
-	public static com.liferay.portlet.social.model.SocialActivityCounter createActivityCounter(
-		long groupId, long classNameId, long classPK, java.lang.String name,
-		int ownerType, int currentValue, int totalValue, int startPeriod,
-		int endPeriod, long previousActivityCounterId, int periodLength)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return getService()
-				   .createActivityCounter(groupId, classNameId, classPK, name,
-			ownerType, currentValue, totalValue, startPeriod, endPeriod,
-			previousActivityCounterId, periodLength);
 	}
 
 	/**
@@ -321,8 +139,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	* </p>
 	*
 	* @param assetEntry the asset entry
-	* @throws PortalException if the new contribution counter could not be
-	created
 	*/
 	public static void deleteActivityCounters(
 		com.liferay.portlet.asset.model.AssetEntry assetEntry)
@@ -336,8 +152,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	*
 	* @param className the entity's class name
 	* @param classPK the primary key of the entity
-	* @throws PortalException if the entity is an asset and its owner's
-	contribution counter could not be updated
 	*/
 	public static void deleteActivityCounters(java.lang.String className,
 		long classPK)
@@ -351,8 +165,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	*
 	* @param classNameId the primary key of the entity's class
 	* @param classPK the primary key of the entity
-	* @throws PortalException if the entity is an asset and its owner's
-	contribution counter could not be updated
 	*/
 	public static void deleteActivityCounters(long classNameId, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -403,8 +215,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	*
 	* @param className the asset's class name
 	* @param classPK the primary key of the asset
-	* @throws PortalException if the asset owner's contribution counter could
-	not be updated
 	*/
 	public static void disableActivityCounters(java.lang.String className,
 		long classPK)
@@ -423,8 +233,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	*
 	* @param classNameId the primary key of the asset's class
 	* @param classPK the primary key of the asset
-	* @throws PortalException if the asset owner's contribution counter could
-	not be updated
 	*/
 	public static void disableActivityCounters(long classNameId, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -520,8 +328,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	*
 	* @param className the asset's class name
 	* @param classPK the primary key of the asset
-	* @throws PortalException if the asset owner's contribution counter could
-	not be updated
 	*/
 	public static void enableActivityCounters(java.lang.String className,
 		long classPK)
@@ -540,8 +346,6 @@ public class SocialActivityCounterLocalServiceUtil {
 	*
 	* @param classNameId the primary key of the asset's class
 	* @param classPK the primary key of the asset
-	* @throws PortalException if the asset owner's contribution counter could
-	not be updated
 	*/
 	public static void enableActivityCounters(long classNameId, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -616,13 +420,17 @@ public class SocialActivityCounterLocalServiceUtil {
 		return getService().getActionableDynamicQuery();
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -817,21 +625,10 @@ public class SocialActivityCounterLocalServiceUtil {
 	*
 	* @param userId the primary key of the user
 	* @param groupId the primary key of the group
-	* @throws PortalException if the group or an expected previous activity
-	counter could not be found
 	*/
 	public static void incrementUserAchievementCounter(long userId, long groupId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().incrementUserAchievementCounter(userId, groupId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	/**
@@ -854,13 +651,6 @@ public class SocialActivityCounterLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(SocialActivityCounterLocalService service) {
 	}
 
 	private static SocialActivityCounterLocalService _service;

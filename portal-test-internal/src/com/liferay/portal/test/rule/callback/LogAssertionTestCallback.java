@@ -15,12 +15,12 @@
 package com.liferay.portal.test.rule.callback;
 
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
-import com.liferay.portal.kernel.test.rule.callback.BaseTestCallback;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.test.rule.callback.TestCallback;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.log.CaptureAppender;
 import com.liferay.portal.test.log.Log4JLoggerTestUtil;
+import com.liferay.portal.test.rule.ExpectedDBType;
 import com.liferay.portal.test.rule.ExpectedLog;
 import com.liferay.portal.test.rule.ExpectedLogs;
 import com.liferay.portal.test.rule.ExpectedMultipleLogs;
@@ -48,7 +48,7 @@ import org.junit.runner.Description;
  * @author Shuyang Zhou
  */
 public class LogAssertionTestCallback
-	extends BaseTestCallback<List<CaptureAppender>, List<CaptureAppender>> {
+	implements TestCallback<List<CaptureAppender>, List<CaptureAppender>> {
 
 	public static final LogAssertionTestCallback INSTANCE =
 		new LogAssertionTestCallback();
@@ -72,8 +72,8 @@ public class LogAssertionTestCallback
 
 		for (CaptureAppender captureAppender : captureAppenders) {
 			try {
-				for (LoggingEvent loggingEvent
-					 : captureAppender.getLoggingEvents()) {
+				for (LoggingEvent loggingEvent :
+						captureAppender.getLoggingEvents()) {
 
 					String renderedMessage = loggingEvent.getRenderedMessage();
 
@@ -138,7 +138,7 @@ public class LogAssertionTestCallback
 	}
 
 	@Override
-	public void doAfterClass(
+	public void afterClass(
 		Description description, List<CaptureAppender> captureAppenders) {
 
 		ExpectedMultipleLogs expectedMultipleLogs = description.getAnnotation(
@@ -163,15 +163,15 @@ public class LogAssertionTestCallback
 	}
 
 	@Override
-	public void doAfterMethod(
+	public void afterMethod(
 		Description description, List<CaptureAppender> captureAppenders,
 		Object target) {
 
-		doAfterClass(description, captureAppenders);
+		afterClass(description, captureAppenders);
 	}
 
 	@Override
-	public List<CaptureAppender> doBeforeClass(Description description) {
+	public List<CaptureAppender> beforeClass(Description description) {
 		ExpectedMultipleLogs expectedMultipleLogs = description.getAnnotation(
 			ExpectedMultipleLogs.class);
 
@@ -194,10 +194,10 @@ public class LogAssertionTestCallback
 	}
 
 	@Override
-	public List<CaptureAppender> doBeforeMethod(
+	public List<CaptureAppender> beforeMethod(
 		Description description, Object target) {
 
-		return doBeforeClass(description);
+		return beforeClass(description);
 	}
 
 	protected static void installJdk14Handler() {
@@ -222,12 +222,12 @@ public class LogAssertionTestCallback
 
 		for (ExpectedLogs expectedLogs : expectedLogsList) {
 			for (ExpectedLog expectedLog : expectedLogs.expectedLogs()) {
-				String dbType = expectedLog.dbType();
+				ExpectedDBType expectedDBType = expectedLog.expectedDBType();
 
-				if (Validator.isNotNull(dbType)) {
-					DB db = DBFactoryUtil.getDB();
+				if (expectedDBType != ExpectedDBType.NONE) {
+					DB db = DBManagerUtil.getDB();
 
-					if (!Validator.equals(dbType, db.getType())) {
+					if (expectedDBType.getDBType() != db.getDBType()) {
 						continue;
 					}
 				}

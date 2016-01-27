@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchClusterGroupException;
+import com.liferay.portal.exception.NoSuchClusterGroupException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -272,11 +272,9 @@ public class ClusterGroupPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ClusterGroupLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ClusterGroup>() {
 				@Override
-				public void performAction(Object object) {
-					ClusterGroup clusterGroup = (ClusterGroup)object;
-
+				public void performAction(ClusterGroup clusterGroup) {
 					Assert.assertNotNull(clusterGroup);
 
 					count.increment();

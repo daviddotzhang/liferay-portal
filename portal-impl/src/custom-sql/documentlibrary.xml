@@ -254,17 +254,18 @@
 	</sql>
 	<sql id="com.liferay.portlet.documentlibrary.service.persistence.DLFileEntryTypeFinder.countByC_G_N_D_S">
 		<![CDATA[
+			[$BASIC_DOCUMENT$]
 			SELECT
 				COUNT(DISTINCT fileEntryTypeId) AS COUNT_VALUE
 			FROM
 				DLFileEntryType
 			WHERE
 				(
-					(companyId = ?) AND
+					(DLFileEntryType.companyId = ?) AND
 					[$GROUP_ID$]
 					(
-						(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-						(description LIKE ? [$AND_OR_NULL_CHECK$])
+						(lower(DLFileEntryType.name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
+						(DLFileEntryType.description LIKE ? [$AND_OR_NULL_CHECK$])
 					)
 				)
 		]]>
@@ -278,11 +279,11 @@
 				DLFileEntryType
 			WHERE
 				(
-					(companyId = ?) AND
+					(DLFileEntryType.companyId = ?) AND
 					[$GROUP_ID$]
 					(
-						(lower(name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
-						(description LIKE ? [$AND_OR_NULL_CHECK$])
+						(lower(DLFileEntryType.name) LIKE ? [$AND_OR_NULL_CHECK$]) [$AND_OR_CONNECTOR$]
+						(DLFileEntryType.description LIKE ? [$AND_OR_NULL_CHECK$])
 					)
 				)
 		]]>
@@ -333,7 +334,7 @@
 				DLFileVersion
 			WHERE
 				(DLFileVersion.groupId = ?) AND
-				([$STATUS$]) AND
+				([$STATUS$] [$OWNER_USER_ID_AND_OR_CONNECTOR$] [$OWNER_USER_ID$]) AND
 				[$FILE_VERSION_FOLDER_ID$]
 		]]>
 	</sql>
@@ -387,7 +388,7 @@
 			[$JOIN$]
 			WHERE
 				(DLFileEntry.groupId = ?) AND
-				([$STATUS$]) AND
+				([$STATUS$] [$OWNER_USER_ID_AND_OR_CONNECTOR$] [$OWNER_USER_ID$]) AND
 				[$FILE_ENTRY_FOLDER_ID$]
 		]]>
 	</sql>

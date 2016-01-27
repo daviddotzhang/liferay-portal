@@ -34,7 +34,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.blogs.NoSuchEntryException;
+import com.liferay.portlet.blogs.exception.NoSuchEntryException;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 import com.liferay.portlet.blogs.service.persistence.BlogsEntryPersistence;
@@ -375,6 +375,12 @@ public class BlogsEntryPersistenceTest {
 	}
 
 	@Test
+	public void testCountByG_U_SArrayable() throws Exception {
+		_persistence.countByG_U_S(RandomTestUtil.nextLong(),
+			RandomTestUtil.nextLong(), new int[] { RandomTestUtil.nextInt(), 0 });
+	}
+
+	@Test
 	public void testCountByG_U_NotS() throws Exception {
 		_persistence.countByG_U_NotS(RandomTestUtil.nextLong(),
 			RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
@@ -595,11 +601,9 @@ public class BlogsEntryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = BlogsEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<BlogsEntry>() {
 				@Override
-				public void performAction(Object object) {
-					BlogsEntry blogsEntry = (BlogsEntry)object;
-
+				public void performAction(BlogsEntry blogsEntry) {
 					Assert.assertNotNull(blogsEntry);
 
 					count.increment();

@@ -55,13 +55,13 @@ public class RepositoryServiceWrapper implements RepositoryService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _repositoryService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _repositoryService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -70,11 +70,19 @@ public class RepositoryServiceWrapper implements RepositoryService,
 		return _repositoryService.getRepository(repositoryId);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, with no direct replacement
+	*/
+	@Deprecated
 	@Override
 	public java.lang.String[] getSupportedConfigurations(long classNameId) {
 		return _repositoryService.getSupportedConfigurations(classNameId);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, with no direct replacement
+	*/
+	@Deprecated
 	@Override
 	public java.lang.String[] getSupportedParameters(
 		java.lang.String className, java.lang.String configuration) {
@@ -83,8 +91,7 @@ public class RepositoryServiceWrapper implements RepositoryService,
 	}
 
 	/**
-	* @deprecated As of 7.0.0, replaced by {@link
-	#getSupportedParameters(String, String)}
+	* @deprecated As of 7.0.0, with no direct replacement
 	*/
 	@Deprecated
 	@Override
@@ -101,37 +108,11 @@ public class RepositoryServiceWrapper implements RepositoryService,
 		return _repositoryService.getTypeSettingsProperties(repositoryId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_repositoryService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void updateRepository(long repositoryId, java.lang.String name,
 		java.lang.String description)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_repositoryService.updateRepository(repositoryId, name, description);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public RepositoryService getWrappedRepositoryService() {
-		return _repositoryService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedRepositoryService(RepositoryService repositoryService) {
-		_repositoryService = repositoryService;
 	}
 
 	@Override

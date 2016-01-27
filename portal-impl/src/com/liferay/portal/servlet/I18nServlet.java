@@ -14,7 +14,7 @@
 
 package com.liferay.portal.servlet;
 
-import com.liferay.portal.NoSuchLayoutException;
+import com.liferay.portal.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -24,10 +24,10 @@ import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.IOException;
 
@@ -150,19 +150,27 @@ public class I18nServlet extends HttpServlet {
 
 		Locale locale = LocaleUtil.fromLanguageId(i18nLanguageId);
 
+		String i18nLanguageCode = locale.getLanguage();
+
 		if (Validator.isNull(locale.getCountry())) {
 
 			// Locales must contain the country code
 
-			locale = LanguageUtil.getLocale(locale.getLanguage());
+			locale = LanguageUtil.getLocale(i18nLanguageCode);
 
-			i18nLanguageId = LocaleUtil.toLanguageId(locale);
+			if (locale == null) {
+				i18nLanguageId = null;
+				i18nLanguageCode = null;
+			}
+			else {
+				i18nLanguageId = LocaleUtil.toLanguageId(locale);
+			}
 		}
 
 		if (!PropsValues.LOCALE_USE_DEFAULT_IF_NOT_AVAILABLE &&
 			!LanguageUtil.isAvailableLocale(i18nLanguageId)) {
 
-				return null;
+			return null;
 		}
 
 		String redirect = path;
@@ -172,7 +180,7 @@ public class I18nServlet extends HttpServlet {
 		}
 
 		return new I18nData(
-			i18nPath, locale.getLanguage(), i18nLanguageId, redirect);
+			i18nPath, i18nLanguageCode, i18nLanguageId, redirect);
 	}
 
 	protected I18nData getI18nData(Locale locale) {

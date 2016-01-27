@@ -46,16 +46,6 @@ public interface EmailAddressService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link EmailAddressServiceUtil} to access the email address remote service. Add custom service methods to {@link com.liferay.portal.service.impl.EmailAddressServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEmailAddress(String,
-	long, String, int, boolean, ServiceContext)}
-	*/
-	@java.lang.Deprecated
-	public com.liferay.portal.model.EmailAddress addEmailAddress(
-		java.lang.String className, long classPK, java.lang.String address,
-		long typeId, boolean primary) throws PortalException;
-
 	public com.liferay.portal.model.EmailAddress addEmailAddress(
 		java.lang.String className, long classPK, java.lang.String address,
 		long typeId, boolean primary,
@@ -72,18 +62,10 @@ public interface EmailAddressService extends BaseService {
 	* @return the email address with the primary key, or <code>null</code> if
 	an email address with the primary key could not be found or if
 	the user did not have permission to view the email address
-	* @throws PortalException if a portal exception occurred
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.EmailAddress fetchEmailAddress(
 		long emailAddressId) throws PortalException;
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.EmailAddress getEmailAddress(
@@ -94,11 +76,11 @@ public interface EmailAddressService extends BaseService {
 		java.lang.String className, long classPK) throws PortalException;
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier();
 
 	public com.liferay.portal.model.EmailAddress updateEmailAddress(
 		long emailAddressId, java.lang.String address, long typeId,

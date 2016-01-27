@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchResourceActionException;
+import com.liferay.portal.exception.NoSuchResourceActionException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -293,11 +293,9 @@ public class ResourceActionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ResourceActionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ResourceAction>() {
 				@Override
-				public void performAction(Object object) {
-					ResourceAction resourceAction = (ResourceAction)object;
-
+				public void performAction(ResourceAction resourceAction) {
 					Assert.assertNotNull(resourceAction);
 
 					count.increment();

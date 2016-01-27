@@ -92,18 +92,7 @@ public class IncludeTag extends AttributesTagSupport {
 			throw new JspException(e);
 		}
 		finally {
-			clearDynamicAttributes();
-			clearParams();
-			clearProperties();
-
-			cleanUpSetAttributes();
-
-			if (!ServerDetector.isResin()) {
-				setPage(null);
-				setUseCustomPage(true);
-
-				cleanUp();
-			}
+			doClearTag();
 		}
 	}
 
@@ -190,6 +179,21 @@ public class IncludeTag extends AttributesTagSupport {
 			}
 
 			_trackedRequest = null;
+		}
+	}
+
+	protected void doClearTag() {
+		clearDynamicAttributes();
+		clearParams();
+		clearProperties();
+
+		cleanUpSetAttributes();
+
+		if (!ServerDetector.isResin()) {
+			setPage(null);
+			setUseCustomPage(true);
+
+			cleanUp();
 		}
 	}
 
@@ -399,7 +403,7 @@ public class IncludeTag extends AttributesTagSupport {
 			contextPath = StringPool.SLASH;
 		}
 
-		StringBundler sb = new StringBundler(13);
+		StringBundler sb = new StringBundler(8);
 
 		sb.append("Unable to find ");
 		sb.append(page);

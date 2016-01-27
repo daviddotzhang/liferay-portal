@@ -14,16 +14,15 @@
 
 package com.liferay.shopping.web.portlet.action;
 
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.WebKeys;
 import com.liferay.shopping.exception.CouponCodeException;
 import com.liferay.shopping.exception.CouponDateException;
 import com.liferay.shopping.exception.CouponDescriptionException;
@@ -151,8 +150,8 @@ public class EditCouponAction extends PortletAction {
 		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
-		long[] deleteCouponIds = StringUtil.split(
-			ParamUtil.getString(actionRequest, "deleteCouponIds"), 0L);
+		long[] deleteCouponIds = ParamUtil.getLongValues(
+			actionRequest, "rowIds");
 
 		for (long deleteCouponId : deleteCouponIds) {
 			ShoppingCouponServiceUtil.deleteCoupon(

@@ -31,7 +31,7 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.exportimport.NoSuchConfigurationException;
+import com.liferay.portlet.exportimport.exception.NoSuchConfigurationException;
 import com.liferay.portlet.exportimport.model.ExportImportConfiguration;
 import com.liferay.portlet.exportimport.service.ExportImportConfigurationLocalServiceUtil;
 import com.liferay.portlet.exportimport.service.persistence.ExportImportConfigurationPersistence;
@@ -370,11 +370,10 @@ public class ExportImportConfigurationPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ExportImportConfigurationLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ExportImportConfiguration>() {
 				@Override
-				public void performAction(Object object) {
-					ExportImportConfiguration exportImportConfiguration = (ExportImportConfiguration)object;
-
+				public void performAction(
+					ExportImportConfiguration exportImportConfiguration) {
 					Assert.assertNotNull(exportImportConfiguration);
 
 					count.increment();

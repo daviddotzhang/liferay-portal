@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateUtil;
@@ -33,7 +34,6 @@ import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.PortletPreferencesIds;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.permission.ModelPermissions;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
@@ -404,8 +404,6 @@ public class ServiceContext implements Cloneable, Serializable {
 	 * @return the user ID, or guest ID if there is no user in this service
 	 *         context, or <code>0</code> if there is no company in this service
 	 *         context
-	 * @throws PortalException if a default user for the company could not be
-	 *         found
 	 */
 	public long getGuestOrUserId() throws PortalException {
 		long userId = getUserId();

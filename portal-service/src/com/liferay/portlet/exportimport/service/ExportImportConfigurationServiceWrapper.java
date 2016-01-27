@@ -42,13 +42,13 @@ public class ExportImportConfigurationServiceWrapper
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _exportImportConfigurationService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _exportImportConfigurationService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -63,33 +63,6 @@ public class ExportImportConfigurationServiceWrapper
 		long exportImportConfigurationId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _exportImportConfigurationService.restoreExportImportConfigurationFromTrash(exportImportConfigurationId);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_exportImportConfigurationService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public ExportImportConfigurationService getWrappedExportImportConfigurationService() {
-		return _exportImportConfigurationService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedExportImportConfigurationService(
-		ExportImportConfigurationService exportImportConfigurationService) {
-		_exportImportConfigurationService = exportImportConfigurationService;
 	}
 
 	@Override

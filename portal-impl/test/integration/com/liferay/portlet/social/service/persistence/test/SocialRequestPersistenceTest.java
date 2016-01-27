@@ -33,7 +33,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.social.NoSuchRequestException;
+import com.liferay.portlet.social.exception.NoSuchRequestException;
 import com.liferay.portlet.social.model.SocialRequest;
 import com.liferay.portlet.social.service.SocialRequestLocalServiceUtil;
 import com.liferay.portlet.social.service.persistence.SocialRequestPersistence;
@@ -409,11 +409,9 @@ public class SocialRequestPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialRequestLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialRequest>() {
 				@Override
-				public void performAction(Object object) {
-					SocialRequest socialRequest = (SocialRequest)object;
-
+				public void performAction(SocialRequest socialRequest) {
 					Assert.assertNotNull(socialRequest);
 
 					count.increment();

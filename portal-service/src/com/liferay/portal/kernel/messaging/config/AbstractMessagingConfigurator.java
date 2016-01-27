@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.messaging.Destination;
 import com.liferay.portal.kernel.messaging.DestinationConfiguration;
 import com.liferay.portal.kernel.messaging.DestinationEventListener;
 import com.liferay.portal.kernel.messaging.DestinationFactory;
+import com.liferay.portal.kernel.messaging.DestinationFactoryUtil;
 import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusEventListener;
 import com.liferay.portal.kernel.messaging.MessageListener;
@@ -35,8 +36,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.ServiceFinalizer;
-import com.liferay.registry.ServiceReference;
 import com.liferay.registry.ServiceRegistrar;
 import com.liferay.registry.dependency.ServiceDependencyListener;
 import com.liferay.registry.dependency.ServiceDependencyManager;
@@ -128,52 +127,32 @@ public abstract class AbstractMessagingConfigurator
 
 	@Override
 	public void destroy() {
-		disconnect();
+		if (_messageListenerServiceRegistrar != null) {
+			_messageListenerServiceRegistrar.destroy();
+		}
 
-		_messageBusEventListeners.clear();
+		if (_destinationEventListenerServiceRegistrar != null) {
+			_destinationEventListenerServiceRegistrar.destroy();
+		}
+
+		if (_destinationServiceRegistrar != null) {
+			_destinationServiceRegistrar.destroy();
+		}
 
 		if (_messageBusEventListenerServiceRegistrar != null) {
 			_messageBusEventListenerServiceRegistrar.destroy();
 		}
 
 		_destinationConfigurations.clear();
+		_destinationEventListeners.clear();
+		_messageListeners.clear();
 
-		if (_destinationConfigurationServiceRegistrar != null) {
-			_destinationConfigurationServiceRegistrar.destroy();
+		for (Destination destination : _destinations) {
+			destination.destroy();
 		}
 
 		_destinations.clear();
-
-		if (_destinationServiceRegistrar != null) {
-			_destinationServiceRegistrar.destroy(
-				new ServiceFinalizer<Destination>() {
-
-					@Override
-					public void finalize(
-						ServiceReference<Destination> serviceReference,
-						Destination destination) {
-
-						destination.close();
-
-						destination.removeDestinationEventListeners();
-
-						destination.unregisterMessageListeners();
-					}
-
-				});
-		}
-
-		_messageListeners.clear();
-
-		if (_messageListenerServiceRegistrar != null) {
-			_messageListenerServiceRegistrar.destroy();
-		}
-
-		_destinationEventListeners.clear();
-
-		if (_destinationEventListenerServiceRegistrar != null) {
-			_destinationEventListenerServiceRegistrar.destroy();
-		}
+		_messageBusEventListeners.clear();
 
 		ClassLoader operatingClassLoader = getOperatingClassloader();
 
@@ -297,8 +276,6 @@ public abstract class AbstractMessagingConfigurator
 
 		registerMessageBusEventListeners();
 
-		registerDestinationConfigurations();
-
 		registerDestinations();
 
 		registerDestinationEventListeners();
@@ -313,45 +290,6 @@ public abstract class AbstractMessagingConfigurator
 
 			MessagingConfiguratorRegistry.registerMessagingConfigurator(
 				servletContextName, this);
-		}
-	}
-
-	protected void registerDestinationConfigurations() {
-		if (_destinationConfigurations.isEmpty()) {
-			return;
-		}
-
-		Registry registry = RegistryUtil.getRegistry();
-
-		_destinationConfigurationServiceRegistrar =
-			registry.getServiceRegistrar(DestinationConfiguration.class);
-
-		for (DestinationConfiguration destinationConfiguration :
-				_destinationConfigurations) {
-
-			try {
-				PortalMessageBusPermission.checkListen(
-					destinationConfiguration.getDestinationName());
-			}
-			catch (SecurityException se) {
-				if (_log.isInfoEnabled()) {
-					_log.info(
-						"Rejecting destination " +
-							destinationConfiguration.getDestinationName());
-				}
-
-				continue;
-			}
-
-			Map<String, Object> properties = new HashMap<>();
-
-			properties.put(
-				"destination.name",
-				destinationConfiguration.getDestinationName());
-
-			_destinationConfigurationServiceRegistrar.registerService(
-				DestinationConfiguration.class, destinationConfiguration,
-				properties);
 		}
 	}
 
@@ -407,6 +345,28 @@ public abstract class AbstractMessagingConfigurator
 	}
 
 	protected void registerDestinations() {
+		for (DestinationConfiguration destinationConfiguration :
+				_destinationConfigurations) {
+
+			try {
+				PortalMessageBusPermission.checkListen(
+					destinationConfiguration.getDestinationName());
+			}
+			catch (SecurityException se) {
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						"Rejecting destination " +
+							destinationConfiguration.getDestinationName());
+				}
+
+				continue;
+			}
+
+			_destinations.add(
+				DestinationFactoryUtil.createDestination(
+					destinationConfiguration));
+		}
+
 		if (_destinations.isEmpty()) {
 			return;
 		}
@@ -462,8 +422,6 @@ public abstract class AbstractMessagingConfigurator
 
 	private final Set<DestinationConfiguration> _destinationConfigurations =
 		new HashSet<>();
-	private ServiceRegistrar<DestinationConfiguration>
-		_destinationConfigurationServiceRegistrar;
 	private final Map<String, List<DestinationEventListener>>
 		_destinationEventListeners = new HashMap<>();
 	private ServiceRegistrar<DestinationEventListener>

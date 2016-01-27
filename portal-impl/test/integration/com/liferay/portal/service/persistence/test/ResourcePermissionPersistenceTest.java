@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchResourcePermissionException;
+import com.liferay.portal.exception.NoSuchResourcePermissionException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -392,11 +392,9 @@ public class ResourcePermissionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ResourcePermissionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ResourcePermission>() {
 				@Override
-				public void performAction(Object object) {
-					ResourcePermission resourcePermission = (ResourcePermission)object;
-
+				public void performAction(ResourcePermission resourcePermission) {
 					Assert.assertNotNull(resourcePermission);
 
 					count.increment();

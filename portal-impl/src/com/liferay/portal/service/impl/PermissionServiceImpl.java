@@ -17,6 +17,11 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceMode;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.model.AuditedModel;
 import com.liferay.portal.model.Group;
@@ -27,11 +32,6 @@ import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.ResourcePermission;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.Team;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.BaseModelPermissionChecker;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.base.PermissionServiceBaseImpl;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.service.permission.TeamPermissionUtil;
@@ -73,12 +73,9 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	/**
 	 * Checks to see if the group has permission to the service.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  name the service name
-	 * @param  primKey the primary key of the service
-	 * @throws PortalException if the group did not have permission to the
-	 *         service, if a group with the primary key could not be found or if
-	 *         the permission information was invalid
+	 * @param groupId the primary key of the group
+	 * @param name the service name
+	 * @param primKey the primary key of the service
 	 */
 	@JSONWebService(mode = JSONWebServiceMode.IGNORE)
 	@Override
@@ -92,12 +89,9 @@ public class PermissionServiceImpl extends PermissionServiceBaseImpl {
 	/**
 	 * Checks to see if the group has permission to the service.
 	 *
-	 * @param  groupId the primary key of the group
-	 * @param  name the service name
-	 * @param  primKey the primary key of the service
-	 * @throws PortalException if the group did not have permission to the
-	 *         service, if a group with the primary key could not be found or if
-	 *         the permission information was invalid
+	 * @param groupId the primary key of the group
+	 * @param name the service name
+	 * @param primKey the primary key of the service
 	 */
 	@Override
 	public void checkPermission(long groupId, String name, String primKey)

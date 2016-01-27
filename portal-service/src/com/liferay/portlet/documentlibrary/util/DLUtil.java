@@ -151,12 +151,6 @@ public class DLUtil {
 		return getDL().getFileIconCssClass(extension);
 	}
 
-	public static String getFileName(
-		long groupId, long folderId, String tempFileName) {
-
-		return getDL().getFileName(groupId, folderId, tempFileName);
-	}
-
 	public static String getGenericName(String extension) {
 		return getDL().getGenericName(extension);
 	}
@@ -182,19 +176,6 @@ public class DLUtil {
 
 		return getDL().getPreviewURL(
 			fileEntry, fileVersion, themeDisplay, queryString);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getPreviewURL(FileEntry,
-	 *             FileVersion, ThemeDisplay, String, boolean, boolean)}
-	 */
-	@Deprecated
-	public static String getPreviewURL(
-		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
-		String queryString, boolean appendToken) {
-
-		return getDL().getPreviewURL(
-			fileEntry, fileVersion, themeDisplay, queryString, appendToken);
 	}
 
 	public static String getPreviewURL(
@@ -296,6 +277,12 @@ public class DLUtil {
 
 	public static String getTitleWithExtension(String title, String extension) {
 		return getDL().getTitleWithExtension(title, extension);
+	}
+
+	public static String getUniqueFileName(
+		long groupId, long folderId, String fileName) {
+
+		return getDL().getUniqueFileName(groupId, folderId, fileName);
 	}
 
 	public static String getWebDavURL(

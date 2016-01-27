@@ -68,7 +68,6 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 		attributes.put("description", getDescription());
 		attributes.put("type", getType());
 		attributes.put("subtype", getSubtype());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -163,12 +162,6 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 
 		if (subtype != null) {
 			setSubtype(subtype);
-		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
 		}
 	}
 
@@ -329,16 +322,6 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	@Override
 	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
 		return _role.getExpandoBridge();
-	}
-
-	/**
-	* Returns the last publish date of this role.
-	*
-	* @return the last publish date of this role
-	*/
-	@Override
-	public Date getLastPublishDate() {
-		return _role.getLastPublishDate();
 	}
 
 	/**
@@ -718,16 +701,6 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	}
 
 	/**
-	* Sets the last publish date of this role.
-	*
-	* @param lastPublishDate the last publish date of this role
-	*/
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_role.setLastPublishDate(lastPublishDate);
-	}
-
-	/**
 	* Sets the modified date of this role.
 	*
 	* @param modifiedDate the modified date of this role
@@ -955,14 +928,6 @@ public class RoleWrapper implements Role, ModelWrapper<Role> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _role.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Role getWrappedRole() {
-		return _role;
 	}
 
 	@Override

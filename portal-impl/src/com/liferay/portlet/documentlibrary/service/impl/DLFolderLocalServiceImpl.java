@@ -24,6 +24,8 @@ import com.liferay.portal.kernel.lock.InvalidLockException;
 import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.lock.LockManagerUtil;
 import com.liferay.portal.kernel.lock.NoSuchLockException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.event.RepositoryEventTrigger;
 import com.liferay.portal.kernel.repository.event.RepositoryEventType;
 import com.liferay.portal.kernel.repository.model.Folder;
@@ -51,12 +53,12 @@ import com.liferay.portal.repository.liferayrepository.model.LiferayFolder;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.permission.ModelPermissions;
 import com.liferay.portal.util.RepositoryUtil;
-import com.liferay.portlet.documentlibrary.DuplicateFileException;
-import com.liferay.portlet.documentlibrary.DuplicateFolderNameException;
-import com.liferay.portlet.documentlibrary.FolderNameException;
-import com.liferay.portlet.documentlibrary.InvalidFolderException;
-import com.liferay.portlet.documentlibrary.NoSuchFolderException;
-import com.liferay.portlet.documentlibrary.RequiredFileEntryTypeException;
+import com.liferay.portlet.documentlibrary.exception.DuplicateFileEntryException;
+import com.liferay.portlet.documentlibrary.exception.DuplicateFolderNameException;
+import com.liferay.portlet.documentlibrary.exception.FolderNameException;
+import com.liferay.portlet.documentlibrary.exception.InvalidFolderException;
+import com.liferay.portlet.documentlibrary.exception.NoSuchFolderException;
+import com.liferay.portlet.documentlibrary.exception.RequiredFileEntryTypeException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
@@ -148,24 +150,6 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		}
 
 		return dlFolder;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by more general {@link #addFolder(long,
-	 *             long, long, boolean, long, String, String, boolean,
-	 *             ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public DLFolder addFolder(
-			long userId, long groupId, long repositoryId, boolean mountPoint,
-			long parentFolderId, String name, String description,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addFolder(
-			userId, groupId, repositoryId, mountPoint, parentFolderId, name,
-			description, false, serviceContext);
 	}
 
 	/**
@@ -344,43 +328,11 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		return dlFolderPersistence.countByCompanyId(companyId);
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getFileEntriesAndFileShortcuts(long, long, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<Object> getFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, int start, int end) {
-
-		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
-			status, start, end, null);
-
-		return getFileEntriesAndFileShortcuts(
-			groupId, folderId, queryDefinition);
-	}
-
 	@Override
 	public List<Object> getFileEntriesAndFileShortcuts(
 		long groupId, long folderId, QueryDefinition<?> queryDefinition) {
 
 		return dlFolderFinder.findFE_FS_ByG_F(
-			groupId, folderId, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getFileEntriesAndFileShortcutsCount(long, long,
-	 *             QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getFileEntriesAndFileShortcutsCount(
-		long groupId, long folderId, int status) {
-
-		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
-
-		return getFileEntriesAndFileShortcutsCount(
 			groupId, folderId, queryDefinition);
 	}
 
@@ -487,82 +439,12 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		return getFolders(groupId, parentFolderId, true, start, end, obc);
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getFoldersAndFileEntriesAndFileShortcuts(long, long,
-	 *             String[], boolean, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, boolean includeMountFolders,
-		int start, int end, OrderByComparator<?> obc) {
-
-		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
-			status, start, end, (OrderByComparator<Object>)obc);
-
-		return getFoldersAndFileEntriesAndFileShortcuts(
-			groupId, folderId, null, includeMountFolders, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	 *             String[], boolean, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, String[] mimeTypes,
-		boolean includeMountFolders, int start, int end,
-		OrderByComparator<?> obc) {
-
-		QueryDefinition<?> queryDefinition = new QueryDefinition<>(
-			status, start, end, (OrderByComparator<Object>)obc);
-
-		return getFoldersAndFileEntriesAndFileShortcuts(
-			groupId, folderId, mimeTypes, includeMountFolders, queryDefinition);
-	}
-
 	@Override
 	public List<Object> getFoldersAndFileEntriesAndFileShortcuts(
 		long groupId, long folderId, String[] mimeTypes,
 		boolean includeMountFolders, QueryDefinition<?> queryDefinition) {
 
 		return dlFolderFinder.findF_FE_FS_ByG_F_M_M(
-			groupId, folderId, mimeTypes, includeMountFolders, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	 *             String[], boolean, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getFoldersAndFileEntriesAndFileShortcutsCount(
-		long groupId, long folderId, int status, boolean includeMountFolders) {
-
-		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
-
-		return getFoldersAndFileEntriesAndFileShortcutsCount(
-			groupId, folderId, null, includeMountFolders, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	 *             String[], boolean, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getFoldersAndFileEntriesAndFileShortcutsCount(
-		long groupId, long folderId, int status, String[] mimeTypes,
-		boolean includeMountFolders) {
-
-		QueryDefinition<?> queryDefinition = new QueryDefinition<>(status);
-
-		return getFoldersAndFileEntriesAndFileShortcutsCount(
 			groupId, folderId, mimeTypes, includeMountFolders, queryDefinition);
 	}
 
@@ -598,7 +480,11 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		long groupId, long parentFolderId, int status,
 		boolean includeMountfolders) {
 
-		if (includeMountfolders) {
+		if (status == WorkflowConstants.STATUS_ANY) {
+			return getFoldersCount(
+				groupId, parentFolderId, includeMountfolders);
+		}
+		else if (includeMountfolders) {
 			return dlFolderPersistence.countByG_P_H_S(
 				groupId, parentFolderId, false, status);
 		}
@@ -715,6 +601,30 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	public boolean hasFolderLock(long userId, long folderId) {
 		return LockManagerUtil.hasLock(
 			userId, DLFolder.class.getName(), folderId);
+	}
+
+	@Override
+	public boolean hasInheritableLock(long folderId) throws PortalException {
+		boolean inheritable = false;
+
+		try {
+			Lock lock = LockManagerUtil.getLock(
+				DLFolder.class.getName(), folderId);
+
+			inheritable = lock.isInheritable();
+		}
+		catch (ExpiredLockException ele) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(ele, ele);
+			}
+		}
+		catch (NoSuchLockException nsle) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(nsle, nsle);
+			}
+		}
+
+		return inheritable;
 	}
 
 	@Override
@@ -879,13 +789,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 					throw new InvalidLockException("UUIDs do not match");
 				}
 			}
-			catch (PortalException pe) {
-				if (pe instanceof ExpiredLockException ||
-					pe instanceof NoSuchLockException) {
-				}
-				else {
-					throw pe;
-				}
+			catch (ExpiredLockException | NoSuchLockException e) {
 			}
 		}
 
@@ -1121,7 +1025,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 					RESTRICTION_TYPE_FILE_ENTRY_TYPES_AND_WORKFLOW) &&
 			fileEntryTypeIds.isEmpty()) {
 
-			throw new RequiredFileEntryTypeException();
+			throw new RequiredFileEntryTypeException(
+				"File entry type IDs is empty");
 		}
 
 		boolean hasLock = hasFolderLock(userId, folderId);
@@ -1267,6 +1172,31 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		}
 
 		return dlFolder;
+	}
+
+	@Override
+	public boolean verifyInheritableLock(long folderId, String lockUuid)
+		throws PortalException {
+
+		boolean verified = false;
+
+		try {
+			Lock lock = LockManagerUtil.getLock(
+				DLFolder.class.getName(), folderId);
+
+			if (!lock.isInheritable()) {
+				throw new NoSuchLockException("{folderId=" + folderId + "}");
+			}
+
+			if (lock.getUuid().equals(lockUuid)) {
+				verified = true;
+			}
+		}
+		catch (ExpiredLockException ele) {
+			throw new NoSuchLockException(ele);
+		}
+
+		return verified;
 	}
 
 	protected void addFolderResources(
@@ -1505,7 +1435,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			groupId, parentFolderId, name);
 
 		if (dlFileEntry != null) {
-			throw new DuplicateFileException(name);
+			throw new DuplicateFileEntryException(name);
 		}
 
 		DLFolder dlFolder = dlFolderPersistence.fetchByG_P_N(
@@ -1532,5 +1462,8 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 			throw new FolderNameException(folderName);
 		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DLFolderLocalServiceImpl.class);
 
 }

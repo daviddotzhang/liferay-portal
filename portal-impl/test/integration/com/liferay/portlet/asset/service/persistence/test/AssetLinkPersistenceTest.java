@@ -32,7 +32,7 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.asset.NoSuchLinkException;
+import com.liferay.portlet.asset.exception.NoSuchLinkException;
 import com.liferay.portlet.asset.model.AssetLink;
 import com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil;
 import com.liferay.portlet.asset.service.persistence.AssetLinkPersistence;
@@ -338,11 +338,9 @@ public class AssetLinkPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = AssetLinkLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<AssetLink>() {
 				@Override
-				public void performAction(Object object) {
-					AssetLink assetLink = (AssetLink)object;
-
+				public void performAction(AssetLink assetLink) {
 					Assert.assertNotNull(assetLink);
 
 					count.increment();

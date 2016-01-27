@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchLayoutFriendlyURLException;
+import com.liferay.portal.exception.NoSuchLayoutFriendlyURLException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -408,11 +408,9 @@ public class LayoutFriendlyURLPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = LayoutFriendlyURLLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<LayoutFriendlyURL>() {
 				@Override
-				public void performAction(Object object) {
-					LayoutFriendlyURL layoutFriendlyURL = (LayoutFriendlyURL)object;
-
+				public void performAction(LayoutFriendlyURL layoutFriendlyURL) {
 					Assert.assertNotNull(layoutFriendlyURL);
 
 					count.increment();

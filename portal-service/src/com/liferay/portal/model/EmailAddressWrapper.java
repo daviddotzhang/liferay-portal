@@ -67,7 +67,6 @@ public class EmailAddressWrapper implements EmailAddress,
 		attributes.put("address", getAddress());
 		attributes.put("typeId", getTypeId());
 		attributes.put("primary", getPrimary());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -150,12 +149,6 @@ public class EmailAddressWrapper implements EmailAddress,
 
 		if (primary != null) {
 			setPrimary(primary);
-		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
 		}
 	}
 
@@ -242,16 +235,6 @@ public class EmailAddressWrapper implements EmailAddress,
 	@Override
 	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
 		return _emailAddress.getExpandoBridge();
-	}
-
-	/**
-	* Returns the last publish date of this email address.
-	*
-	* @return the last publish date of this email address
-	*/
-	@Override
-	public Date getLastPublishDate() {
-		return _emailAddress.getLastPublishDate();
 	}
 
 	/**
@@ -478,16 +461,6 @@ public class EmailAddressWrapper implements EmailAddress,
 	}
 
 	/**
-	* Sets the last publish date of this email address.
-	*
-	* @param lastPublishDate the last publish date of this email address
-	*/
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_emailAddress.setLastPublishDate(lastPublishDate);
-	}
-
-	/**
 	* Sets the modified date of this email address.
 	*
 	* @param modifiedDate the modified date of this email address
@@ -634,14 +607,6 @@ public class EmailAddressWrapper implements EmailAddress,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _emailAddress.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public EmailAddress getWrappedEmailAddress() {
-		return _emailAddress;
 	}
 
 	@Override

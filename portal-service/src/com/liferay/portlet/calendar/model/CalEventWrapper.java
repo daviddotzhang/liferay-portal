@@ -19,6 +19,8 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelWrapper;
 
+import com.liferay.portlet.exportimport.lar.StagedModelType;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -885,12 +887,9 @@ public class CalEventWrapper implements CalEvent, ModelWrapper<CalEvent> {
 		return false;
 	}
 
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public CalEvent getWrappedCalEvent() {
-		return _calEvent;
+	@Override
+	public StagedModelType getStagedModelType() {
+		return _calEvent.getStagedModelType();
 	}
 
 	@Override

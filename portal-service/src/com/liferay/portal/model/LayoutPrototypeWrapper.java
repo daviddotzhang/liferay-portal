@@ -66,7 +66,6 @@ public class LayoutPrototypeWrapper implements LayoutPrototype,
 		attributes.put("description", getDescription());
 		attributes.put("settings", getSettings());
 		attributes.put("active", getActive());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -143,12 +142,6 @@ public class LayoutPrototypeWrapper implements LayoutPrototype,
 
 		if (active != null) {
 			setActive(active);
-		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
 		}
 	}
 
@@ -296,16 +289,6 @@ public class LayoutPrototypeWrapper implements LayoutPrototype,
 	public long getGroupId()
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _layoutPrototype.getGroupId();
-	}
-
-	/**
-	* Returns the last publish date of this layout prototype.
-	*
-	* @return the last publish date of this layout prototype
-	*/
-	@Override
-	public Date getLastPublishDate() {
-		return _layoutPrototype.getLastPublishDate();
 	}
 
 	@Override
@@ -656,16 +639,6 @@ public class LayoutPrototypeWrapper implements LayoutPrototype,
 	}
 
 	/**
-	* Sets the last publish date of this layout prototype.
-	*
-	* @param lastPublishDate the last publish date of this layout prototype
-	*/
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_layoutPrototype.setLastPublishDate(lastPublishDate);
-	}
-
-	/**
 	* Sets the layout prototype ID of this layout prototype.
 	*
 	* @param layoutPrototypeId the layout prototype ID of this layout prototype
@@ -874,14 +847,6 @@ public class LayoutPrototypeWrapper implements LayoutPrototype,
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _layoutPrototype.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public LayoutPrototype getWrappedLayoutPrototype() {
-		return _layoutPrototype;
 	}
 
 	@Override

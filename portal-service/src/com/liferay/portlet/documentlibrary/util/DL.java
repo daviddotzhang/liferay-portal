@@ -52,8 +52,6 @@ public interface DL {
 	public static final String OFFICE_EXTENSION_PATH =
 		StringPool.SLASH + OFFICE_EXTENSION;
 
-	public static final String TEMP_RANDOM_SUFFIX = "--tempRandomSuffix--";
-
 	public static final String WEBDAV_CHECK_IN_MODE = "webDAVCheckInMode";
 
 	public int compareVersions(String version1, String version2);
@@ -108,8 +106,6 @@ public interface DL {
 
 	public String getFileIconCssClass(String extension);
 
-	public String getFileName(long groupId, long folderId, String tempFileName);
-
 	public String getGenericName(String extension);
 
 	public String getImagePreviewURL(
@@ -124,15 +120,6 @@ public interface DL {
 	public String getPreviewURL(
 		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
 		String queryString);
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getPreviewURL(FileEntry,
-	 *             FileVersion, ThemeDisplay, String, boolean, boolean)}
-	 */
-	@Deprecated
-	public String getPreviewURL(
-		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
-		String queryString, boolean appendToken);
 
 	public String getPreviewURL(
 		FileEntry fileEntry, FileVersion fileVersion, ThemeDisplay themeDisplay,
@@ -189,6 +176,9 @@ public interface DL {
 	public String getTitleWithExtension(FileEntry fileEntry);
 
 	public String getTitleWithExtension(String title, String extension);
+
+	public String getUniqueFileName(
+		long groupId, long folderId, String fileName);
 
 	public String getWebDavURL(
 			ThemeDisplay themeDisplay, Folder folder, FileEntry fileEntry)

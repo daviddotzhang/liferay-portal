@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchMembershipRequestException;
+import com.liferay.portal.exception.NoSuchMembershipRequestException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -331,11 +331,9 @@ public class MembershipRequestPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = MembershipRequestLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<MembershipRequest>() {
 				@Override
-				public void performAction(Object object) {
-					MembershipRequest membershipRequest = (MembershipRequest)object;
-
+				public void performAction(MembershipRequest membershipRequest) {
 					Assert.assertNotNull(membershipRequest);
 
 					count.increment();

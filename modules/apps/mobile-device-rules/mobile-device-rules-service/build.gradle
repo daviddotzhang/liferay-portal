@@ -1,10 +1,11 @@
 buildService {
-	apiDirName = "../mobile-device-rules-api/src"
-	testDirName = "../mobile-device-rules-test/test/integration"
+	apiDir = "../mobile-device-rules-api/src/main/java"
+	testDir = "../mobile-device-rules-test/src/testIntegration/java"
 }
 
 dependencies {
 	compile group: "com.liferay", name: "com.liferay.portal.spring.extender", version: "1.0.2"
+	compile project(":apps:export-import:export-import-api")
 	compile project(":apps:export-import:export-import-service")
 	compile project(":apps:mobile-device-rules:mobile-device-rules-api")
 

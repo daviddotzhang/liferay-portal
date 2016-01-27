@@ -28,9 +28,9 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import java.io.IOException;
 
@@ -136,6 +136,8 @@ public class SetupWizardUtil {
 		_processDatabaseProperties(
 			request, unicodeProperties, databaseConfigured);
 
+		_processOtherProperties(request, unicodeProperties);
+
 		updateLanguage(request, response);
 
 		unicodeProperties.put(
@@ -194,6 +196,36 @@ public class SetupWizardUtil {
 			unicodeProperties.remove(PropsKeys.JDBC_DEFAULT_DRIVER_CLASS_NAME);
 			unicodeProperties.remove(PropsKeys.JDBC_DEFAULT_USERNAME);
 			unicodeProperties.remove(PropsKeys.JDBC_DEFAULT_PASSWORD);
+		}
+	}
+
+	private static void _processOtherProperties(
+			HttpServletRequest request, UnicodeProperties unicodeProperties)
+		throws Exception {
+
+		_processProperty(
+			request, unicodeProperties, "adminFirstName",
+			PropsKeys.DEFAULT_ADMIN_FIRST_NAME,
+			PropsValues.DEFAULT_ADMIN_FIRST_NAME);
+		_processProperty(
+			request, unicodeProperties, "adminLastName",
+			PropsKeys.DEFAULT_ADMIN_LAST_NAME,
+			PropsValues.DEFAULT_ADMIN_LAST_NAME);
+		_processProperty(
+			request, unicodeProperties, "companyName",
+			PropsKeys.COMPANY_DEFAULT_NAME, PropsValues.COMPANY_DEFAULT_NAME);
+	}
+
+	private static void _processProperty(
+			HttpServletRequest request, UnicodeProperties unicodeProperties,
+			String parameterName, String propertyKey, String defaultValue)
+		throws Exception {
+
+		String value = ParamUtil.getString(
+			request, parameterName, defaultValue);
+
+		if (!value.equals(defaultValue)) {
+			unicodeProperties.put(propertyKey, value);
 		}
 	}
 

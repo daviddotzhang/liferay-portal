@@ -15,7 +15,7 @@
 </tr>
 <tr>
 	<td>NAVIGATION_MY_SITES</td>
-	<td>//li[contains(@id,'MySitesPortlet_tabs')]/a[contains(.,'My Sites')]</td>
+	<td>//li[contains(@id,'MySitesPortlet')]/a[contains(.,'My Sites')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -31,7 +31,12 @@
 <!--SITE_TABLE-->
 <tr>
 	<td>SITE_TABLE_SITE_NAME</td>
-	<td>//tr[contains(.,'${key_siteName}')]/td[1]/strong</td>
+	<td>//tr[contains(.,'${key_siteName}')]/td[1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_TABLE_SITE_NAME_LINK</td>
+	<td>//tr[contains(.,'${key_siteName}')]/td[1]/a</td>
 	<td></td>
 </tr>
 <tr>
@@ -41,7 +46,7 @@
 </tr>
 <tr>
 	<td>SITE_TABLE_SITE_ACTIONS</td>
-	<td>//tr[contains(.,'${key_siteName}')]/td[4]/div/a[contains(@class,'dropdown-toggle')]</td>
+	<td>//tr[contains(.,'${key_siteName}')]/td[5]//a[contains(@class,'dropdown-toggle')]</td>
 	<td></td>
 </tr>
 </tbody>

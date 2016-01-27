@@ -108,11 +108,9 @@ public class ExportImportConfigurationLocalServiceUtil {
 	*
 	* @param exportImportConfiguration the export import configuration
 	* @return the export import configuration that was removed
-	* @throws PortalException
 	*/
 	public static com.liferay.portlet.exportimport.model.ExportImportConfiguration deleteExportImportConfiguration(
-		com.liferay.portlet.exportimport.model.ExportImportConfiguration exportImportConfiguration)
-		throws com.liferay.portal.kernel.exception.PortalException {
+		com.liferay.portlet.exportimport.model.ExportImportConfiguration exportImportConfiguration) {
 		return getService()
 				   .deleteExportImportConfiguration(exportImportConfiguration);
 	}
@@ -131,8 +129,7 @@ public class ExportImportConfigurationLocalServiceUtil {
 				   .deleteExportImportConfiguration(exportImportConfigurationId);
 	}
 
-	public static void deleteExportImportConfigurations(long groupId)
-		throws com.liferay.portal.kernel.exception.PortalException {
+	public static void deleteExportImportConfigurations(long groupId) {
 		getService().deleteExportImportConfigurations(groupId);
 	}
 
@@ -234,15 +231,6 @@ public class ExportImportConfigurationLocalServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
-	/**
 	* Returns the export import configuration with the primary key.
 	*
 	* @param exportImportConfigurationId the primary key of the export import configuration
@@ -254,6 +242,25 @@ public class ExportImportConfigurationLocalServiceUtil {
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .getExportImportConfiguration(exportImportConfigurationId);
+	}
+
+	public static java.util.List<com.liferay.portlet.exportimport.model.ExportImportConfiguration> getExportImportConfigurations(
+		long companyId, long groupId, java.lang.String keywords, int type,
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.exportimport.model.ExportImportConfiguration> orderByComparator) {
+		return getService()
+				   .getExportImportConfigurations(companyId, groupId, keywords,
+			type, start, end, orderByComparator);
+	}
+
+	public static java.util.List<com.liferay.portlet.exportimport.model.ExportImportConfiguration> getExportImportConfigurations(
+		long companyId, long groupId, java.lang.String name,
+		java.lang.String description, int type, boolean andSearch, int start,
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.exportimport.model.ExportImportConfiguration> orderByComparator) {
+		return getService()
+				   .getExportImportConfigurations(companyId, groupId, name,
+			description, type, andSearch, start, end, orderByComparator);
 	}
 
 	public static java.util.List<com.liferay.portlet.exportimport.model.ExportImportConfiguration> getExportImportConfigurations(
@@ -300,12 +307,40 @@ public class ExportImportConfigurationLocalServiceUtil {
 		return getService().getExportImportConfigurationsCount();
 	}
 
+	public static int getExportImportConfigurationsCount(long companyId,
+		long groupId, java.lang.String keywords, int type) {
+		return getService()
+				   .getExportImportConfigurationsCount(companyId, groupId,
+			keywords, type);
+	}
+
+	public static int getExportImportConfigurationsCount(long companyId,
+		long groupId, java.lang.String name, java.lang.String description,
+		int type, boolean andSearch) {
+		return getService()
+				   .getExportImportConfigurationsCount(companyId, groupId,
+			name, description, type, andSearch);
+	}
+
 	public static int getExportImportConfigurationsCount(long groupId) {
 		return getService().getExportImportConfigurationsCount(groupId);
 	}
 
 	public static int getExportImportConfigurationsCount(long groupId, int type) {
 		return getService().getExportImportConfigurationsCount(groupId, type);
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return getService().getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -350,15 +385,6 @@ public class ExportImportConfigurationLocalServiceUtil {
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the export import configuration in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param exportImportConfiguration the export import configuration
@@ -398,13 +424,6 @@ public class ExportImportConfigurationLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(ExportImportConfigurationLocalService service) {
 	}
 
 	private static ExportImportConfigurationLocalService _service;

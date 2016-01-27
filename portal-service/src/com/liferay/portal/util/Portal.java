@@ -29,9 +29,11 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutFriendlyURLComposite;
 import com.liferay.portal.model.LayoutQueryStringComposite;
 import com.liferay.portal.model.LayoutSet;
+import com.liferay.portal.model.LayoutTypePortlet;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.ResourcePermission;
 import com.liferay.portal.model.User;
+import com.liferay.portal.theme.PortletDisplay;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.expando.model.ExpandoBridge;
 
@@ -177,9 +179,8 @@ public interface Portal {
 	/**
 	 * Adds the default resource permissions for the portlet to the page.
 	 *
-	 * @param  request the servlet request for the page
-	 * @param  portlet the portlet
-	 * @throws PortalException if adding the default resource permissions failed
+	 * @param request the servlet request for the page
+	 * @param portlet the portlet
 	 */
 	public void addPortletDefaultResource(
 			HttpServletRequest request, Portlet portlet)
@@ -288,7 +289,6 @@ public interface Portal {
 	 * @param  layout the page being requested
 	 * @return the alternate URL for the requested canonical URL in the given
 	 *         locale
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public String getAlternateURL(
 			String canonicalURL, ThemeDisplay themeDisplay, Locale locale,
@@ -298,38 +298,12 @@ public interface Portal {
 	public long[] getAncestorSiteGroupIds(long groupId) throws PortalException;
 
 	/**
-	 * Returns the set of struts actions that should not be checked for an
-	 * authentication token.
-	 *
-	 * @return     the set of struts actions that should not be checked for an
-	 *             authentication token
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             com.liferay.portal.security.auth.AuthTokenWhitelistUtil#getPortletCSRFWhitelistActions}
-	 */
-	@Deprecated
-	public Set<String> getAuthTokenIgnoreActions();
-
-	/**
-	 * Returns the set of IDs of portlets that should not be checked for an
-	 * authentication token.
-	 *
-	 * @return     the set of IDs of portlets that should not be checked for an
-	 *             authentication token
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             com.liferay.portal.security.auth.AuthTokenWhitelistUtil#getPortletCSRFWhitelist}
-	 */
-	@Deprecated
-	public Set<String> getAuthTokenIgnorePortlets();
-
-	/**
 	 * Returns the base model instance for the resource permission.
 	 *
 	 * @param  resourcePermission the resource permission
 	 * @return the base model instance, or <code>null</code> if the resource
 	 *         permission does not have a base model instance (such as if its a
 	 *         portlet)
-	 * @throws PortalException if a base model instance for the resource
-	 *         permission could not be found
 	 */
 	public BaseModel<?> getBaseModel(ResourcePermission resourcePermission)
 		throws PortalException;
@@ -341,8 +315,6 @@ public interface Portal {
 	 * @param  primKey the primary key of the model instance to get
 	 * @return the base model instance, or <code>null</code> if the model does
 	 *         not have a base model instance (such as if its a portlet)
-	 * @throws PortalException if a base model instance with the primary key
-	 *         could not be found
 	 */
 	public BaseModel<?> getBaseModel(String modelName, String primKey)
 		throws PortalException;
@@ -378,8 +350,6 @@ public interface Portal {
 	 * @param  layout the layout. If it is <code>null</code>, then it is
 	 *         generated for the current layout
 	 * @return the canonical URL
-	 * @throws PortalException if a friendly URL or the group could not be
-	 *         retrieved
 	 */
 	public String getCanonicalURL(
 			String completeURL, ThemeDisplay themeDisplay, Layout layout)
@@ -396,20 +366,11 @@ public interface Portal {
 	 * @param  forceLayoutFriendlyURL adds the page friendly URL to the
 	 *         canonical URL even if it is not needed
 	 * @return the canonical URL
-	 * @throws PortalException if a friendly URL or the group could not be
-	 *         retrieved
 	 */
 	public String getCanonicalURL(
 			String completeURL, ThemeDisplay themeDisplay, Layout layout,
 			boolean forceLayoutFriendlyURL)
 		throws PortalException;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by the more general {@link
-	 *             #getCDNHost(boolean)}
-	 */
-	@Deprecated
-	public String getCDNHost();
 
 	/**
 	 * Returns the secure (HTTPS) or insecure (HTTP) content distribution
@@ -491,19 +452,17 @@ public interface Portal {
 
 	public PortletURL getControlPanelPortletURL(
 		HttpServletRequest request, Group group, String portletId,
-		long refererPlid, String lifecycle);
+		long refererGroupId, long refererPlid, String lifecycle);
 
 	public PortletURL getControlPanelPortletURL(
-		HttpServletRequest request, String portletId, long refererPlid,
-		String lifecycle);
+		HttpServletRequest request, String portletId, String lifecycle);
 
 	public PortletURL getControlPanelPortletURL(
 		PortletRequest portletRequest, Group group, String portletId,
-		long refererPlid, String lifecycle);
+		long refererGroupId, long refererPlid, String lifecycle);
 
 	public PortletURL getControlPanelPortletURL(
-		PortletRequest portletRequest, String portletId, long refererPlid,
-		String lifecycle);
+		PortletRequest portletRequest, String portletId, String lifecycle);
 
 	public String getCreateAccountURL(
 			HttpServletRequest request, ThemeDisplay themeDisplay)
@@ -570,8 +529,6 @@ public interface Portal {
 	 *         date.
 	 * @return the date object, or <code>null</code> if the date is invalid and
 	 *         no exception to throw was provided
-	 * @throws PortalException if the date was invalid and <code>clazz</code>
-	 *         was not <code>null</code>
 	 */
 	public Date getDate(
 			int month, int day, int year,
@@ -592,8 +549,6 @@ public interface Portal {
 	 *         date.
 	 * @return the date object, or <code>null</code> if the date is invalid and
 	 *         no exception to throw was provided
-	 * @throws PortalException if the date was invalid and <code>clazz</code>
-	 *         was not <code>null</code>
 	 */
 	public Date getDate(
 			int month, int day, int year, int hour, int min,
@@ -615,8 +570,6 @@ public interface Portal {
 	 *         date.
 	 * @return the date object, or <code>null</code> if the date is invalid and
 	 *         no exception to throw was provided
-	 * @throws PortalException if the date was invalid and <code>clazz</code>
-	 *         was not <code>null</code>
 	 */
 	public Date getDate(
 			int month, int day, int year, int hour, int min, TimeZone timeZone,
@@ -636,8 +589,6 @@ public interface Portal {
 	 *         date.
 	 * @return the date object, or <code>null</code> if the date is invalid and
 	 *         no exception to throw was provided
-	 * @throws PortalException if the date was invalid and <code>clazz</code>
-	 *         was not <code>null</code>
 	 */
 	public Date getDate(
 			int month, int day, int year, TimeZone timeZone,
@@ -820,6 +771,10 @@ public interface Portal {
 			Layout layout, ThemeDisplay themeDisplay, boolean doAsUser)
 		throws PortalException;
 
+	public String getLayoutSetDisplayURL(
+			LayoutSet layoutSet, boolean secureConnection)
+		throws PortalException;
+
 	public String getLayoutSetFriendlyURL(
 			LayoutSet layoutSet, ThemeDisplay themeDisplay)
 		throws PortalException;
@@ -870,12 +825,6 @@ public interface Portal {
 	public HttpServletRequest getOriginalServletRequest(
 		HttpServletRequest request);
 
-	/**
-	 * @deprecated As of 6.2.0 renamed to {@link #getSiteGroupId(long)}
-	 */
-	@Deprecated
-	public long getParentGroupId(long scopeGroupId);
-
 	public String getPathContext();
 
 	public String getPathContext(HttpServletRequest request);
@@ -917,13 +866,6 @@ public interface Portal {
 	public int getPortalLocalPort(boolean secure);
 
 	/**
-	 * @deprecated As of 6.2.0, replaced by the more general {@link
-	 *             #getPortalPort(boolean)}
-	 */
-	@Deprecated
-	public int getPortalPort();
-
-	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #getPortalServerPort(boolean)}
 	 */
@@ -954,28 +896,6 @@ public interface Portal {
 		throws PortalException;
 
 	public String getPortalWebDir();
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             com.liferay.portal.security.auth.AuthTokenWhitelistUtil#getPortletInvocationWhitelist}
-	 */
-	@Deprecated
-	public Set<String> getPortletAddDefaultResourceCheckWhitelist();
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             com.liferay.portal.security.auth.AuthTokenWhitelistUtil#getPortletInvocationWhitelistActions}
-	 */
-	@Deprecated
-	public Set<String> getPortletAddDefaultResourceCheckWhitelistActions();
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getPortletBreadcrumbs(HttpServletRequest)}
-	 */
-	@Deprecated
-	public List<BreadcrumbEntry> getPortletBreadcrumbList(
-		HttpServletRequest request);
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
@@ -1142,7 +1062,6 @@ public interface Portal {
 	 * @param  themeDisplay the theme display for the current page
 	 * @return the URL of the login page for the current site, or
 	 *         <code>null</code> if one is not available
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public String getSiteLoginURL(ThemeDisplay themeDisplay)
 		throws PortalException;
@@ -1272,30 +1191,10 @@ public interface Portal {
 			ResourceResponse resourceResponse)
 		throws IOException, PortletException;
 
-	/**
-	 * @deprecated As of 6.2.0, with no direct replacement
-	 */
-	@Deprecated
-	public boolean isAllowAddPortletDefaultResource(
-			HttpServletRequest request, Portlet portlet)
-		throws PortalException;
-
 	public boolean isCDNDynamicResourcesEnabled(HttpServletRequest request)
 		throws PortalException;
 
 	public boolean isCDNDynamicResourcesEnabled(long companyId);
-
-	/**
-	 * @deprecated As of 6.1.0, renamed to {@link #isGroupAdmin(User, long)}
-	 */
-	@Deprecated
-	public boolean isCommunityAdmin(User user, long groupId) throws Exception;
-
-	/**
-	 * @deprecated As of 6.1.0, renamed to {@link #isGroupOwner(User, long)}
-	 */
-	@Deprecated
-	public boolean isCommunityOwner(User user, long groupId) throws Exception;
 
 	public boolean isCompanyAdmin(User user) throws Exception;
 
@@ -1345,6 +1244,16 @@ public interface Portal {
 
 	public boolean isSecure(HttpServletRequest request);
 
+	public boolean isSkipPortletContentProcessing(
+			Group group, HttpServletRequest httpServletRequest,
+			LayoutTypePortlet layoutTypePortlet, PortletDisplay portletDisplay,
+			String portletName)
+		throws Exception;
+
+	public boolean isSkipPortletContentRendering(
+		Group group, LayoutTypePortlet layoutTypePortlet,
+		PortletDisplay portletDisplay, String portletName);
+
 	public boolean isSystemGroup(String groupName);
 
 	public boolean isSystemRole(String roleName);
@@ -1367,20 +1276,6 @@ public interface Portal {
 		PortalPortEventListener portalPortEventListener);
 
 	public void resetCDNHosts();
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             com.liferay.portal.security.auth.AuthTokenWhitelistUtil#resetPortletInvocationWhitelist}
-	 */
-	@Deprecated
-	public Set<String> resetPortletAddDefaultResourceCheckWhitelist();
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             com.liferay.portal.security.auth.AuthTokenWhitelistUtil#resetPortletInvocationWhitelistActions}
-	 */
-	@Deprecated
-	public Set<String> resetPortletAddDefaultResourceCheckWhitelistActions();
 
 	public String resetPortletParameters(String url, String portletId);
 

@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchPortletItemException;
+import com.liferay.portal.exception.NoSuchPortletItemException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -332,11 +332,9 @@ public class PortletItemPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = PortletItemLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<PortletItem>() {
 				@Override
-				public void performAction(Object object) {
-					PortletItem portletItem = (PortletItem)object;
-
+				public void performAction(PortletItem portletItem) {
 					Assert.assertNotNull(portletItem);
 
 					count.increment();

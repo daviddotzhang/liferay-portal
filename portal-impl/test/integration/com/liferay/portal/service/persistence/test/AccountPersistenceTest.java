@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchAccountException;
+import com.liferay.portal.exception.NoSuchAccountException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -320,11 +320,9 @@ public class AccountPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = AccountLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Account>() {
 				@Override
-				public void performAction(Object object) {
-					Account account = (Account)object;
-
+				public void performAction(Account account) {
 					Assert.assertNotNull(account);
 
 					count.increment();

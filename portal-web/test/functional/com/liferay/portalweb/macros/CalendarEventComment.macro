@@ -1,4 +1,6 @@
 <definition>
+	<var name="siteName" value="Liferay" />
+
 	<command name="add">
 		<if>
 			<equals arg1="${calendarType}" arg2="My Calendars" />
@@ -10,11 +12,13 @@
 				<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
 				<execute function="Click" locator1="Button#SAVE" />
 
-				<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+				<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 			</then>
 			<elseif>
 				<equals arg1="${calendarType}" arg2="Current Site Calendars" />
 				<then>
+					<var name="key_siteName" value="${siteName}" />
+
 					<execute function="Click" locator1="Calendar#CURRENT_SITE_CALENDARS_MENULIST_ARROW" />
 					<execute function="AssertClick" locator1="Calendar#CURRENT_SITE_CALENDARS_MENULIST_ADD_CALENDAR" value1="Add Calendar" />
 
@@ -22,7 +26,7 @@
 					<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
 					<execute function="Click" locator1="Button#SAVE" />
 
-					<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+					<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 				</then>
 			</elseif>
 			<elseif>

@@ -1,6 +1,6 @@
 <definition>
 	<command name="activateStagingCP">
-		<var name="key_siteName" value="${siteName}" />
+		<execute macro="ProductMenuHelper#openProductMenu" />
 
 		<execute function="AssertTextEquals" locator1="ProductMenu#PRODUCT_MENU_PANEL_SITE_ADMINISTRATION_SITE_NAME" value1="${siteName}" />
 
@@ -29,8 +29,8 @@
 		<if>
 			<equals arg1="${pageVersioningEnabled}" arg2="true" />
 			<then>
-				<execute function="Check" locator1="Checkbox#ENABLED_ON_PUBLIC_PAGES" />
-				<execute function="Check" locator1="Checkbox#ENABLED_ON_PRIVATE_PAGES" />
+				<execute function="Check#checkToggleSwitch" locator1="Checkbox#ENABLED_ON_PUBLIC_PAGES" />
+				<execute function="Check#checkToggleSwitch" locator1="Checkbox#ENABLED_ON_PRIVATE_PAGES" />
 			</then>
 		</if>
 
@@ -40,7 +40,7 @@
 			<if>
 				<condition function="IsElementPresent" locator1="Checkbox#STAGED_CONTENT" />
 				<then>
-					<execute function="Check" locator1="Checkbox#STAGED_CONTENT" />
+					<execute function="Check#checkToggleSwitch" locator1="Checkbox#STAGED_CONTENT" />
 				</then>
 			</if>
 		</for>
@@ -50,7 +50,7 @@
 			<then>
 				<var name="key_contentName" value="${uncheckContent}" />
 
-				<execute function="Uncheck" locator1="Checkbox#STAGED_CONTENT" />
+				<execute function="Uncheck#uncheckToggleSwitch" locator1="Checkbox#STAGED_CONTENT" />
 			</then>
 		</if>
 
@@ -67,20 +67,17 @@
 			<equals arg1="${editActivateStaging}" arg2="true" />
 			<then>
 				<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-				<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 			</then>
 			<elseif>
 				<equals arg1="${remoteStaging}" arg2="true" />
 				<then>
 					<execute function="AssertClickNoError" locator1="Button#SAVE" value1="Save" />
 					<execute function="Confirm" value1="Are you sure you want to activate remote staging for ${siteName}?" />
-					<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 				</then>
 			</elseif>
 			<else>
 				<execute function="AssertClickNoError" locator1="Button#SAVE" value1="Save" />
 				<execute function="Confirm" value1="Are you sure you want to activate local staging for ${siteName}?" />
-				<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 			</else>
 		</if>
 
@@ -112,12 +109,20 @@
 
 		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Your request completed successfully." />
 
+		<execute function="Refresh" />
+
+		<var name="key_siteName" value="${siteName}" />
+
+		<execute macro="ProductMenu#gotoSitesPublishingTools">
+			<var name="portlet" value="Staging" />
+		</execute>
+
+		<execute function="AssertClick" locator1="Staging#SCHEDULED" value1="Scheduled" />
+
 		<var name="key_scheduleTitleName" value="${scheduleTitleName}" />
 
 		<execute function="AssertTextEquals" locator1="StagingPublishToLive#SCHEDULED_TABLE_TITLE" value1="${scheduleTitleName}" />
 		<execute function="AssertTextEquals" locator1="StagingPublishToLive#SCHEDULED_TABLE_END_DATE" value1="No End Date" />
-
-		<execute function="SelectFrame" value1="relative=top" />
 	</command>
 
 	<command name="addPageVariationPG">
@@ -128,18 +133,28 @@
 			</then>
 		</if>
 
-		<execute function="AssertClick" locator1="Staging#STAGING_MENU_MANAGE_PAGE_VARIATION" value1="Manage Page Variations" />
+		<execute function="AssertClick" locator1="Staging#STAGING_MENU_MANAGE_PAGE_VARIATION" value1="Page Variations" />
 
-		<execute function="SelectFrame" locator1="StagingManageVariations#MANAGE_PAGE_VARIATIONS_IFRAME" />
+		<execute function="SelectFrame" locator1="IFrame#PAGE_VARIATION_IFRAME" />
 		<execute function="AssertClick" locator1="Button#ADD_PAGE_VARIATION" value1="Add Page Variation" />
 		<execute function="Type" locator1="StagingManageVariations#MANAGE_VARIATION" value1="${pageVariationName}" />
-		<execute function="AssertClick" locator1="Button#ADD" value1="Add" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Page variation was added." />
+		<execute function="AssertClick" locator1="StagingManageVariations#ADD" value1="Add" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Page variation was added." />
+
+		<execute function="SelectFrame" value1="relative=top" />
+
+		<execute function="Click" locator1="Icon#CLOSE" />
 	</command>
 
 	<command name="addPublishTemplate">
-		<execute function="AssertClick" locator1="StagingPublishToLive#PUBLISH_TEMPLATES_BUTTON" value1="Publish Templates" />
-		<execute function="AssertClick" locator1="Button#NEW_TEMPLATE" value1="New" />
+		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
+
+		<execute function="AssertClick" locator1="MenuItem#PUBLISH_TEPMLATES" value1="Publish Templates" />
+
+		<execute function="Pause" locator1="3000" />
+
+		<execute function="Click" locator1="Button#PLUS" />
+
 		<execute function="Type" locator1="StagingPublishToLive#PUBLISH_TEMPLATES_NAME_FIELD" value1="${publishTemplateName}" />
 		<execute function="Type" locator1="StagingPublishToLive#PUBLISH_TEMPLATES_DESCRIPTION_FIELD" value1="${publishTemplateDescription}" />
 	</command>
@@ -156,7 +171,7 @@
 
 		<var name="key_sitePagesVariationName" value="${sitePagesVariationName}" />
 
-		<execute function="SelectFrame" locator1="IFrame#VARIATION_IFRAME" />
+		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
 		<execute function="AssertClick" locator1="StagingManageVariations#ADD_SITE_PAGES_VARIATIONS_BUTTON" value1="Add Site Pages Variation" />
 		<execute function="Type" locator1="StagingManageVariations#MANAGE_VARIATION" value1="${sitePagesVariationName}" />
 
@@ -167,8 +182,12 @@
 			</then>
 		</if>
 
-		<execute function="AssertClick" locator1="Button#ADD" value1="Add" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Site page variation was added." />
+		<execute function="AssertClick" locator1="StagingManageVariations#ADD" value1="Add" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Site page variation was added." />
+
+		<execute function="SelectFrame" value1="relative=top" />
+
+		<execute function="Click" locator1="Icon#CLOSE" />
 	</command>
 
 	<command name="changePageVariationPG">
@@ -206,6 +225,13 @@
 	</command>
 
 	<command name="configurePublishToLive">
+		<if>
+			<condition function="IsElementPresent" locator1="StagingPublishtolivenow#SWITCH_TO_ADVANCED" />
+			<then>
+				<execute function="AssertClick#assertPartialTextClickAt" locator1="StagingPublishtolivenow#SWITCH_TO_ADVANCED" value1="Switch to Advanced Publication" />
+			</then>
+		</if>
+
 		<if>
 			<equals arg1="${deleteMissingPages}" arg2="true" />
 			<then>
@@ -293,7 +319,8 @@
 			<equals arg1="${contentDeletion}" arg2="true" />
 			<then>
 				<execute function="Check" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT_RADIO" />
-				<execute function="Check" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT_DELETION_CHECKBOX" />
+				<execute function="Click" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT_DELETION_HEADER" />
+				<execute function="Check#checkToggleSwitch" locator1="StagingPublishToLive#CONTENT_CHOOSE_CONTENT_DELETION_CHECKBOX" />
 			</then>
 		</if>
 
@@ -387,6 +414,9 @@
 	</command>
 
 	<command name="deactivateStagingCP">
+		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
+
+		<execute function="AssertClick" locator1="MenuItem#STAGING_CONFIGURATION" value1="Staging Configuration" />
 
 		<if>
 			<condition function="IsElementPresent" locator1="SiteSettingsStaging#ENABLED_ON_PUBLIC_PAGES_CHECKBOX" />
@@ -394,7 +424,7 @@
 				<execute function="Check" locator1="SiteSettingsStaging#NONE_RADIO" />
 				<execute function="AssertClickNoError" locator1="Button#SAVE" value1="Save" />
 				<execute function="Confirm" value1="Are you sure you want to deactivate staging for ${siteName}?" />
-				<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+				<execute function="AssertTextEquals#assertPartialText" locator1="Message#ERROR_3_ALT" value1="Staging is disabled. Please close this window in order to go to the live site." />
 			</then>
 		</if>
 
@@ -422,7 +452,7 @@
 
 		<execute function="Click" locator1="Staging#MANAGE_VARIATIONS" />
 
-		<execute function="SelectFrame" locator1="IFrame#VARIATION_IFRAME" />
+		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
 
 		<var name="key_sitePagesVariationName" value="${sitePagesVariationName}" />
 
@@ -431,8 +461,8 @@
 		<execute function="Type" locator1="StagingManageVariations#MANAGE_VARIATION" value1="${sitePagesVariationName} Edit" />
 		<execute function="AssertClick" locator1="Button#UPDATE" value1="Update" />
 		<execute function="SelectFrameTop" value1="relative=top" />
-		<execute function="SelectFrame" locator1="IFrame#VARIATION_IFRAME" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Site page variation was updated." />
+		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Site page variation was updated." />
 		<execute function="SelectFrameTop" value1="relative=top" />
 	</command>
 
@@ -478,10 +508,10 @@
 		<if>
 			<and>
 				<condition function="IsElementPresent" locator1="SitePages#NAVIGATION_PUBLIC_PAGES" />
-				<condition function="IsElementPresent" locator1="SitePages#STAGING_BUTTON" />
+				<condition function="IsElementPresent" locator1="Staging#STAGING_BUTTON" />
 			</and>
 			<then>
-				<execute function="AssertClick" locator1="SitePages#STAGING_BUTTON" value1="Staging" />
+				<execute function="AssertClick" locator1="Staging#STAGING_BUTTON" value1="Staging" />
 			</then>
 		</if>
 
@@ -517,7 +547,7 @@
 		</if>
 
 		<execute function="Click" locator1="Staging#MANAGE_VARIATIONS" />
-		<execute function="SelectFrame" locator1="IFrame#VARIATION_IFRAME" />
+		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
 
 		<var name="key_sitePagesVariationName" value="${sitePagesVariationName}" />
 
@@ -530,16 +560,19 @@
 		<execute function="AssertClickNoError" locator1="StagingManageVariations#MERGE_SITE_PAGES_VARIATION_TABLE_SELECT_LINK" value1="Select" />
 		<execute function="Confirm" value1="Are you sure you want to merge changes from ${sitePagesVariationMergeName}?" />
 		<execute function="SelectFrameTop" value1="relative=top" />
-		<execute function="SelectFrame" locator1="IFrame#VARIATION_IFRAME" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Site page variation was merged." />
+		<execute function="SelectFrame" locator1="IFrame#SITE_VARIATION_IFRAME" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="Site page variation was merged." />
 	</command>
 
 	<command name="moveToTheRecycleBinPublishTemplate">
-		<execute function="AssertClick" locator1="StagingPublishToLive#PUBLISH_TEMPLATES_BUTTON" value1="Publish Templates" />
+		<execute function="Click" locator1="Icon#HEADER_VERTICAL_ELLIPSIS" />
 
-		<var name="key_publishTemplateName" value="${publishTemplateName}" />
+		<execute function="AssertClick" locator1="MenuItem#PUBLISH_TEPMLATES" value1="Publish Templates" />
 
-		<execute function="Click" locator1="StagingPublishToLive#PUBLISH_TEMPLATES_TABLE_MOVE_TO_THE_RECYCLE_BIN_BUTTON" />
+		<var name="key_rowEntry" value="${publishTemplateName}" />
+
+		<execute function="Click" locator1="Icon#ROW_VERTICAL_ELLIPSIS" />
+		<execute function="Click" locator1="MenuItem#MOVE_TO_THE_RECYCLE_BIN" />
 		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="The Export Import Template ${publishTemplateName} was moved to the Recycle Bin." />
 	</command>
 
@@ -570,7 +603,9 @@
 
 	<command name="publishToLive">
 		<execute function="AssertClickNoError#assertPartialTextClickAt" locator1="Button#SUBMIT" value1="Publish" />
-		<execute function="AssertTextEquals" locator1="StagingPublishToLive#CURRENT_AND_PREVIOUS_TABLE_STATUS" value1="Successful" />
+
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#INFO" value1="There is currently 1 process in progress" />
+
 		<execute function="SelectFrameTop" value1="relative=top" />
 
 		<execute function="Pause" locator1="5000" />
@@ -589,14 +624,32 @@
 	</command>
 
 	<command name="publishToLivePublishTemplate">
+		<if>
+			<condition function="IsElementPresent" locator1="StagingPublishtolivenow#SWITCH_TO_ADVANCED" />
+			<then>
+				<execute function="AssertClick#assertPartialTextClickAt" locator1="StagingPublishtolivenow#SWITCH_TO_ADVANCED" value1="Switch to Advanced Publication" />
+			</then>
+		</if>
+
 		<execute function="AssertClick" locator1="StagingPublishToLive#PUBLISH_TEMPLATES_BUTTON" value1="Publish Templates" />
 
 		<var name="key_publishTemplateName" value="${publishTemplateName}" />
 
 		<execute function="Click" locator1="StagingPublishToLive#PUBLISH_TEMPLATES_TABLE_PUBLISH_TO_LIVE_ARROW_BUTTON" />
+
 		<execute function="AssertClick" locator1="Button#PUBLISH_TO_LIVE" value1="Publish to Live" />
-		<execute function="AssertTextEquals" locator1="StagingPublishToLive#CURRENT_AND_PREVIOUS_TABLE_STATUS" value1="Successful" />
+
+		<execute function="AssertTextEquals" locator1="Message#INFO" value1="There is currently 1 process in progress." />
+
 		<execute function="SelectFrameTop" value1="relative=top" />
+
+		<var name="key_siteName" value="${siteName}" />
+
+		<execute macro="ProductMenu#gotoSitesPublishingTools">
+			<var name="portlet" value="Staging" />
+		</execute>
+
+		<execute function="AssertTextEquals" locator1="StagingPublishToLive#CURRENT_AND_PREVIOUS_TABLE_STATUS" value1="Successful" />
 	</command>
 
 	<command name="redoStagingPageVersioningPG">
@@ -614,26 +667,32 @@
 	<command name="remoteStagingSetUp">
 		<var name="siteID" value="${siteID}" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
 			<var name="siteName" value="Remote Site" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Site Settings" />
-			<var name="siteScopeName" value="Remote Site" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Remote Site" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Site Settings" />
 		</execute>
 
 		<var name="siteID" value="siteID" />
 
 		<execute function="Copy" locator1="SitesEditSite#SITE_ID" value1="siteID" />
 
-		<execute macro="Page#gotoPublishingTools">
-			<var name="portletName" value="Staging Configuration" />
-			<var name="siteScopeName" value="${siteName}" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="${siteName}" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesPublishingTools">
+			<var name="portlet" value="Staging" />
 		</execute>
 
 		<execute macro="Staging#activateStagingCP">
@@ -677,13 +736,14 @@
 		<execute function="Click" locator1="Staging#STAGING_MENULIST_PUBLISH_TO_LIVE_NOW" />
 
 		<execute function="SelectFrame" locator1="IFrame#DIALOG" />
+		<execute function="Click" locator1="StagingPublishToLive#SWITCH_TO_ADVANCED_PUBLICATION" />
 		<execute function="AssertClick" locator1="StagingPublishToLive#PAGES_CHANGE_LINK" value1="Change" />
 		<execute function="Click" locator1="PagesConfiguration#PAGES_ALL_PUBLIC_PAGES_CHECKBOX" />
 		<execute function="AssertClick" locator1="Button#OK" value1="OK" />
 		<execute function="Check" locator1="StagingPublishToLive#DATE_SCHEDULE_RADIO" />
 		<execute function="Type" locator1="StagingPublishToLive#DATE_SCHEDULE_TITLE_FIELD" value1="${scheduleTitleName}" />
 
-		<var attribute="value" locator="//input[@id='_88_schedulerStartDateHour']" name="displayDateHour" />
+		<var attribute="value" locator="//input[contains(@id,'schedulerStartDateHour')]" name="displayDateHour" />
 		<var name="displayDateHourLength" value="${displayDateHour?length()}" />
 
 		<if>
@@ -693,11 +753,11 @@
 			</then>
 		</if>
 
-		<var attribute="value" locator="//input[@id='_88_schedulerStartDateAmPm']" name="displayDateAMPM" />
+		<var attribute="value" locator="//input[contains(@id,'schedulerStartDateAmPm')]" name="displayDateAMPM" />
 		<var method="StringUtil#replace('${displayDateAMPM}', '0', 'AM')" name="displayDateAMPM" />
 		<var method="StringUtil#replace('${displayDateAMPM}', '1', 'PM')" name="displayDateAMPM" />
 
-		<var attribute="value" locator="//input[@id='_88_schedulerStartDateMinute']" name="displayDateMinute" />
+		<var attribute="value" locator="//input[contains(@id,'schedulerStartDateMinute')]" name="displayDateMinute" />
 		<var method="MathUtil#sum('${displayDateMinute}', '2')" name="displayDateMinuteFuture" />
 		<var name="displayDateMinuteFutureLength" value="${displayDateMinuteFuture?length()}" />
 
@@ -765,21 +825,19 @@
 	</command>
 
 	<command name="submitForPublicationPageRevision">
-		<execute function="AssertElementNotPresent" locator1="Button#PUBLISH_TO_LIVE" value1="Publish to Live" />
-		<execute function="AssertTextEquals" locator1="Message#STATUS" value1="Draft" />
+		<execute function="AssertTextEquals" locator1="Message#WORKFLOW_STATUS" value1="Draft" />
 
 		<execute function="AssertClick" locator1="Staging#STAGING_MENU_SUBMIT_FOR_PUBLICATION" value1="Submit for Publication" />
 
-		<execute function="AssertElementNotPresent" locator1="Button#PUBLISH_TO_LIVE" />
 		<execute function="AssertElementNotPresent" locator1="Staging#STAGING_MENU_SUBMIT_FOR_PUBLICATION" />
 
 		<if>
-			<condition function="IsTextEqual" locator1="Message#STATUS" value1="Pending (Created)" />
+			<condition function="IsTextEqual" locator1="Message#WORKFLOW_STATUS" value1="Pending (Created)" />
 			<then>
-				<execute function="AssertTextEquals" locator1="Message#STATUS" value1="Pending (Created)" />
+				<execute function="AssertTextEquals" locator1="Message#WORKFLOW_STATUS" value1="Pending (Created)" />
 			</then>
 			<else>
-				<execute function="AssertTextEquals" locator1="Message#STATUS" value1="Pending (Review)" />
+				<execute function="AssertTextEquals" locator1="Message#WORKFLOW_STATUS" value1="Pending (Review)" />
 			</else>
 		</if>
 	</command>
@@ -796,6 +854,12 @@
 		<execute function="Confirm" value1="Are you sure you want to undo your last changes?" />
 	</command>
 
+	<command name="viewEditedSitePagesVariationPG">
+		<var name="key_sitePagesVariationName" value="${sitePagesVariationName}" />
+
+		<execute function="AssertTextEquals#assertPartialText" locator1="Staging#EDITED_SITE_PAGES_VARIATION" value1="${sitePagesVariationName}" />
+	</command>
+
 	<command name="viewHistoryVersionPG">
 		<if>
 			<condition function="IsElementNotPresent#isNotVisible" locator1="Staging#STAGING_MENULIST_PUBLISH_TO_LIVE_NOW" />
@@ -803,6 +867,8 @@
 				<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="Staging#STAGING_DROP_DOWN_BUTTON" value1="Staging" />
 			</then>
 		</if>
+
+		<execute function="Click" locator1="Icon#HISTORY_VERTICAL_ELLIPSIS" />
 
 		<execute function="Click" locator1="Staging#HISTORY_BUTTON" />
 
@@ -812,7 +878,7 @@
 				<execute function="AssertTextNotEquals" locator1="Staging#HISTORY_VERSION" value1="${historyVersion}" />
 			</then>
 			<else>
-				<execute function="AssertTextEquals" locator1="Staging#HISTORY_VERSION" value1="${historyVersion}" />
+				<execute function="AssertTextEquals#assertPartialText" locator1="Staging#HISTORY_VERSION" value1="${historyVersion}" />
 			</else>
 		</if>
 	</command>
@@ -901,7 +967,7 @@
 			</then>
 		</if>
 
-		<execute function="AssertTextEquals" locator1="Message#STATUS" value1="${stagingWorkflowStatus}" />
+		<execute function="AssertTextEquals" locator1="Message#WORKFLOW_STATUS" value1="${stagingWorkflowStatus}" />
 	</command>
 
 	<command name="viewValidationError">

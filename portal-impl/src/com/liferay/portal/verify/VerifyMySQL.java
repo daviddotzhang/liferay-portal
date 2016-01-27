@@ -15,8 +15,8 @@
 package com.liferay.portal.verify;
 
 import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBFactoryUtil;
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.dao.db.DBManagerUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -24,7 +24,6 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.util.PropsValues;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,25 +38,17 @@ public class VerifyMySQL extends VerifyProcess {
 
 	@Override
 	protected void doVerify() throws Exception {
-		DB db = DBFactoryUtil.getDB();
+		DB db = DBManagerUtil.getDB();
 
-		String dbType = db.getType();
-
-		if (!dbType.equals(DB.TYPE_MYSQL)) {
+		if (db.getDBType() != DBType.MYSQL) {
 			return;
 		}
 
-		try (Connection connection = DataAccess.getUpgradeOptimizedConnection();
-			Statement statement = connection.createStatement()) {
+		Statement statement = connection.createStatement();
 
-			verifyTableEngine(statement);
+		verifyTableEngine(statement);
 
-			if (GetterUtil.getFloat(db.getVersionString()) < 5.6F) {
-				return;
-			}
-
-			verifyDatetimePrecision(connection.getMetaData(), statement);
-		}
+		verifyDatetimePrecision(connection.getMetaData(), statement);
 	}
 
 	protected String getActualColumnType(
@@ -88,7 +79,7 @@ public class VerifyMySQL extends VerifyProcess {
 		throws Exception {
 
 		try (ResultSet rs = databaseMetaData.getTables(
-			null, null, null, null)) {
+				null, null, null, null)) {
 
 			while (rs.next()) {
 				verifyDatetimePrecisionForTable(

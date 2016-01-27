@@ -67,7 +67,6 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 		attributes.put("extension", getExtension());
 		attributes.put("typeId", getTypeId());
 		attributes.put("primary", getPrimary());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -157,12 +156,6 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 		if (primary != null) {
 			setPrimary(primary);
 		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
-		}
 	}
 
 	@Override
@@ -238,16 +231,6 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	@Override
 	public java.lang.String getExtension() {
 		return _phone.getExtension();
-	}
-
-	/**
-	* Returns the last publish date of this phone.
-	*
-	* @return the last publish date of this phone
-	*/
-	@Override
-	public Date getLastPublishDate() {
-		return _phone.getLastPublishDate();
 	}
 
 	/**
@@ -484,16 +467,6 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	}
 
 	/**
-	* Sets the last publish date of this phone.
-	*
-	* @param lastPublishDate the last publish date of this phone
-	*/
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_phone.setLastPublishDate(lastPublishDate);
-	}
-
-	/**
 	* Sets the modified date of this phone.
 	*
 	* @param modifiedDate the modified date of this phone
@@ -660,14 +633,6 @@ public class PhoneWrapper implements Phone, ModelWrapper<Phone> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _phone.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Phone getWrappedPhone() {
-		return _phone;
 	}
 
 	@Override

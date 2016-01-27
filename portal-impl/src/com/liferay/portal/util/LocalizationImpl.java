@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
+import com.liferay.portal.kernel.security.xml.SecureXMLFactoryProviderUtil;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -38,9 +39,9 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.language.LanguageResources;
-import com.liferay.portal.security.xml.SecureXMLFactoryProviderUtil;
 import com.liferay.util.ContentUtil;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -339,6 +340,27 @@ public class LocalizationImpl implements Localization {
 		_setCachedValue(xml, requestedLanguageId, useDefault, value);
 
 		return value;
+	}
+
+	@Override
+	public Map<Locale, String> getLocalizationMap(
+		Collection<Locale> locales, Locale defaultLocale, String key) {
+
+		Map<Locale, String> map = new HashMap<>();
+
+		String defaultValue = LanguageUtil.get(defaultLocale, key);
+
+		for (Locale locale : locales) {
+			String value = LanguageUtil.get(locale, key);
+
+			if (!locale.equals(defaultLocale) && value.equals(defaultValue)) {
+				continue;
+			}
+
+			map.put(locale, value);
+		}
+
+		return map;
 	}
 
 	@Override
@@ -1232,12 +1254,11 @@ public class LocalizationImpl implements Localization {
 
 		if (resourceBundle.containsKey(key)) {
 			try {
-				value = resourceBundle.getString(key);
+				value = ResourceBundleUtil.getString(resourceBundle, key);
 
 				value = new String(
 					value.getBytes(StringPool.ISO_8859_1), StringPool.UTF8);
 			}
-
 			catch (Exception e) {
 			}
 		}

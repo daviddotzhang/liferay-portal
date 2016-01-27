@@ -26,7 +26,7 @@
 <!--SITE_TABLE-->
 <tr>
 	<td>SITE_TABLE_CHECKBOX</td>
-	<td>//table[contains(@class,'table-list')]//tr[contains(.,'${key_childSiteName}')]/td[1]/input</td>
+	<td>//table[contains(@class,'table-list')]//tr[contains(.,'${key_childSiteName}')]/td[1]//input</td>
 	<td></td>
 </tr>
 <tr>
@@ -41,7 +41,7 @@
 </tr>
 <tr>
 	<td>SITE_TABLE_MEMBERS_USERS</td>
-	<td>//table[contains(@class,'table-list')]//tr[contains(.,'${key_childSiteName}')]/td[4]/div[@class='user-count']</td>
+	<td>//tr[contains(.,'${key_childSiteName}')]//td/span/div[@class='user-count']</td>
 	<td></td>
 </tr>
 <tr>

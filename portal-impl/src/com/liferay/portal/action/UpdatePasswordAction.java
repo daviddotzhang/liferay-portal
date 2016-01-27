@@ -14,21 +14,22 @@
 
 package com.liferay.portal.action;
 
-import com.liferay.portal.NoSuchUserException;
-import com.liferay.portal.UserLockoutException;
-import com.liferay.portal.UserPasswordException;
+import com.liferay.portal.exception.NoSuchUserException;
+import com.liferay.portal.exception.UserLockoutException;
+import com.liferay.portal.exception.UserPasswordException;
+import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.session.AuthenticatedSessionManagerUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.CompanyConstants;
 import com.liferay.portal.model.Ticket;
 import com.liferay.portal.model.TicketConstants;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.AuthTokenUtil;
-import com.liferay.portal.security.auth.PrincipalException;
 import com.liferay.portal.security.pwd.PwdToolkitUtilThreadLocal;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.TicketLocalServiceUtil;
@@ -36,7 +37,6 @@ import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.WebKeys;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,6 +64,8 @@ public class UpdatePasswordAction extends Action {
 
 		Ticket ticket = getTicket(request);
 
+		request.setAttribute(WebKeys.TICKET, ticket);
+
 		String cmd = ParamUtil.getString(request, Constants.CMD);
 
 		if (Validator.isNull(cmd)) {
@@ -79,8 +81,6 @@ public class UpdatePasswordAction extends Action {
 				catch (UserLockoutException ule) {
 					SessionErrors.add(request, ule.getClass(), ule);
 				}
-
-				request.setAttribute(WebKeys.TICKET, ticket);
 			}
 
 			return actionMapping.findForward("portal.update_password");

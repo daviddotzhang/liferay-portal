@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchListTypeException;
+import com.liferay.portal.exception.NoSuchListTypeException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -286,11 +286,9 @@ public class ListTypePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ListTypeLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ListType>() {
 				@Override
-				public void performAction(Object object) {
-					ListType listType = (ListType)object;
-
+				public void performAction(ListType listType) {
 					Assert.assertNotNull(listType);
 
 					count.increment();

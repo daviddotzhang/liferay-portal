@@ -20,8 +20,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
-* @author Carlos Sierra Andrés
-*/
+ * @author Carlos Sierra Andrés
+ */
 public class DBContext {
 
 	public Connection getDataAccess() {
@@ -33,8 +33,8 @@ public class DBContext {
 		}
 	}
 
-	public DBFactory getDBFactory() {
-		return DBFactoryUtil.getDBFactory();
+	public DBManager getDBManager() {
+		return DBManagerUtil.getDBManager();
 	}
 
 	public Connection getUpgradeOptimizedConnection() {

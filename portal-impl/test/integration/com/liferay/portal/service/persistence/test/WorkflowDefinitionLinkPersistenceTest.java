@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchWorkflowDefinitionLinkException;
+import com.liferay.portal.exception.NoSuchWorkflowDefinitionLinkException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -353,11 +353,10 @@ public class WorkflowDefinitionLinkPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = WorkflowDefinitionLinkLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<WorkflowDefinitionLink>() {
 				@Override
-				public void performAction(Object object) {
-					WorkflowDefinitionLink workflowDefinitionLink = (WorkflowDefinitionLink)object;
-
+				public void performAction(
+					WorkflowDefinitionLink workflowDefinitionLink) {
 					Assert.assertNotNull(workflowDefinitionLink);
 
 					count.increment();

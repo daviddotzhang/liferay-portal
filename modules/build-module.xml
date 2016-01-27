@@ -2,19 +2,7 @@
 <!DOCTYPE project>
 
 <project name="build-module">
-	<dirname file="${ant.file.build-module}" property="modules.dir" />
-
-	<taskdef classpath="${modules.dir}/../lib/development/ant-contrib.jar" resource="net/sf/antcontrib/antlib.xml" />
-
-	<property name="gradle.wrapper.path" relative="yes" value="${modules.dir}/../gradlew" />
-
-	<macrodef name="print-gradle-alternative">
-		<attribute name="args" />
-
-		<sequential>
-			<echo>Please run this command instead: ${gradle.wrapper.path} @{args}</echo>
-		</sequential>
-	</macrodef>
+	<import file="build-common.xml" />
 
 	<target name="all">
 		<print-gradle-alternative args="clean deploy" />
@@ -136,6 +124,10 @@
 		<print-gradle-alternative args="findbugsMain" />
 	</target>
 
+	<target name="run-pmd">
+		<print-gradle-alternative args="pmdMain pmdTest pmdTestIntegration" />
+	</target>
+
 	<target name="setup-eclipse">
 		<print-gradle-alternative args="eclipse" />
 	</target>
@@ -155,16 +147,26 @@
 		</if>
 
 		<if>
-			<resourcecount count="1">
-				<fileset dir="test/integration" erroronmissingdir="false" includes="**/${test.class}.java" />
-			</resourcecount>
+			<or>
+				<resourcecount count="1">
+					<fileset dir="src/testIntegration/java" erroronmissingdir="false" includes="**/${test.class}.java" />
+				</resourcecount>
+				<resourcecount count="1">
+					<fileset dir="test/integration" erroronmissingdir="false" includes="**/${test.class}.java" />
+				</resourcecount>
+			</or>
 			<then>
 				<var name="test.task" value="testIntegration" />
 			</then>
 			<elseif>
-				<resourcecount count="1">
-					<fileset dir="test/unit" erroronmissingdir="false" includes="**/${test.class}.java" />
-				</resourcecount>
+				<or>
+					<resourcecount count="1">
+						<fileset dir="src/test/java" erroronmissingdir="false" includes="**/${test.class}.java" />
+					</resourcecount>
+					<resourcecount count="1">
+						<fileset dir="test/unit" erroronmissingdir="false" includes="**/${test.class}.java" />
+					</resourcecount>
+				</or>
 				<then>
 					<var name="test.task" value="test" />
 				</then>
@@ -200,14 +202,20 @@
 		/>
 
 		<if>
-			<available file="test/integration/${test.package.dir}" type="dir" />
+			<or>
+				<available file="src/testIntegration/java/${test.package.dir}" type="dir" />
+				<available file="test/integration/${test.package.dir}" type="dir" />
+			</or>
 			<then>
 				<print-gradle-alternative args="testIntegration --tests ${test.package}.*" />
 			</then>
 		</if>
 
 		<if>
-			<available file="test/unit/${test.package.dir}" type="dir" />
+			<or>
+				<available file="src/test/java/${test.package.dir}" type="dir" />
+				<available file="test/unit/${test.package.dir}" type="dir" />
+			</or>
 			<then>
 				<print-gradle-alternative args="test --tests ${test.package}.*" />
 			</then>

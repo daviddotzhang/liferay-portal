@@ -14,10 +14,10 @@
 
 package com.liferay.portal.test.rule.callback;
 
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.servlet.ServletContextPool;
+import com.liferay.portal.kernel.test.rule.ArquillianUtil;
 import com.liferay.portal.kernel.test.rule.callback.BaseTestCallback;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.PortalLifecycle;
@@ -39,7 +39,7 @@ import org.springframework.mock.web.MockServletContext;
 /**
  * @author Shuyang Zhou
  */
-public class MainServletTestCallback extends BaseTestCallback<Object, Object> {
+public class MainServletTestCallback extends BaseTestCallback<Void, Void> {
 
 	public static final MainServletTestCallback INSTANCE =
 		new MainServletTestCallback();
@@ -49,17 +49,22 @@ public class MainServletTestCallback extends BaseTestCallback<Object, Object> {
 	}
 
 	@Override
-	public void doAfterClass(Description description, Object object) {
-		try {
-			SearchEngineUtil.removeCompany(TestPropsValues.getCompanyId());
+	public void afterClass(Description description, Void c)
+		throws PortalException {
+
+		if (ArquillianUtil.isArquillianTest(description)) {
+			return;
 		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
+
+		SearchEngineHelperUtil.removeCompany(TestPropsValues.getCompanyId());
 	}
 
 	@Override
-	public Object doBeforeClass(Description description) {
+	public Void beforeClass(Description description) {
+		if (ArquillianUtil.isArquillianTest(description)) {
+			return null;
+		}
+
 		if (_mainServlet == null) {
 			final MockServletContext mockServletContext =
 				new AutoDeployMockServletContext(
@@ -107,9 +112,6 @@ public class MainServletTestCallback extends BaseTestCallback<Object, Object> {
 
 	protected MainServletTestCallback() {
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		MainServletTestCallback.class);
 
 	private static MainServlet _mainServlet;
 

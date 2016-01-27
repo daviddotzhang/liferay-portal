@@ -73,7 +73,6 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 		attributes.put("typeId", getTypeId());
 		attributes.put("mailing", getMailing());
 		attributes.put("primary", getPrimary());
-		attributes.put("lastPublishDate", getLastPublishDate());
 
 		return attributes;
 	}
@@ -199,12 +198,6 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 		if (primary != null) {
 			setPrimary(primary);
 		}
-
-		Date lastPublishDate = (Date)attributes.get("lastPublishDate");
-
-		if (lastPublishDate != null) {
-			setLastPublishDate(lastPublishDate);
-		}
 	}
 
 	@Override
@@ -305,16 +298,6 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	@Override
 	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
 		return _address.getExpandoBridge();
-	}
-
-	/**
-	* Returns the last publish date of this address.
-	*
-	* @return the last publish date of this address
-	*/
-	@Override
-	public Date getLastPublishDate() {
-		return _address.getLastPublishDate();
 	}
 
 	/**
@@ -625,16 +608,6 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	}
 
 	/**
-	* Sets the last publish date of this address.
-	*
-	* @param lastPublishDate the last publish date of this address
-	*/
-	@Override
-	public void setLastPublishDate(Date lastPublishDate) {
-		_address.setLastPublishDate(lastPublishDate);
-	}
-
-	/**
 	* Sets whether this address is mailing.
 	*
 	* @param mailing the mailing of this address
@@ -841,14 +814,6 @@ public class AddressWrapper implements Address, ModelWrapper<Address> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _address.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Address getWrappedAddress() {
-		return _address;
 	}
 
 	@Override

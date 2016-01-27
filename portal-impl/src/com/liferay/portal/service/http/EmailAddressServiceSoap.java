@@ -64,27 +64,6 @@ import java.rmi.RemoteException;
  */
 @ProviderType
 public class EmailAddressServiceSoap {
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addEmailAddress(String,
-	long, String, int, boolean, ServiceContext)}
-	*/
-	@Deprecated
-	public static com.liferay.portal.model.EmailAddressSoap addEmailAddress(
-		java.lang.String className, long classPK, java.lang.String address,
-		long typeId, boolean primary) throws RemoteException {
-		try {
-			com.liferay.portal.model.EmailAddress returnValue = EmailAddressServiceUtil.addEmailAddress(className,
-					classPK, address, typeId, primary);
-
-			return com.liferay.portal.model.EmailAddressSoap.toSoapModel(returnValue);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
 	public static com.liferay.portal.model.EmailAddressSoap addEmailAddress(
 		java.lang.String className, long classPK, java.lang.String address,
 		long typeId, boolean primary,
@@ -122,7 +101,6 @@ public class EmailAddressServiceSoap {
 	* @return the email address with the primary key, or <code>null</code> if
 	an email address with the primary key could not be found or if
 	the user did not have permission to view the email address
-	* @throws PortalException if a portal exception occurred
 	*/
 	public static com.liferay.portal.model.EmailAddressSoap fetchEmailAddress(
 		long emailAddressId) throws RemoteException {

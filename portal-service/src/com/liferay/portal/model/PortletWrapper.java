@@ -812,7 +812,7 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	* @return the permission propagator instance of the portlet
 	*/
 	@Override
-	public com.liferay.portal.security.permission.PermissionPropagator getPermissionPropagatorInstance() {
+	public com.liferay.portal.kernel.security.permission.PermissionPropagator getPermissionPropagatorInstance() {
 		return _portlet.getPermissionPropagatorInstance();
 	}
 
@@ -1358,18 +1358,6 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	@Override
 	public java.util.List<com.liferay.portlet.social.model.SocialActivityInterpreter> getSocialActivityInterpreterInstances() {
 		return _portlet.getSocialActivityInterpreterInstances();
-	}
-
-	/**
-	* Returns <code>true</code> if the portlet uses Social Interactions
-	* Configuration
-	*
-	* @return <code>true</code> if the portlet uses Social Interactions
-	Configuration
-	*/
-	@Override
-	public boolean getSocialInteractionsConfiguration() {
-		return _portlet.getSocialInteractionsConfiguration();
 	}
 
 	/**
@@ -2136,18 +2124,6 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 	@Override
 	public boolean isSinglePageApplication() {
 		return _portlet.isSinglePageApplication();
-	}
-
-	/**
-	* Returns <code>true</code> if the portlet uses Social Interactions
-	* Configuration
-	*
-	* @return <code>true</code> if the portlet uses Social Interactions
-	Configuration
-	*/
-	@Override
-	public boolean isSocialInteractionsConfiguration() {
-		return _portlet.isSocialInteractionsConfiguration();
 	}
 
 	/**
@@ -3238,12 +3214,6 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 		_portlet.setSocialActivityInterpreterClasses(socialActivityInterpreterClasses);
 	}
 
-	@Override
-	public void setSocialInteractionsConfiguration(
-		boolean socialInteractionsConfiguration) {
-		_portlet.setSocialInteractionsConfiguration(socialInteractionsConfiguration);
-	}
-
 	/**
 	* Sets the name of the social request interpreter class of the portlet.
 	*
@@ -3542,14 +3512,6 @@ public class PortletWrapper implements Portlet, ModelWrapper<Portlet> {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Portlet getWrappedPortlet() {
-		return _portlet;
 	}
 
 	@Override

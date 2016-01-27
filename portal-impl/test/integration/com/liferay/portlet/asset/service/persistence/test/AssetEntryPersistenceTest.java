@@ -35,7 +35,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.asset.NoSuchEntryException;
+import com.liferay.portlet.asset.exception.NoSuchEntryException;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.asset.service.persistence.AssetEntryPersistence;
@@ -438,11 +438,9 @@ public class AssetEntryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = AssetEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<AssetEntry>() {
 				@Override
-				public void performAction(Object object) {
-					AssetEntry assetEntry = (AssetEntry)object;
-
+				public void performAction(AssetEntry assetEntry) {
 					Assert.assertNotNull(assetEntry);
 
 					count.increment();

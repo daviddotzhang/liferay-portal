@@ -15,6 +15,8 @@
 package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -24,10 +26,8 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.RoleConstants;
-import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.documentlibrary.NoSuchFolderException;
+import com.liferay.portlet.documentlibrary.exception.NoSuchFolderException;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.permission.DLPermission;
 
@@ -44,6 +44,8 @@ public abstract class BaseDLAppTestCase {
 		_name = PrincipalThreadLocal.getName();
 
 		group = GroupTestUtil.addGroup();
+
+		targetGroup = GroupTestUtil.addGroup();
 
 		try {
 			DLAppServiceUtil.deleteFolder(
@@ -84,6 +86,9 @@ public abstract class BaseDLAppTestCase {
 	protected Group group;
 
 	protected Folder parentFolder;
+
+	@DeleteAfterTestRun
+	protected Group targetGroup;
 
 	private String _name;
 

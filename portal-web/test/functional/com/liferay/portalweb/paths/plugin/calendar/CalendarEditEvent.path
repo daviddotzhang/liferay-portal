@@ -30,6 +30,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>START_DATE_TIME_24_HOUR</td>
+	<td>//input[contains(@name,'CalendarPortlet_startTime') and @placeholder='h:mm']</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -43,6 +48,11 @@
 <tr>
 	<td>END_DATE_TIME</td>
 	<td>//input[contains(@name,'CalendarPortlet_endTime') and @placeholder='h:mm am/pm']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>END_DATE_TIME_24_HOUR</td>
+	<td>//input[contains(@name,'CalendarPortlet_endTime') and @placeholder='h:mm']</td>
 	<td></td>
 </tr>
 <tr>
@@ -113,7 +123,12 @@
 </tr>
 <tr>
 	<td>REPEAT_ENDS_AFTER_FIELD</td>
-	<td>//input[contains(@id,'CalendarPortlet_count')]</td>
+	<td>//input[contains(@id,'CalendarPortlet_count')and(@class='field form-control')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPEAT_ENDS_ON_DATE_FIELD</td>
+	<td>//input[contains(@id,'CalendarPortlet_untilDate')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -129,6 +144,21 @@
 <tr>
 	<td>REPEAT_DONE_BUTTON</td>
 	<td>//div[contains(@class,'widget-content-expanded')]/div/div/button[contains(.,'Done')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPEAT_MONTHLY_CURRENT_DAY</td>
+	<td>//td[contains(@class,'calendar-recurrence-month-radio')]//input[contains(@id,'CalendarPortlet_weekday') and @type='hidden']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPEAT_MONTHLY_CURRENT_MONTH_POSITION</td>
+	<td>//td[contains(@class,'calendar-recurrence-month-radio')]//input[contains(@id,'CalendarPortlet_position') and @type='hidden']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REPEAT_WEEKLY_CURRENT_DAY</td>
+	<td>//td[contains(@class,'calendar-recurrence-weekday-checkbox')]//input[@disabled='']</td>
 	<td></td>
 </tr>
 <tr>
@@ -149,12 +179,12 @@
 </tr>
 <tr>
 	<td>DETAILS_CALENDAR_SELECT</td>
-	<td>//select[contains(@id,'calendarId')]</td>
+	<td>//select[contains(@*,'calendarId')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>DETAILS_CALENDAR_SELECT_OPTION</td>
-	<td>//select[contains(@id,'calendarId')]/option[contains(.,'${key_calendarName}')]</td>
+	<td>//select[contains(@*,'calendarId')]/option[contains(.,'${key_calendarName}')]</td>
 	<td></td>
 </tr>
 <tr>

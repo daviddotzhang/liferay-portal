@@ -17,15 +17,7 @@ package com.liferay.portal.verify;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
-import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.security.ldap.LDAPSettingsUtil;
-import com.liferay.portal.service.CompanyLocalServiceUtil;
-import com.liferay.portal.util.PortalInstances;
-import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsUtil;
 import com.liferay.portlet.documentlibrary.store.StoreFactory;
 
@@ -102,10 +94,6 @@ public class VerifyProperties extends VerifyProcess {
 		StoreFactory storeFactory = StoreFactory.getInstance();
 
 		storeFactory.checkProperties();
-
-		// LDAP
-
-		verifyLDAPProperties();
 	}
 
 	protected InputStream getPropertiesResourceAsStream(String resourceName)
@@ -132,7 +120,7 @@ public class VerifyProperties extends VerifyProcess {
 
 		for (String propertyResourceName : propertiesResourceNames) {
 			try (InputStream inputStream = getPropertiesResourceAsStream(
-				propertyResourceName)) {
+					propertyResourceName)) {
 
 				if (inputStream != null) {
 					properties.load(inputStream);
@@ -145,36 +133,6 @@ public class VerifyProperties extends VerifyProcess {
 		}
 
 		return properties;
-	}
-
-	protected void verifyLDAPProperties() throws Exception {
-		long[] companyIds = PortalInstances.getCompanyIdsBySQL();
-
-		for (long companyId : companyIds) {
-			UnicodeProperties properties = new UnicodeProperties();
-
-			long[] ldapServerIds = StringUtil.split(
-				PrefsPropsUtil.getString(companyId, "ldap.server.ids"), 0L);
-
-			for (long ldapServerId : ldapServerIds) {
-				String postfix = LDAPSettingsUtil.getPropertyPostfix(
-					ldapServerId);
-
-				for (String key : _LDAP_KEYS) {
-					String value = PrefsPropsUtil.getString(
-						companyId, key + postfix, null);
-
-					if (value == null) {
-						properties.put(key + postfix, StringPool.BLANK);
-					}
-				}
-			}
-
-			if (!properties.isEmpty()) {
-				CompanyLocalServiceUtil.updatePreferences(
-					companyId, properties);
-			}
-		}
 	}
 
 	protected void verifyMigratedPortalProperty(
@@ -253,11 +211,6 @@ public class VerifyProperties extends VerifyProcess {
 					newKey + "\"");
 		}
 	}
-
-	private static final String[] _LDAP_KEYS = {
-		PropsKeys.LDAP_CONTACT_CUSTOM_MAPPINGS, PropsKeys.LDAP_CONTACT_MAPPINGS,
-		PropsKeys.LDAP_USER_CUSTOM_MAPPINGS
-	};
 
 	private static final String[][] _MIGRATED_PORTAL_KEYS = new String[][] {
 		new String[] {
@@ -411,10 +364,6 @@ public class VerifyProperties extends VerifyProcess {
 			"asset.publisher.permission.checking.configurable",
 			"permission.checking.configurable",
 			"com.liferay.asset.publisher.web"
-		},
-		new String[] {
-			"asset.publisher.query.form.configuration",
-			"query.form.configuration", "com.liferay.asset.publisher.web"
 		},
 		new String[] {
 			"asset.publisher.search.with.index", "search.with.index",
@@ -1203,94 +1152,6 @@ public class VerifyProperties extends VerifyProcess {
 			"com.liferay.site.navigation.language.web"
 		},
 
-		// LDAP
-
-		new String[] {
-			"ldap.auth.enabled", "enabled",
-			"com.liferay.portal.authenticator.ldap"
-		},
-		new String[] {
-			"ldap.auth.method", "method",
-			"com.liferay.portal.authenticator.ldap"
-		},
-		new String[] {
-			"ldap.auth.password.encryption.algorithm",
-			"passwordEncryptionAlgorithm",
-			"com.liferay.portal.authenticator.ldap"
-		},
-		new String[] {
-			"ldap.auth.required", "required",
-			"com.liferay.portal.authenticator.ldap"
-		},
-		new String[] {
-			"ldap.export.enabled", "export.enabled", "com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.export.group.enabled", "export.group.enabled",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.factory.initial", "factory.initial", "com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.create.role.per.group", "import.create.role.per.group",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.enabled", "import.enabled", "com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.group.cache.enabled", "import.group.cache.enabled",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.group.search.filter.enabled",
-			"import.group.search.filter.enabled", "com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.interval", "import.interval", "com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.lock.expiration.time", "import.lock.expiration.time",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.method", "import.method", "com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.on.startup", "import.on.startup",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.user.password.autogenerated",
-			"import.user.password.autogenerated", "com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.user.password.default", "import.user.password.default",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.user.password.enabled", "import.user.password.enabled",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.import.user.sync.strategy", "import.user.sync.strategy",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {"ldap.page.size", "page.size", "com.liferay.portal.ldap"},
-		new String[] {
-			"ldap.password.policy.enabled", "password.policy.enabled",
-			"com.liferay.portal.ldap"
-		},
-		new String[] {
-			"ldap.range.size", "range.size", "com.liferay.portal.ldap"
-		},
-		new String[] {"ldap.referral", "referral", "com.liferay.portal.ldap"},
-		new String[] {
-			"ldap.user.ignore.attributes", "user.ignore.attributes",
-			"com.liferay.portal.ldap"
-		},
-
 		// Lucene
 
 		new String[] {
@@ -1782,14 +1643,16 @@ public class VerifyProperties extends VerifyProcess {
 	};
 
 	private static final String[] _OBSOLETE_PORTAL_KEYS = new String[] {
-		"amazon.access.key.id", "amazon.associate.tag",
-		"amazon.secret.access.key",
+		"aim.login", "aim.login", "amazon.access.key.id",
+		"amazon.associate.tag", "amazon.secret.access.key",
 		"asset.entry.increment.view.counter.enabled",
 		"asset.publisher.asset.entry.query.processors",
 		"asset.publisher.filter.unlistable.entries",
+		"asset.publisher.query.form.configuration",
 		"asset.tag.permissions.enabled", "asset.tag.properties.default",
-		"asset.tag.properties.enabled", "auth.max.failures.limit",
-		"blogs.image.small.max.size", "breadcrumb.display.style.options",
+		"asset.tag.properties.enabled", "asset.tag.suggestions.enabled",
+		"auth.max.failures.limit", "blogs.image.small.max.size",
+		"breadcrumb.display.style.options",
 		"buffered.increment.parallel.queue.size",
 		"buffered.increment.serial.queue.size", "cas.validate.url",
 		"cluster.executor.heartbeat.interval",
@@ -1822,8 +1685,8 @@ public class VerifyProperties extends VerifyProcess {
 		"editor.wysiwyg.portal-web.docroot.html.portlet.bookmarks." +
 			"configuration.jsp",
 		"editor.wysiwyg.portal-web.docroot.html.portlet.document_library." +
-		"editor.wysiwyg.portal-web.docroot.html.portlet.invitation." +
-			"configuration.jsp",
+			"editor.wysiwyg.portal-web.docroot.html.portlet.invitation." +
+				"configuration.jsp",
 		"editor.wysiwyg.portal-web.docroot.html.portlet.journal." +
 			"configuration.jsp",
 		"editor.wysiwyg.portal-web.docroot.html.portlet.login.configuration." +
@@ -1832,13 +1695,19 @@ public class VerifyProperties extends VerifyProcess {
 			"configuration.jsp",
 		"editor.wysiwyg.portal-web.docroot.html.portlet.portal_settings." +
 			"email_notifications.jsp",
+		"ehcache.bootstrap.cache.loader.factory",
+		"ehcache.cache.event.listener.factory",
+		"ehcache.cache.manager.peer.listener.factory",
+		"ehcache.cache.manager.peer.provider.factory",
 		"ehcache.cache.manager.statistics.thread.pool.size",
+		"ehcache.multi.vm.config.location.peerProviderProperties",
 		"ehcache.statistics.enabled",
 		"hot.deploy.hook.custom.jsp.verification.enabled",
 		"hibernate.cache.region.factory_class",
 		"hibernate.cache.use_minimal_puts", "hibernate.cache.use_query_cache",
 		"hibernate.cache.use_second_level_cache",
-		"hibernate.cache.use_structured_entries", "index.filter.search.limit",
+		"hibernate.cache.use_structured_entries", "icq.jar", "icq.login",
+		"icq.password", "index.filter.search.limit", "index.read.only",
 		"invitation.email.max.recipients", "invitation.email.message.body",
 		"invitation.email.message.subject", "javax.persistence.validation.mode",
 		"jbi.workflow.url", "json.deserializer.strict.mode",
@@ -1868,11 +1737,13 @@ public class VerifyProperties extends VerifyProcess {
 		"lucene.store.jdbc.dialect.hsqldb", "lucene.store.jdbc.dialect.jtds",
 		"lucene.store.jdbc.dialect.microsoft",
 		"lucene.store.jdbc.dialect.mysql", "lucene.store.jdbc.dialect.oracle",
-		"lucene.store.jdbc.dialect.postgresql",
+		"lucene.store.jdbc.dialect.postgresql", "mail.hook.cyrus.add.user",
+		"mail.hook.cyrus.delete.user", "mail.hook.cyrus.home",
 		"memory.cluster.scheduler.lock.cache.enabled",
 		"message.boards.email.message.added.signature",
 		"message.boards.email.message.updated.signature",
-		"message.boards.thread.locking.enabled",
+		"message.boards.thread.locking.enabled", "message.boards.thread.views",
+		"message.boards.thread.views.default", "msn.login", "msn.password",
 		"multicast.group.address[\"hibernate\"]",
 		"multicast.group.port[\"hibernate\"]",
 		"net.sf.ehcache.configurationResourceName",
@@ -1887,7 +1758,9 @@ public class VerifyProperties extends VerifyProcess {
 		"portal.security.manager.enable", "permissions.list.filter",
 		"permissions.thread.local.cache.max.size",
 		"permissions.user.check.algorithm", "persistence.provider",
-		"ratings.max.score", "ratings.min.score", "scheduler.classes",
+		"ratings.max.score", "ratings.min.score", "sc.image.max.size",
+		"sc.image.thumbnail.max.height", "sc.image.thumbnail.max.width",
+		"sc.product.comments.enabled", "scheduler.classes",
 		"schema.run.minimal", "search.container.page.iterator.page.values",
 		"service.builder.service.read.only.prefixes", "shard.available.names",
 		"shard.default.name", "shard.selector", "siteminder.auth.enabled",
@@ -1907,7 +1780,8 @@ public class VerifyProperties extends VerifyProcess {
 		"vaadin.theme", "vaadin.widgetset", "webdav.storage.class",
 		"webdav.storage.show.edit.url", "webdav.storage.show.view.url",
 		"webdav.storage.tokens", "wiki.email.page.added.signature",
-		"wiki.email.page.updated.signature", "xss.allow"
+		"wiki.email.page.updated.signature", "xss.allow", "ym.login",
+		"ym.password"
 	};
 
 	private static final String[] _OBSOLETE_SYSTEM_KEYS = new String[] {

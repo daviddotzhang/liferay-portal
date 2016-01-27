@@ -96,13 +96,13 @@ public class StagingLocalServiceWrapper implements StagingLocalService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _stagingLocalService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _stagingLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -127,16 +127,6 @@ public class StagingLocalServiceWrapper implements StagingLocalService,
 			stagingRequestId, privateLayout, parameterMap);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_stagingLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void updateStagingRequest(long userId, long stagingRequestId,
 		java.lang.String fileName, byte[] bytes)
@@ -156,23 +146,6 @@ public class StagingLocalServiceWrapper implements StagingLocalService,
 		java.util.Map<java.lang.String, java.lang.String[]> parameterMap) {
 		return _stagingLocalService.validateStagingRequest(userId,
 			stagingRequestId, privateLayout, parameterMap);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public StagingLocalService getWrappedStagingLocalService() {
-		return _stagingLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedStagingLocalService(
-		StagingLocalService stagingLocalService) {
-		_stagingLocalService = stagingLocalService;
 	}
 
 	@Override

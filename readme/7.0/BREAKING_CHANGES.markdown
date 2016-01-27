@@ -20,7 +20,7 @@ feature or API will be dropped in an upcoming version.
 replaces an old API, in spite of the old API being kept in Liferay Portal for
 backwards compatibility.
 
-*This document has been reviewed through commit `11689fd`.*
+*This document has been reviewed through commit `e03599b`.*
 
 ## Breaking Changes Contribution Guidelines
 
@@ -47,7 +47,7 @@ Here's the template to use for each breaking change (note how it ends with a
 horizontal rule):
 
 ```
-### [Title]
+### Title
 - **Date:**
 - **JIRA Ticket:**
 
@@ -78,6 +78,7 @@ in ascending chronological order.
 - **JIRA Ticket:** LPS-42645
 
 #### What changed?
+
 The Logo Selector tag now supports uploading an image, storing it as a temporary
 file, cropping it, and canceling edits. The tag no longer requires creating a UI
 to include the image. Consequently, the `editLogoURL` parameter is no longer
@@ -91,10 +92,12 @@ support the new features:
 upload
 
 #### Who is affected?
+
 Plugins or templates that are using the `liferay-ui:logo-selector` tag need
 to update their usage of the tag.
 
 #### How should I update my code?
+
 You should remove the parameter `editLogoURL` and include (if neccessary) the
 parameters `currentLogoURL`, `hasUpdateLogoPermission`, `maxFileSize`, and/or
 `tempImageFileName`.
@@ -117,13 +120,12 @@ Old way:
         logoDisplaySelector=".user-logo"
     />
 
-
 New way:
 
     <liferay-ui:logo-selector
         currentLogoURL="<%= selUser.getPortraitURL(themeDisplay) %>"
         defaultLogoURL="<%= UserConstants.getPortraitURL(themeDisplay.getPathImage(), selUser.isMale(), 0) %>"
-        hasUpdateLogoPermission='<%= UsersAdminUtil.hasUpdateFieldPermission(selUser, "portrait") %>'
+        hasUpdateLogoPermission='<%= UsersAdminUtil.hasUpdateFieldPermission(permissionChecker, null, selUser, "portrait") %>'
         imageId="<%= selUser.getPortraitId() %>"
         logoDisplaySelector=".user-logo"
         maxFileSize="<%= PrefsPropsUtil.getLong(PropsKeys.USERS_IMAGE_MAX_SIZE) / 1024 %>"
@@ -131,6 +133,7 @@ New way:
     />
 
 #### Why was this change made?
+
 This change helps keep a unified UI and consistent experience for uploading
 logos in the portal. The logos can be customized from a single location and used
 throughout the portal. In addition, the change adds new features such as image
@@ -143,6 +146,7 @@ cropping and support for canceling image upload.
 - **JIRA Ticket:** LPS-44599
 
 #### What changed?
+
 The configuration for email signatures of notifications from Message Boards and
 Wiki has been removed. An automatic update process is available that appends
 existing signatures into respective email message bodies for Message Boards and
@@ -151,12 +155,14 @@ the database. In case you declared signatures in portal properties (e.g.,
 `portal-ext.properties`), you must make the manual changes explained below.
 
 #### Who is affected?
+
 Users and system administrators who have configured email signatures for Message
 Boards or Wiki notifications are affected. System administrators who have
 configured portal properties (e.g., `portal-ext.properties`) must make the
 manual changes described below.
 
 #### How should I update my code?
+
 You should modify your `portal-ext.properties` file to remove the properties
 `message.boards.email.message.added.signature`,
 `message.boards.email.message.updated.signature`,
@@ -176,6 +182,7 @@ New way:
     wiki.email.page.updated.body=A wiki page was updated.\n--\nFor any doubts email the system administrator
 
 #### Why was this change made?
+
 This change helps simplify the user interface. The signatures can still be set
 inside the message body. There was no real benefit in keeping the signature and
 body fields separate.
@@ -187,14 +194,17 @@ body fields separate.
 - **JIRA Ticket:** LPS-44342
 
 #### What changed?
+
 All the methods `get()` and `format()` which had the PortletConfig as a
 parameter have been removed.
 
 #### Who is affected?
+
 Any invocations from Java classes or JSPs to these methods in `LanguageUtil` and
 `UnicodeLanguageUtil` are affected.
 
 #### How should I update my code?
+
 Replace invocations to these methods with invocations to methods of the same
 name that take a `ResourceBundle` parameter, instead of taking a
 `PortletConfig` parameter.
@@ -210,6 +220,7 @@ New call:
     LanguageUtil.get(portletConfig.getResourceBundle(locale), key);
 
 #### Why was this change made?
+
 The removed methods didn't work properly and would never work properly, since
 they didn't have all the information they required. Since we expected the
 methods were rarely used, we thought it better to remove them without
@@ -222,21 +233,25 @@ deprecation than to leave them as buggy methods in the API.
 - **JIRA Ticket:** LPS-45107
 
 #### What changed?
+
 Web content is now required to use a structure and template. A default structure
 and template named *Basic Web Content* was added to the global scope, and can be
 modified or deleted.
 
 #### Who is affected?
+
 Applications that use the Journal API to create web content without a structure
 or template are affected.
 
 #### How should I update my code?
+
 You should always use a structure and template when creating web content. You
 can still use the *Basic Web Content* from the global scope (using the
 structure key `basic-web-content`), but you should keep in mind that users can
 modify or delete it.
 
 #### Why was this change made?
+
 This change gives users the flexibility to modify the default structure and
 template.
 
@@ -247,14 +262,17 @@ template.
 - **JIRA Ticket:** LPS-44639 and LPS-44894
 
 #### What changed?
+
 The `getSummary()` method in the AssetRenderer API and the `doGetSummary()`
 method in the Indexer API have changed and must include a `PortletRequest`
 and `PortletResponse` parameter as part of their signatures.
 
 #### Who is affected?
+
 These methods must be updated in all AssetRenderer and Indexer implementations.
 
 #### How should I update my code?
+
 Add a `PortletRequest` and `PortletResponse` parameter to the signatures of
 these methods.
 
@@ -279,6 +297,7 @@ New signature:
     public String getSummary(PortletRequest portletRequest, PortletResponse portletResponse)
 
 #### Why was this change made?
+
 Some content (such as web content) needs the `PortletRequest` and
 `PortletResponse` parameters in order to be rendered.
 
@@ -289,6 +308,7 @@ Some content (such as web content) needs the `PortletRequest` and
 - **JIRA Ticket:** LPS-43134
 
 #### What changed?
+
 Previously, some portlets allowed separate setups per portlet instance,
 regardless of whether the instances were in the same page or in different pages.
 For some of the portlet setup fields, however, it didn't make sense to allow
@@ -311,16 +331,19 @@ discouraged and notoriously problematic, we expect this change will
 inconvenience only a very low minority of portal users.
 
 #### Who is affected?
+
 Affected users are those who have specified varying configurations for multiple
 portlet instances of a portlet type, that stores configurations at the layout
 level.
 
 #### How should I update my code?
+
 The upgrade process chooses one portlet instance's configurations and stores it
 at the service level. After the upgrade, you should review the portlet's
 configuration and make any necessary modifications.
 
 #### Why was this change made?
+
 Unifying portlet and service configuration facilitates managing them.
 
 ---------------------------------------
@@ -330,6 +353,7 @@ Unifying portlet and service configuration facilitates managing them.
 - **JIRA Ticket:** LPS-47559
 
 #### What changed?
+
 The `updateXSDFieldMetadata()` operation was removed from the DDM Structure
 Local Service API.
 
@@ -338,14 +362,17 @@ representation; any call to modify a DDM structure's content should be done
 through the DDMForm model.
 
 #### Who is affected?
+
 Applications that use the DDM Structure Local Service API might be affected.
 
 #### How should I update my code?
+
 You should always use DDMForm to update the DDM Structure content. You can
 retrieve it by calling `ddmStructure.getDDMForm()`. Perform any changes to it and
 then call `DDMStructureLocalServiceUtil.updateDDMStructure(ddmStructure)`.
 
 #### Why was this change made?
+
 This change gives users the flexibility to modify the structure content without
 concerning themselves with the DDM Structure's internal content representation
 of data.
@@ -357,16 +384,19 @@ of data.
 - **JIRA Ticket:** LPS-44228
 
 #### What changed?
+
 Whenever the aui:input tag is used to generate an input of type checkbox,
 only an input tag will be generated, instead of the checkbox and hidden field it
 was generating before.
 
 #### Who is affected?
+
 Anyone trying to grab the previously generated fields is affected. The change
 mostly affects JavaScript code trying to add some additional actions when
 clicking on the checkboxes.
 
 #### How should I update my code?
+
 In your front-end JavaScript code, follow these steps:
 
 - Remove the `Checkbox` suffix when querying for the node in any of its forms,
@@ -375,6 +405,7 @@ like `A.one(...)`, `$(...)`, etc.
 previously generated hidden field.
 
 #### Why was this change made?
+
 This change makes generated forms more standard and interoperable since it falls
 back to the checkboxes default behavior. It allows the form to be submitted
 properly even when JavaScript is disabled.
@@ -386,6 +417,7 @@ properly even when JavaScript is disabled.
 - **JIRA Ticket:** LPS-47682
 
 #### What changed?
+
 Several APIs in `portal-service.jar` contained references to the
 `javax.servlet.jsp` package. This forced `util-taglib`, which depended on many
 of the package's features, to be bound to the same JSP implementation.
@@ -403,12 +435,18 @@ Due to this, the following APIs had breaking changes:
 - `ResourceActionsUtil`
 - `PortalUtil`
 
+#### Who is affected?
+
+This affects anyone calling the classes listed above.
+
 #### How should I update my code?
-Code invoking the APIs listed above should should be updated to use an
+
+Code invoking the APIs listed above should be updated to use an
 `HttpServletRequest` parameter instead of the formerly used `PageContext`
 parameter.
 
 #### Why was this change made?
+
 As stated previously, the use of the `javax.servlet.jsp` API in `portal-service`
 prevented the use of any other JSP impl within plugins (OSGi or otherwise). This
 limited what Liferay could change with respect to providing its own JSP
@@ -878,7 +916,7 @@ of reserved screen names.
 #### What changed?
 
 Previous to Liferay 7, several methods of `UserLocalService` and `UserService`
-could throw a `ReservedUserEmailAddressException` when a user set an email 
+could throw a `ReservedUserEmailAddressException` when a user set an email
 address that was not allowed. That exception has been deprecated and replaced
 with `UserEmailAddressException.MustNotUseCompanyMx`,
 `UserEmailAddressException.MustNotBePOP3User`, and
@@ -980,8 +1018,8 @@ All operations that used the `Fields` class have been removed from the
 
 #### Who is affected?
 
-This affects developers who have written code that directly calls these 
-operations. 
+This affects developers who have written code that directly calls these
+operations.
 
 #### How should I update my code?
 
@@ -990,7 +1028,7 @@ You should update your code to use the `DDMFormValues` class instead of the
 
 #### Why was this change made?
 
-This change has been made due to the deprecation of the `Fields` class. 
+This change has been made due to the deprecation of the `Fields` class.
 
 ---------------------------------------
 
@@ -1076,7 +1114,7 @@ called `resourceClassNameId`.
 
 #### Who is affected?
 
-This affects developers who have direct calls to the `DDMTemplateService` or 
+This affects developers who have direct calls to the `DDMTemplateService` or
 `DDMTemplateLocalService`.
 
 #### How should I update my code?
@@ -1211,7 +1249,7 @@ the `ScreenNameValidator` interface.
 
 You should implement the new methods introduced in the interface.
 
-- `getDescription(Locale)`: returns a description of what the screen name 
+- `getDescription(Locale)`: returns a description of what the screen name
 validator validates.
 
 - `getJSValidation()`: returns the JavaScript input validator on the client
@@ -1219,7 +1257,7 @@ side.
 
 #### Why was this change made?
 
-Previous to Liferay 7, validation for user screen name characters was hard-coded 
+Previous to Liferay 7, validation for user screen name characters was hard-coded
 in `UserLocalService`. A new portal property named
 `users.screen.name.special.characters` has been added to provide configurability
 of special characters allowed in screen names.
@@ -1270,7 +1308,7 @@ code.
 The API for adding tags, categories, and vocabularies now requires passing the
 `groupId` parameter. Previously, it had to be included in the `ServiceContext`
 parameter passed to the method.
- 
+
 #### Who is affected?
 
 This affects developers who have direct calls to the following methods:
@@ -1511,13 +1549,13 @@ their code.
 While the old classes remain for backwards-compatibility, they are being
 deprecated. You're encouraged to use the new pattern of inner classes for
 exceptions wherever possible. For example, instead of using
-`ContactFirstNameExeception`, use `ContactNameException.MustHaveFirstName`. 
+`ContactFirstNameExeception`, use `ContactNameException.MustHaveFirstName`.
 
 #### Why was this change made?
 
 This change was made in accordance with the new exceptions pattern being applied
 throughout Portal. It also allows the new localized user name configuration
-feature to be thoroughly covered by exceptions for different configurations.  
+feature to be thoroughly covered by exceptions for different configurations.
 
 ---------------------------------------
 
@@ -1550,7 +1588,7 @@ Portal property `USERS_LAST_NAME_REQUIRED` didn't support the multicultural user
 name configurations introduced in LPS-48406. Language property files (e.g.,
 `language.properties`) now support these configurations. Control of all user
 name configuration, except with regards to first name, is relegated to language
-property files. First name is required and always present. 
+property files. First name is required and always present.
 
 ---------------------------------------
 
@@ -1573,7 +1611,7 @@ This affects anyone who uses those methods.
 
 The removed methods were generic and had long signatures with optional
 parameters. They now have one specialized version per parameter and are
-in the `RepositoryProvider` service. 
+in the `RepositoryProvider` service.
 
 **Example**
 
@@ -1697,20 +1735,20 @@ bypass the permission system by providing customized `className`, `classPK`, or
 
 ---------------------------------------
 
-### Moved Indexer.addRelatedEntryFields and Indexer.reindexDDMStructures, and Removed Indexer.getQueryString 
+### Moved Indexer.addRelatedEntryFields and Indexer.reindexDDMStructures, and Removed Indexer.getQueryString
 - **Date:** 2015-May-27
 - **JIRA Ticket:** LPS-55928
 
 #### What changed?
 
-Method `Indexer.addRelatedEntryFields(Document, Object)` has been moved into 
+Method `Indexer.addRelatedEntryFields(Document, Object)` has been moved into
 `RelatedEntryIndexer`.
 
 `Indexer.reindexDDMStructures(List<Long>)` has been moved into
 `DDMStructureIndexer`.
 
-`Indexer.getQueryString(SearchContext, Query)` has been removed, in favor of 
-calling `SearchEngineUtil.getQueryString(SearchContext, Query)`
+`Indexer.getQueryString(SearchContext, Query)` has been removed, in favor of
+calling `SearchEngineUtil.getQueryString(SearchContext, Query)`.
 
 #### Who is affected?
 
@@ -1719,7 +1757,7 @@ that implements the interface methods.
 
 #### How should I update my code?
 
-Any code implementing `Indexer.addRelatedEntryFields(...)` should implement the 
+Any code implementing `Indexer.addRelatedEntryFields(...)` should implement the
 `RelatedEntryIndexer` interface.
 
 Any code calling `Indexer.addRelatedEntryFields(...)` should determine first if
@@ -1738,11 +1776,11 @@ New code:
         relatedEntryIndexer.addRelatedEntryFields(...);
     }
 
-Any code implementing `Indexer.reindexDDMStructures(...)` should implement the 
+Any code implementing `Indexer.reindexDDMStructures(...)` should implement the
 `DDMStructureIndexer` interface.
 
 Any code calling `Indexer.reindexDDMStructures(...)` should determine first if
-the `Indexer` is an instance of `DDMStructureIndexer`. 
+the `Indexer` is an instance of `DDMStructureIndexer`.
 
 Old code:
 
@@ -1757,8 +1795,8 @@ New code:
         ddmStructureIndexer.reindexDDMStructures(...);
     }
 
-Any code calling Indexer.getQueryString(...) should call 
-SearchEngineUtil.getQueryString(...)
+Any code calling `Indexer.getQueryString(...)` should call
+`SearchEngineUtil.getQueryString(...)`.
 
 Old code:
 
@@ -2007,6 +2045,99 @@ possibility of injecting JavaScript, when needed.
 
 This change is part of a greater effort to provide mechanisms to extend and
 configure any editor in Liferay Portal in a coherent and extensible way.
+
+---------------------------------------
+
+### Renamed ActionCommand Classes Used in the MVCPortlet Framework
+- **Date:** 2015-Jun-16
+- **JIRA Ticket:** LPS-56372
+
+#### What changed?
+
+The classes located in the `com.liferay.portal.kernel.portlet.bridges.mvc`
+package have been renamed to include the *MVC* prefix.
+
+Old Classes:
+
+- `BaseActionCommand`
+- `BaseTransactionalActionCommand`
+- `ActionCommand`
+- `ActionCommandCache`
+
+New Classes:
+
+- `BaseMVCActionCommand`
+- `BaseMVCTransactionalActionCommand`
+- `MVCActionCommand`
+- `MVCActionCommandCache`
+
+Also, the property `action.command.name` has been renamed to `mvc.command.name`.
+The code snippet below shows the new property in its context.
+
+    @Component(
+        immediate = true,
+        property = {
+                "javax.portlet.name=" + InvitationPortletKeys.INVITATION,
+                "mvc.command.name=view"
+        },
+        service = MVCActionCommand.class
+    )
+
+#### Who is affected?
+
+This affects any Java code calling the `ActionCommand` classes used in the
+`MVCPortlet` framework.
+
+#### How should I update my code?
+
+You should update the old `ActionCommand` class names with the new *MVC* prefix.
+
+#### Why was this change made?
+
+This change adds consistency to the MVC framework, and makes it self-explanatory
+what classes should be used for the MVC portlet.
+
+---------------------------------------
+
+### Extended MVC Framework to Use Same Key for Registering ActionURL and ResourceURL
+- **Date:** 2015-Jun-16
+- **JIRA Ticket:** LPS-56372
+
+#### What changed?
+
+Previously, a single `ActionCommand` was valid for both `ActionURL` and
+`ResourceURL`. Now you must distinguish both an `ActionURL` and `ResourceURL` as
+different actions, which means you can register both with the same key.
+
+#### Who is affected?
+
+This affects developers that were using the `ActionCommand` for `actionURL`s and
+`resourceURL`s.
+
+#### How should I update my code?
+
+You should replace the `ActionCommand`s used for `actionURL`s and `resourceURL`s
+to use `MVCActionCommand` and `MVCResourceCommand`, respectively. For example,
+for the new `MVCResourceCommand`, you'll need to use the `resourceID` of the
+`resourceURL` instead of using `ActionRequest.ACTION_NAME`.
+
+Old Code:
+
+    <liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" var="exportRecordSetURL">
+        <portlet:param name="<%= ActionRequest.ACTION_NAME %>" value="exportRecordSet" />
+        <portlet:param name="recordSetId" value="<%= String.valueOf(recordSet.getRecordSetId()) %>" />
+    </liferay-portlet:resourceURL>
+
+New Code:
+
+    <liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="exportRecordSet" var="exportRecordSetURL">
+        <portlet:param name="recordSetId" value="<%= String.valueOf(recordSet.getRecordSetId()) %>" />
+    </liferay-portlet:resourceURL>
+
+#### Why was this change made?
+
+This change was made to extend the MVC framework to have better support for
+`actionURL`s and `resourceURL`s.
 
 ---------------------------------------
 
@@ -2307,7 +2438,8 @@ this tag.
 #### How should I update my code?
 
 Embedding another portlet is only supported from a template. You should embed
-the portlet by passing its name in a call to `theme.runtime`.
+the portlet by passing its name in a call to `theme.runtime` or using the right
+tag in FreeMarker.
 
 **Example**
 
@@ -2317,7 +2449,9 @@ In Velocity:
 
 In FreeMarker:
 
-    ${theme.runtime("145")
+    <#assign liferay_portlet = PortalJspTagLibs["/WEB-INF/tld/liferay-portlet-ext.tld"] />
+
+    <@liferay_portlet["runtime"] portletName="145" />
 
 #### Why was this change made?
 
@@ -2415,3 +2549,974 @@ These methods are no longer used and they will not work properly since they
 cannot call the `application-list-api` from the portal context.
 
 ---------------------------------------
+
+### Removed Control Panel from List of Sites Returned by Methods Group.getUserSitesGroups and User.getMySiteGroups
+- **Date:** 2015-Sep-23
+- **JIRA Ticket:** LPS-58862
+
+#### What changed?
+
+The following methods had a boolean parameter to determine whether to include
+the Control Panel group:
+
+- `Group.getUserSitesGroups`
+- `User.getMySiteGroups`
+
+This boolean parameter should no longer be used.
+
+#### Who is affected?
+
+This affects developers that use either of the methods listed above passing the
+`includeControlPanel` parameter as `true`.
+
+#### How should I update my code?
+
+If you don't need the Control Panel, remove the `false` parameter. If you still
+want to obtain a link to the Control Panel, you should do it in a different way.
+
+The Control Panel is not a site per se; some applications are displayed in that
+context. To create a link to an application that is displayed in the Control
+Panel, developers should use the method `PortalUtil.getControlPanelURL`. In
+order to obtain the first application displayed in a section of the Product
+Menu, developers should use the `application-list-api` module to call the
+`PanelCategoryRegistry` and `PanelAppRegistry` classes.
+
+#### Why was this change made?
+
+The Control Panel is no longer a site per se, but just a context in which some
+applications are displayed. This concept conflicts with the idea of returning a
+site called Control Panel in the Sites API.
+
+---------------------------------------
+
+### Changed Exception Thrown by Documents and Media Services When Duplicate Files are Found
+- **Date:** 2015-Sep-24
+- **JIRA Ticket:** LPS-53819
+
+#### What changed?
+
+When a duplicate file entry is found by Documents and Media (D&M) services, a
+`DuplicateFileEntryException` will be thrown. Previously, the exception
+`DuplicateFileException` was used.
+
+The `DuplicateFileException` is now raised only by `Store`
+implementations.
+
+#### Who is affected?
+
+Any caller of the `addFileEntry` methods in `DLApp` and `DLFileEntry`
+local and remote services is affected.
+
+#### How should I update my code?
+
+Change the exception type from `DuplicateFileException` to
+`DuplicateFileEntryException` in `try-catch` blocks surrounding calls
+to D&M services.
+
+#### Why was this change made?
+
+The `DuplicateFileException` exception was used in two different
+contexts:
+- When creating a new file through D&M and a row in the database
+already existed for a file entry with the same title.
+- When the stores tried to save a file and the underlying storage unit
+(a file in the case of `FileSystemStore`) already existed.
+
+This made it impossible to detect and recover from store corruption
+issues, as they were undifferentiable from other errors.
+
+---------------------------------------
+
+### Removed All References to Windows Live Messenger
+- **Date:** 2015-Oct-15
+- **JIRA Ticket:** LPS-30883
+
+#### What changed?
+
+All references to the `msnSn` column in the `Contacts` table have been removed
+from portal. All references to Windows Live Messenger have been removed from
+properties, tests, classes, and the frontend. Also, the `getMsnSn` and
+`setMsnSn` methods have been removed from the `Contact` and `LDAPUser` models.
+
+The following classes have been removed:
+
+- `MSNConnector`
+- `MSNMessageAdapter`
+
+The following constants have been removed:
+
+- `CalEventConstants.REMIND_BY_MSN`
+- `ContactConverterKeys.MSN_SN`
+- `PropsKeys.MSN_LOGIN`
+- `PropsKeys.MSN_PASSWORD`
+
+The following methods have been removed:
+
+- `Contact.getMsnSn`
+- `Contact.setMsnSn`
+- `LDAPUser.getMsnSn`
+- `LDAPUser.setMsnSn`
+
+The following methods have been changed:
+
+- `AdminUtil.updateUser`
+- `ContactLocalServiceUtil.addContact`
+- `ContactLocalServiceUtil.updateContact`
+- `UserLocalServiceUtil.addContact`
+- `UserLocalServiceUtil.updateContact`
+- `UserLocalServiceUtil.updateUser`
+- `UserServiceUtil.updateUser`
+
+#### Who is affected?
+
+This affects developers who use any of the classes, constants, or methods listed
+above.
+
+#### How should I update my code?
+
+When updating or adding a user or contact using one of the changed methods
+above, remove the `msnSn` argument from the method call. If you are using one of
+the removed items above, you should remove all references to them from your code
+and look for alternatives, if necessary. Lastly, remove any references to the
+`msnSN` column in the `Contacts` table from your SQL queries.
+
+#### Why was this change made?
+
+Since Microsoft dropped support for Windows Live Messenger, Liferay will no
+longer continue to support it.
+
+---------------------------------------
+
+### Removed Support for AIM, ICQ, MySpace, and Yahoo Messenger
+- **Date:** 2015-Oct-22
+- **JIRA Ticket:** LPS-59716
+
+#### What changed?
+
+Liferay no longer supports integration with MySpace and AIM, ICQ, and Yahoo
+Messenger instant messaging services. The corresponding `aimSn`, `icqSn`,
+`mySpaceSn`, and `ymSn` columns have been removed from the `Contacts` table.
+
+The following classes have been removed:
+
+- `AIMConnector`
+- `ICQConnector`
+- `YMConnector`
+
+The following constants have been removed:
+
+- `CalEventConstants.REMIND_BY_AIM`
+- `CalEventConstants.REMIND_BY_ICQ`
+- `CalEventConstants.REMIND_BY_YM`
+- `ContactConverterKeys.AIM_SN`
+- `ContactConverterKeys.ICQ_SN`
+- `ContactConverterKeys.MYSPACE_SN`
+- `ContactConverterKeys.YM_SN`
+- `PropsKeys.AIM_LOGIN`
+- `PropsKeys.AIM_PASSWORD`
+- `PropsKeys.ICQ_JAR`
+- `PropsKeys.ICQ_LOGIN`
+- `PropsKeys.ICQ_PASSWORD`
+- `PropsKeys.YM_LOGIN`
+- `PropsKeys.YM_PASSWORD`
+
+The following methods have been removed:
+
+- `getAimSn`
+- `getIcqSn`
+- `getMySpaceSn`
+- `getYmSn`
+- `setAimSn`
+- `setIcqSn`
+- `setMySpaceSn`
+- `setYmSn`
+
+The following methods have been changed:
+
+- `updateUser`
+- `addContact`
+
+The following portal properties have been removed:
+
+- `aim.login`
+- `aim.password`
+- `icq.jar`
+- `icq.login`
+- `icq.password`
+- `ym.login`
+- `ym.password`
+
+#### Who is affected?
+
+This affects developers who use any of the classes, constants, methods, or
+properties listed above.
+
+#### How should I update my code?
+
+When updating or adding a user or contact using one of the changed methods
+above, remove the `aimSn`, `icqSn`, `mySpaceSn`, and `ymSn` arguments from the
+method call. If you are using one of the removed items above, you should remove
+all references to them from your code and look for alternatives, if necessary.
+Lastly, remove from your SQL queries any references to former `Contacts` table
+columns `aimSn`, `icqSn`, `mySpaceSn`, and `ymSn`.
+
+Also, a reference to any one of the removed portal properties above no longer
+returns a value.
+
+#### Why was this change made?
+
+The services removed in this change are no longer popular enough to merit
+continued support.
+
+---------------------------------------
+
+### Removed All Methods from SchedulerEngineHelper that Explicitly Schedule Jobs Using SchedulerEntry or Specify MessageListener Class Names
+- **Date:** 2015-Oct-29
+- **JIRA Ticket:** LPS-59681
+
+#### What changed?
+
+The following methods were removed from `SchedulerEngine`:
+
+- `SchedulerEngineHelper.addJob(Trigger, StorageType, String, String, Message, String, String, int)`
+- `SchedulerEngineHelper.addJob(Trigger, StorageType, String, String, Object, String, String, int)`
+- `SchedulerEngineHelper.schedule(SchedulerEntry, StorageType, String, int)`
+
+#### Who is affected?
+
+This affects developers that use the above methods to schedule jobs into the
+`SchedulerEngine`.
+
+#### How should I update my code?
+
+You should update your code to call one of these methods:
+
+- `SchedulerEngineHelper.schedule(Trigger, StorageType, String, String, Message, int)`
+- `SchedulerEngineHelper.schedule(Trigger, StorageType, String, String, Object, int)`
+
+Instead of simply providing the class name of your scheduled job listener, you
+should follow these steps:
+
+1.  Instantiate your `MessageListener`.
+
+2.  Call `SchedulerEngineHelper.register(MessageListener, SchedulerEntry)` to
+    register your `SchedulerEventMessageListener`.
+
+#### Why was this change made?
+
+The deleted methods provided facilities that aren't compatible with using
+declarative services in an OSGi container. The new approach allows for proper
+injection of dependencies into scheduled event message listeners.
+
+---------------------------------------
+
+### Removed the asset.publisher.query.form.configuration Property
+- **Date:** 2015-Nov-03
+- **JIRA Ticket:** LPS-60119
+
+#### What changed?
+
+The `asset.publisher.query.form.configuration` property has been removed
+from `portal.properties`.
+
+#### Who is affected?
+
+This affects any hook that uses the `asset.publisher.query.form.configuration`
+property.
+
+#### How should I update my code?
+
+If you are using this property to generate the UI for an Asset Entry Query
+Processor, your Asset Entry Query Processor must now implement the `include`
+method to generate the UI.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal.
+
+---------------------------------------
+
+### Removed Hover and Alternate Style Features of Search Container Tag
+- **Date:** 2015-Nov-03
+- **JIRA Ticket:** LPS-58854
+
+#### What changed?
+
+The following attributes and methods have been removed:
+
+- The attribute `hover` of the `liferay-ui:search-container` tag.
+- The method `isHover()` of the `SearchContainerTag` class.
+- The attributes `classNameHover`, `hover`, `rowClassNameAlternate`,
+`rowClassNameAlternateHover`, `rowClassNameBody`, `rowClassNameBodyHover` of the
+`liferay-search-container` JavaScript module.
+
+#### Who is affected?
+
+This affects developers that use the `hover` attribute of the
+`liferay-ui:search-container` tag.
+
+#### How should I update my code?
+
+You should update your code changing the CSS selector that defines how rows look
+on hover to use the `:hover` and `:nth-of-type` CSS pseudo selectors instead.
+
+#### Why was this change made?
+
+Browsers support better ways to style content on hover in a way that doesn't
+penalize performance. Therefore, this change was made to increase the
+performance of hovering over content in Liferay.
+
+---------------------------------------
+
+### Removed AppViewMove and AppViewSelect JavaScript Modules
+- **Date:** 2015-Nov-03
+- **JIRA Ticket:** LPS-58854
+
+#### What changed?
+
+The JavaScript modules `AppViewMove` and `AppViewSelect` have been removed.
+
+#### Who is affected?
+
+This affects developers that use these modules to configure *select* and *move*
+actions inside their applications.
+
+#### How should I update my code?
+
+If you are using any of these modules, you can make use of the following
+`SearchContainer` APIs:
+
+- Listen to the `rowToggled` event of the search container to be notified about
+changes to the search container state.
+- Configure your search container *move* options creating a `RowMover` and
+define the allowed *move* targets and associated actions.
+- Use the `registerAction` method of the search container to execute your *move*
+logic when the user completes a *move* action.
+
+#### Why was this change made?
+
+The removed JavaScript modules contained too much logic and were difficult to
+decipher. It was also difficult to add this to an existing app. With this
+change, every app using a search container can use this functionality much
+easier.
+
+---------------------------------------
+
+### Removed the mergeLayoutTags Preference from Asset Publisher
+- **Date:** 2015-Nov-20
+- **JIRA Ticket:** LPS-60677
+
+#### What changed?
+
+The `mergeLayoutTags` preference has been removed from the Asset Publisher.
+
+#### Who is affected?
+
+This affects any Asset Publisher portlet that uses this preference.
+
+#### How should I update my code?
+
+There is nothing to update since this functionality is no longer used.
+
+#### Why was this change made?
+
+In previous versions of Liferay, some applications such as Blogs and Wiki shared
+the tags of their entries within the page. The Asset Publisher was able to use
+them to show other assets with the same tags. This functionality has changed, so
+the preference is no longer used.
+
+---------------------------------------
+
+### Removed the liferay-ui:navigation Tag and Replaced with liferay-site-navigation:navigation Tag
+- **Date:** 2015-Nov-20
+- **JIRA Ticket:** LPS-60328
+
+#### What changed?
+
+The `liferay-ui:navigation` tag has been removed and replaced with the
+`liferay-site-navigation:navigation` tag.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:navigation` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-site-navigation` tag library (if necessary) and
+update the tag namespace from `liferay-ui:navigation` to
+`liferay-site-navigation:navigation`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed Software Catalog Portlet and Services
+- **Date:** 2015-Nov-21
+- **JIRA Ticket:** LPS-60705
+
+#### What changed?
+
+The Software Catalog portlet and its associated services are no longer part of
+Liferay's source code or binaries.
+
+#### Who is affected?
+
+This affects portals which were making use of the Software Catalog portlet to
+manage a catalog of their software. Developers who were making use of the
+software catalog services from their custom code are also affected.
+
+#### How should I update my code?
+
+There is no direct replacement for invocations to the Software Catalog services.
+In cases where it is really needed, it is possible to obtain the code from a
+previous release and include it in the custom product (subject to licensing).
+
+#### Why was this change made?
+
+The Software Catalog was developed to implement the very first versions of what
+later become Liferay's Marketplace. It was later replaced and has not been used
+by Liferay since then. It has also been used minimally outside of Liferay. The
+decision was made to remove it so Liferay could be more lightweight and free
+time to focus on other areas of the product that add more value.
+
+---------------------------------------
+
+### Removed the liferay-ui:asset-categories-navigation Tag and Replaced with liferay-asset:asset-categories-navigation
+- **Date:** 2015-Nov-25
+- **JIRA Ticket:** LPS-60753
+
+#### What changed?
+
+The `liferay-ui:asset-categories-navigation` tag has been removed and replaced
+with the `liferay-asset:asset-categories-navigation` tag.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:asset-categories-navigation`
+tag need to update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-asset` tag library (if necessary) and update the
+tag namespace from `liferay-ui:asset-categories-navigation` to
+`liferay-asset:asset-categories-navigation`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed the liferay-ui:trash-empty Tag and Replaced with liferay-trash:empty
+- **Date:** 2015-Nov-30
+- **JIRA Ticket:** LPS-60779
+
+#### What changed?
+
+The `liferay-ui:trash-empty` tag has been removed and replaced with the
+`liferay-trash:empty` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:trash-empty` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-trash` tag library (if necessary) and update the
+tag namespace from `liferay-ui:trash-empty` to `liferay-trash:empty`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed the liferay-ui:trash-undo Tag and Replaced with liferay-trash:undo
+- **Date:** 2015-Nov-30
+- **JIRA Ticket:** LPS-60779
+
+#### What changed?
+
+The `liferay-ui:trash-undo` taglib has been removed and replaced with the
+`liferay-trash:undo` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:trash-undo` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-trash` tag library (if necessary) and update the
+tag namespace from `liferay-ui:trash-undo` to `liferay-trash:undo`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed the getPageOrderByComparator Method from WikiUtil
+- **Date:** 2015-Dec-01
+- **JIRA Ticket:** LPS-60843
+
+#### What changed?
+
+The `getPageOrderByComparator` method has been removed from `WikiUtil`.
+
+#### Who is affected?
+
+This affects developers that use this method in their code.
+
+#### How should I update my code?
+
+You should update your code to invoke
+`WikiPortletUtil.getPageOrderByComparator(String, String)`.
+
+#### Why was this change made?
+
+As part of the modularization efforts it has been considered that that this
+logic belongs to wiki-web module.
+
+---------------------------------------
+
+### Custom AUI Validators Are No Longer Implicitly Required
+- **Date:** 2015-Dec-02
+- **JIRA Ticket:** LPS-60995
+
+#### What changed?
+
+The AUI Validator tag no longer forces custom validators (e.g., `name="custom"`)
+to be required, and are now optional by default.
+
+#### Who is affected?
+
+This affects developers using custom validators, especially ones who relied on
+the field being implicitly required via the custom validator.
+
+#### How should I update my code?
+
+There are several cases where you should update your code to compensate for this
+change. First, blank value checking is no longer necessary, so places where
+blank values are checked should be updated.
+
+Old Code:
+
+    return !val || val != A.one('#<portlet:namespace />publicVirtualHost').val();
+
+New Code:
+
+    return val != A.one('#<portlet:namespace />publicVirtualHost').val();
+
+Also, instead of using custom validators to determine if a field is required,
+you should now use a conditional `required` validator.
+
+Old Code:
+
+    <aui:validator errorMessage="you-must-specify-a-file-or-a-title" name="custom">
+        function(val, fieldNode, ruleValue) {
+            return !!val || !!A.one('#<portlet:namespace />file').val();
+    }
+
+New Code:
+
+    <aui:validator errorMessage="you-must-specify-a-file-or-a-title" name="required">
+        function(fieldNode) {
+            return !A.one('#<portlet:namespace />file').val();
+    }
+
+Lastly, custom validators that assumed validation would always run must now
+explicitly pass the `required` validator. This is done by passing in the
+`<aui:validator name="required" />` element. The `<aui:input>` tag listed below
+is an example of how to explicity pass the `required` validator:
+
+    <aui:input name="vowelsOnly">
+        <aui:validator errorMessage="must-contain-only-the-following-characters" name="custom">
+            function(val, fieldNode, ruleValue) {
+                var allowedCharacters = 'aeiouy';
+                var regex = new RegExp('[^' + allowedCharacters + ']');
+
+                return !regex.test(val);
+            }
+        </aui:validator>
+        <aui:validator name="required" />
+    </aui:input>
+
+#### Why was this change made?
+
+A custom validator caused the field to be implicitly required. This meant that
+all validators for the field would be evaluated. This created a condition where
+you could not combine custom validators with another validator for an optional
+field.
+
+For example, imagine an optional field which has an email validator, plus a
+custom validator which checks for email addresses within a specific domain
+(e.g., `example.com`). There was no way for this optional field to pass
+validation. Even if you handled blank values in your custom validator, that
+blank value would fail the email validator.
+
+This change requires most custom validators to be refactored, but allows greater
+flexibility for all developers.
+
+---------------------------------------
+
+### Moved Recycle Bin Logic Into a New DLTrashService Interface
+- **Date:** 2015-Dec-02
+- **JIRA Ticket:** LPS-60810
+
+#### What changed?
+
+All Recycle Bin logic in Documents and Media services was moved from
+`DLAppService` into the new `DLTrashService` service interface. All moved
+methods have the same name and signatures.
+
+#### Who is affected?
+
+This affects any local or remote caller of `DLAppService`.
+
+#### How should I update my code?
+
+As all methods have been simply moved into the new service, calling the
+equivalent method on `DLTrashService` suffices.
+
+#### Why was this change made?
+
+Documents and Media services have complex interdependencies that result in
+circular dependencies. Until now, `DLAppService` was responsible for exposing
+the Recycle Bin logic, delegating it to other components. The problem was, the
+components depended on `DLAppService` to implement their logic. Extracting the
+services from `DLAppService` was the only sensible solution to this circularity.
+
+---------------------------------------
+
+### Removed the liferay-ui:diff Tag and Replaced with liferay-frontend:diff
+- **Date:** 2015-Dec-14
+- **JIRA Ticket:** LPS-61326
+
+#### What changed?
+
+The `liferay-ui:diff` tag has been removed and replaced with the
+`liferay-frontend:diff` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:diff` tag need to update
+their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-frontend` tag library (if necessary) and update
+the tag namespace from `liferay-ui:diff` to `liferay-frontend:diff`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Taglibs Are No Longer Accessible via the theme Variable in FreeMarker
+- **Date:** 2016-Jan-06
+- **JIRA Ticket:** LPS-61683
+
+#### What changed?
+
+The `${theme}` variable previously injected in the FreeMarker context providing
+access to various tags and utilities no longer provides them. Only the
+`${theme.include}` method is preserved for performance reasons.
+
+#### Who is affected?
+
+This affects FreeMarker templates that are using the `${theme}` variable to
+access tags.
+
+#### How should I update my code?
+
+All the tags and utility methods formerly accessed via the `${theme}` variable
+should now be accessed directly via tags.
+
+**Example 1**
+
+    ${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry", portletProviderAction.VIEW, "", default_preferences)}
+
+can be replaced by:
+
+    <@liferay_portlet["runtime"]
+        defaultPreferences=default_preferences
+        portletProviderAction=portletProviderAction.VIEW
+        portletProviderClassName="com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry"
+    />
+
+**Example 2**
+
+    ${theme.include(content_include)}
+
+can be replaced by:
+
+    <@liferay_util["include"] page=content_include />
+
+**Example 3**
+
+    ${theme.wrapPortlet("portlet.ftl", content_include)}
+
+can be replaced by:
+
+    <@liferay_theme["wrap-portlet"] page="portlet.ftl">
+        <@liferay_util["include"] page=content_include />
+    </@>
+
+**Example 4**
+
+    ${theme.iconHelp(portlet_description)}
+
+can be replaced by:
+
+    <@liferay_ui["icon-help"] message=portlet_description />
+
+**Example 5**
+
+    ${nav_item.icon()}
+
+can be replaced by:
+
+    <@liferay_theme["layout-icon"] layout=${nav_item.getLayout()} />
+
+#### Why was this change made?
+
+Previously, the `{$theme}` variable was being injected with the
+`VelocityTaglibImpl` class. This created coupling between template engines and
+coupling between specific tags and template engines at the same time.
+
+FreeMarker already offers native support for tags which cover all the
+functionality originally provided by the `{$theme}` variable. Removing this
+coupling helps future development while still keeping all the existing
+functionality.
+
+---------------------------------------
+
+### Portlet Configuration Options May Not Always Be Displayed
+- **Date:** 2016-Jan-07
+- **JIRA Ticket:** LPS-54620 and LPS-61820
+
+#### What changed?
+
+The portlet configuration options (e.g., configuration, export/import, look and
+feel, etc.) were always displayed in every view of the portlet and couldn't be
+customized.
+
+With Lexicon, the configuration options displayed are based on the portlet's
+context, so not all options will always be displayed.
+
+#### Who is affected?
+
+This affects portlets that should always display all configuration options no
+matter which view of the portlet is rendered.
+
+#### How should I update my code?
+
+If you don't apply any change to your source code, you will experience the
+following behaviors based on the portlet type:
+
+- **Struts Portlet:** If you've defined a `view-action` init parameter, the
+configuration options are only displayed for that particular view when invoking
+a URL with a parameter `struts_action` with the value indicated in the
+`view-action` init parameter and also in the default view of the portlet (when
+there is no `struts_action` parameter in the request).
+
+- **Liferay MVC Portlet:** If you've defined a `view-template` init parameter,
+the configuration options are only displayed when that template is rendered by
+invoking a URL with a parameter `mvcPath` with the value indicated in the
+`view-template` init parameter. and also in the default view of the portlet
+(when there is no `mvcPath` parameter in the request).
+
+- If it's a portlet using any other framework, the configuration options are
+always displayed.
+
+In order to keep the old behavior of adding the configuration options in every
+view, you need to add the init parameter
+`always-display-default-configuration-icons` with the value `true`.
+
+#### Why was this change made?
+
+Lexicon patterns require the ability to specify different configuration options
+depending on the view of the portlet by adding or removing options. This can be
+easily achieved by using the `PortletConfigurationIcon` and
+`PortletConfigurationIconFactory` classes.
+
+---------------------------------------
+
+### The getURLView Method of AssetRenderer Returns String Instead of PortletURL
+- **Date:** 2016-Jan-08
+- **JIRA Ticket:** LPS-61853
+
+#### What changed?
+
+The `AssetRenderer` interface's `getURLView` method has changed and now returns
+`String` instead of `PortletURL`.
+
+#### Who is affected?
+
+This affects all custom assets that implement the `AssetRenderer` interface.
+
+#### How should I update my code?
+
+You should update the method signature to reflect that it returns a `String` and
+you should adapt your implementation accordingly.
+
+In general, it should be as easy as returning `portletURL.toString()`.
+
+#### Why was this change made?
+
+The API was forcing implementations to return a `PortletURL`, making it
+difficult to return another type of link. For example, in the case of Bookmarks,
+developers wanted to automatically redirect to other potential URLs.
+
+---------------------------------------
+
+### Removed the icon Method from NavItem
+- **Date:** 2016-Jan-11
+- **JIRA Ticket:** LPS-61900
+
+#### What changed?
+
+The `NavItem` interface has changed and the method `icon` that would render the
+nav item icon has been removed.
+
+#### Who is affected?
+
+This affects all themes using the `nav_item.icon()` method.
+
+#### How should I update my code?
+
+You should update your code to call the method `nav_item.iconURL` to return the
+image's URL and then use it as you prefer.
+
+**Example:**
+
+    <img alt="Page Icon" class="layout-logo" src="<%= nav_item.iconURL()" />
+
+To keep the previous behavior in Velocity:
+
+    $theme.layoutIcon($nav_item.getLayout())
+
+To keep the previous behavior in FreeMarker:
+
+    <@liferay_theme["layout-icon"] layout=nav_item_layout />
+
+#### Why was this change made?
+
+The API was forcing developers to have a dependency on a taglib, which didn't
+allow for much flexibility.
+
+---------------------------------------
+
+### Renamed Packages to Fix the Split Packages Problem
+- **Date:** 2016-Jan-19
+- **JIRA Ticket:** LPS-61952
+
+#### What changed?
+
+Split packages are caused when two or more bundles export the same package name
+and version. When the classloader loads a package, exactly one exporter of that
+package is chosen; so if a package is split across multiple bundles, then an
+importer only sees a subset of the package.
+
+#### Who is affected?
+
+The `portal-service` and `portal-impl` folders have many packages with the same
+name. Therefore, all of these packages are affected by the split package
+problem.
+
+#### How should I update my code?
+
+You should rename duplicated package names if they currently exist somewhere
+else.
+
+**Example**
+
+- `com.liferay.portal.jdbc.pool.metrics` &rarr; `com.liferay.portal.kernel.jdbc.pool.metrics`
+
+- `com.liferay.portal.layoutconfiguration.util` &rarr; `com.liferay.portal.kernel.layoutconfiguration.util`
+
+- `com.liferay.portal.layoutconfiguration.util.xml` &rarr; `com.liferay.portal.kernel.layoutconfiguration.util.xml`
+
+- `com.liferay.portal.repository.proxy` &rarr; `com.liferay.portal.kernel.repository.proxy`
+
+- `com.liferay.portal.security.auth` &rarr; `com.liferay.portal.kernel.security.auth`
+
+- `com.liferay.portal.security.exportimport` &rarr; `com.liferay.portal.kernel.security.exportimport`
+
+- `com.liferay.portal.security.ldap` &rarr; `com.liferay.portal.kernel.security.ldap`
+
+- `com.liferay.portal.security.membershippolicy` &rarr; `com.liferay.portal.kernel.security.membershippolicy`
+
+- `com.liferay.portal.security.permission` &rarr; `com.liferay.portal.kernel.security.permission`
+
+- `com.liferay.portal.security.permission.comparator` &rarr; `com.liferay.portal.kernel.security.permission.comparator`
+
+- `com.liferay.portal.security.pwd` &rarr; `com.liferay.portal.kernel.security.pwd`
+
+- `com.liferay.portal.security.xml` &rarr; `com.liferay.portal.kernel.security.xml`
+
+- `com.liferay.portal.webserver` &rarr; `com.liferay.portal.kernel.webserver`
+
+- `com.liferay.portlet.backgroundtask` &rarr; `com.liferay.background.task.kernel`
+
+- `com.liferay.portlet.dynamicdatamapping` &rarr; `com.liferay.dynamic.data.mapping.kernel`
+
+- `com.liferay.portlet.imagegallerydisplay.display.context` &rarr; `com.liferay.image.gallery.display.kernel.display.context`
+
+- `com.liferay.portlet.layoutsadmin.util` &rarr; `com.liferay.layouts.admin.kernel.util`
+
+- `com.liferay.portlet.mobiledevicerules` &rarr; `com.liferay.mobile.device.rules`
+
+- `com.liferay.portlet.portletconfiguration.util` &rarr; `com.liferay.portlet.configuration.kernel.util`
+
+- `com.liferay.portlet.rolesadmin.util` &rarr; `com.liferay.roles.admin.kernel.util`
+
+- `com.liferay.portlet.sites.util` &rarr; `com.liferay.sites.kernel.util`
+
+- `com.liferay.portlet.useradmin.util` &rarr; `com.liferay.users.admin.kernel.util`
+
+#### Why was this change made?
+
+This change was necessary to solve the current split package problems and
+prevent future ones.
+
+---------------------------------------
+
+### The title field of FileEntry models is now mandatory
+- **Date:** 2016-Jan-25
+- **JIRA Ticket:** LPS-62251
+
+#### What changed?
+
+The `title` field of file entries was optional as long as a source
+file name was provided. To avoid confusion, the title is now required
+by the API, as is filled automatically by the UI when a source file
+name is present.
+
+#### Who is affected?
+
+Any user of the local or remote API. Users of the Web UI are unaffected.
+
+#### How should I update my code?
+
+You should pass a non null, non empty string in the title parameter of
+the `addFileEntry` and `updateFileEntry` methods.
+
+#### Why was this change made?
+
+The `title` field was marked as mandatory, but it was possible to
+create a document without filling it, as the backend would infer a
+value from the source file name automatically. This was considered
+confusing from an UX prespective.

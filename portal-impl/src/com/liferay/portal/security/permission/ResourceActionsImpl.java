@@ -14,18 +14,23 @@
 
 package com.liferay.portal.security.permission;
 
-import com.liferay.portal.NoSuchResourceActionException;
 import com.liferay.portal.ResourceActionsException;
+import com.liferay.portal.exception.NoSuchResourceActionException;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.ModelResourceActionsBag;
+import com.liferay.portal.kernel.security.permission.PortletResourceActionsBag;
+import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -79,10 +84,8 @@ import org.apache.struts.util.RequestUtils;
 public class ResourceActionsImpl implements ResourceActions {
 
 	public ResourceActionsImpl() {
-		_resourceBundles = ServiceTrackerCollections.multiValueMap(
+		_resourceBundles = ServiceTrackerCollections.openMultiValueMap(
 			ResourceBundle.class, "language.id");
-
-		_resourceBundles.open();
 	}
 
 	public void afterPropertiesSet() {
@@ -624,10 +627,10 @@ public class ResourceActionsImpl implements ResourceActions {
 		InputStream inputStream = classLoader.getResourceAsStream(source);
 
 		if (inputStream == null) {
-			if (_log.isWarnEnabled() && !source.endsWith("-ext.xml") &&
+			if (_log.isInfoEnabled() && !source.endsWith("-ext.xml") &&
 				!source.startsWith("META-INF/")) {
 
-				_log.warn("Cannot load " + source);
+				_log.info("Cannot load " + source);
 			}
 
 			return;
@@ -905,7 +908,7 @@ public class ResourceActionsImpl implements ResourceActions {
 
 		for (ResourceBundle resourceBundle : resourceBundles) {
 			if (resourceBundle.containsKey(key)) {
-				return resourceBundle.getString(key);
+				return ResourceBundleUtil.getString(resourceBundle, key);
 			}
 		}
 

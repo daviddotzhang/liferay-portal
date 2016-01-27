@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchLayoutBranchException;
+import com.liferay.portal.exception.NoSuchLayoutBranchException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -334,11 +334,9 @@ public class LayoutBranchPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = LayoutBranchLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<LayoutBranch>() {
 				@Override
-				public void performAction(Object object) {
-					LayoutBranch layoutBranch = (LayoutBranch)object;
-
+				public void performAction(LayoutBranch layoutBranch) {
 					Assert.assertNotNull(layoutBranch);
 
 					count.increment();

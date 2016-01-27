@@ -229,20 +229,25 @@ public class RepositoryEntryLocalServiceWrapper
 		return _repositoryEntryLocalService.getActionableDynamicQuery();
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _repositoryEntryLocalService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		com.liferay.portlet.exportimport.lar.PortletDataContext portletDataContext) {
 		return _repositoryEntryLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
+		return _repositoryEntryLocalService.getIndexableActionableDynamicQuery();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _repositoryEntryLocalService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -363,16 +368,6 @@ public class RepositoryEntryLocalServiceWrapper
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_repositoryEntryLocalService.setBeanIdentifier(beanIdentifier);
-	}
-
-	/**
 	* Updates the repository entry in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
 	* @param repositoryEntry the repository entry
@@ -390,23 +385,6 @@ public class RepositoryEntryLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _repositoryEntryLocalService.updateRepositoryEntry(repositoryEntryId,
 			mappedId);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public RepositoryEntryLocalService getWrappedRepositoryEntryLocalService() {
-		return _repositoryEntryLocalService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedRepositoryEntryLocalService(
-		RepositoryEntryLocalService repositoryEntryLocalService) {
-		_repositoryEntryLocalService = repositoryEntryLocalService;
 	}
 
 	@Override

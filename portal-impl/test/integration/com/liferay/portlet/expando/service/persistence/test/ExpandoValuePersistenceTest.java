@@ -32,7 +32,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.expando.NoSuchValueException;
+import com.liferay.portlet.expando.exception.NoSuchValueException;
 import com.liferay.portlet.expando.model.ExpandoValue;
 import com.liferay.portlet.expando.service.ExpandoValueLocalServiceUtil;
 import com.liferay.portlet.expando.service.persistence.ExpandoValuePersistence;
@@ -366,11 +366,9 @@ public class ExpandoValuePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ExpandoValueLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ExpandoValue>() {
 				@Override
-				public void performAction(Object object) {
-					ExpandoValue expandoValue = (ExpandoValue)object;
-
+				public void performAction(ExpandoValue expandoValue) {
 					Assert.assertNotNull(expandoValue);
 
 					count.increment();

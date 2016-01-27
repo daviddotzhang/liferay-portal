@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.SynchronousDestination;
 import com.liferay.portal.kernel.messaging.proxy.ProxyModeThreadLocal;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.rule.callback.SynchronousDestinationTestCallback.SyncHandler;
@@ -49,13 +50,13 @@ import org.junit.runner.Description;
  * @author Shuyang Zhou
  */
 public class SynchronousDestinationTestCallback
-	extends BaseTestCallback<SyncHandler, SyncHandler> {
+	implements TestCallback<SyncHandler, SyncHandler> {
 
 	public static final SynchronousDestinationTestCallback INSTANCE =
 		new SynchronousDestinationTestCallback();
 
 	@Override
-	public void doAfterClass(Description description, SyncHandler syncHandler)
+	public void afterClass(Description description, SyncHandler syncHandler)
 		throws Exception {
 
 		if (syncHandler != null) {
@@ -64,7 +65,7 @@ public class SynchronousDestinationTestCallback
 	}
 
 	@Override
-	public void doAfterMethod(
+	public void afterMethod(
 		Description description, SyncHandler syncHandler, Object target) {
 
 		if (syncHandler != null) {
@@ -73,7 +74,7 @@ public class SynchronousDestinationTestCallback
 	}
 
 	@Override
-	public SyncHandler doBeforeClass(Description description) throws Throwable {
+	public SyncHandler beforeClass(Description description) throws Throwable {
 		Class<?> testClass = description.getTestClass();
 
 		Sync sync = testClass.getAnnotation(Sync.class);
@@ -101,11 +102,11 @@ public class SynchronousDestinationTestCallback
 						" without any usage of " + Sync.class.getName());
 		}
 
-		return super.doBeforeClass(description);
+		return null;
 	}
 
 	@Override
-	public SyncHandler doBeforeMethod(Description description, Object target) {
+	public SyncHandler beforeMethod(Description description, Object target) {
 		Class<?> testClass = description.getTestClass();
 
 		Sync sync = testClass.getAnnotation(Sync.class);
@@ -185,9 +186,18 @@ public class SynchronousDestinationTestCallback
 				DestinationNames.DOCUMENT_LIBRARY_SYNC_EVENT_PROCESSOR);
 			replaceDestination(DestinationNames.MAIL);
 			replaceDestination(DestinationNames.SCHEDULER_ENGINE);
-			replaceDestination(DestinationNames.SEARCH_READER);
-			replaceDestination(DestinationNames.SEARCH_WRITER);
 			replaceDestination(DestinationNames.SUBSCRIPTION_SENDER);
+
+			for (String searchEngineId :
+					SearchEngineHelperUtil.getSearchEngineIds()) {
+
+				replaceDestination(
+					SearchEngineHelperUtil.getSearchReaderDestinationName(
+						searchEngineId));
+				replaceDestination(
+					SearchEngineHelperUtil.getSearchWriterDestinationName(
+						searchEngineId));
+			}
 		}
 
 		public void replaceDestination(String destinationName) {
@@ -289,16 +299,18 @@ public class SynchronousDestinationTestCallback
 		public void send(final Message message) {
 			try {
 				TransactionInvokerUtil.invoke(
-					_transactionAttribute, new Callable<Void>() {
+					_transactionAttribute,
+					new Callable<Void>() {
 
-					@Override
-					public Void call() throws Exception {
-						CleanTransactionSynchronousDestination.super.send(
-							message);
+						@Override
+						public Void call() throws Exception {
+							CleanTransactionSynchronousDestination.super.send(
+								message);
 
-						return null;
-					}
-				});
+							return null;
+						}
+
+					});
 			}
 			catch (Throwable t) {
 				throw new RuntimeException(t);

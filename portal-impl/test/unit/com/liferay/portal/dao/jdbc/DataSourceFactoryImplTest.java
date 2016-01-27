@@ -17,6 +17,7 @@ package com.liferay.portal.dao.jdbc;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.jdbc.DataSourceFactoryUtil;
 import com.liferay.portal.kernel.test.rule.NewEnv;
+import com.liferay.portal.kernel.test.rule.NewEnv.JVMArgsLine;
 import com.liferay.portal.kernel.test.rule.NewEnvTestRule;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -27,13 +28,20 @@ import com.liferay.portal.util.InitUtil;
 import com.liferay.portal.util.JarUtil;
 import com.liferay.portal.util.PropsImpl;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.registry.BasicRegistryImpl;
+import com.liferay.registry.RegistryUtil;
 
 import java.io.IOException;
 
 import java.lang.management.ManagementFactory;
 
+import java.net.URI;
+import java.net.URL;
+
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,6 +60,7 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.hsqldb.jdbc.JDBCDriver;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -75,7 +84,39 @@ public class DataSourceFactoryImplTest {
 			PropsKeys.SETUP_LIFERAY_POOL_PROVIDER_JAR_NAME,
 			new Filter("hikaricp"));
 
-		Files.deleteIfExists(Paths.get("lib/portal", jarName));
+		Path jarPath = Paths.get("lib/portal", jarName);
+
+		if (Files.exists(jarPath)) {
+			Path tempFilePath = Files.createTempFile(null, null);
+
+			Files.move(
+				jarPath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+			URI uri = tempFilePath.toUri();
+
+			URL url = uri.toURL();
+
+			System.setProperty(_HIKARICP_JAR_URL, url.toExternalForm());
+		}
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		String hikaricpJarURL = System.clearProperty(_HIKARICP_JAR_URL);
+
+		if (hikaricpJarURL != null) {
+			PropsUtil.setProps(new PropsImpl());
+
+			String jarName = PropsUtil.get(
+				PropsKeys.SETUP_LIFERAY_POOL_PROVIDER_JAR_NAME,
+				new Filter("hikaricp"));
+
+			URL url = new URL(hikaricpJarURL);
+
+			Files.move(
+				Paths.get(url.toURI()), Paths.get("lib/portal", jarName),
+				StandardCopyOption.REPLACE_EXISTING);
+		}
 	}
 
 	@Before
@@ -98,11 +139,23 @@ public class DataSourceFactoryImplTest {
 			Paths.get(PropsValues.LIFERAY_LIB_PORTAL_DIR, jarName));
 	}
 
+	@JVMArgsLine("-D" + _HIKARICP_JAR_URL + "=${" + _HIKARICP_JAR_URL + "}")
 	@NewEnv(type = NewEnv.Type.JVM)
 	@Test
 	public void testHikariCP() throws Exception {
+		RegistryUtil.setRegistry(new BasicRegistryImpl());
+
 		System.setProperty(
 			"portal:jdbc.default.liferay.pool.provider", "hikaricp");
+
+		String hikaricpJarURL = System.getProperty(_HIKARICP_JAR_URL);
+
+		if (hikaricpJarURL != null) {
+			System.setProperty(
+				"portal:" + PropsKeys.SETUP_LIFERAY_POOL_PROVIDER_JAR_URL +
+					"[hikaricp]",
+				hikaricpJarURL);
+		}
 
 		InitUtil.init();
 
@@ -111,8 +164,8 @@ public class DataSourceFactoryImplTest {
 		DataSource dataSource = null;
 
 		try (CaptureAppender captureAppender =
-			Log4JLoggerTestUtil.configureLog4JLogger(
-				JarUtil.class.getName(), Level.INFO)) {
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					JarUtil.class.getName(), Level.INFO)) {
 
 			dataSource = DataSourceFactoryUtil.initDataSource(_properties);
 
@@ -155,7 +208,7 @@ public class DataSourceFactoryImplTest {
 			Connection connection = dataSource.getConnection();
 
 			PreparedStatement preparedStatement = connection.prepareStatement(
-				_CONNECTION_TEST_QUERY);
+				"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS");
 
 			preparedStatement.execute();
 		}
@@ -185,8 +238,7 @@ public class DataSourceFactoryImplTest {
 
 	private static final int _CHECKOUT_COUNT = 5;
 
-	private static final String _CONNECTION_TEST_QUERY =
-		"SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS";
+	private static final String _HIKARICP_JAR_URL = "HIKARICP_JAR_URL";
 
 	private final Properties _properties = new Properties();
 

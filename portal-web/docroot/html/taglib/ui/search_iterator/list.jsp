@@ -14,24 +14,11 @@
  */
 --%>
 
-<%@ include file="/html/taglib/init.jsp" %>
+<%@ include file="/html/taglib/ui/search_iterator/init.jsp" %>
 
 <%
-SearchContainer searchContainer = (SearchContainer)request.getAttribute("liferay-ui:search:searchContainer");
-
-boolean paginate = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:search-iterator:paginate"));
-String type = (String)request.getAttribute("liferay-ui:search:type");
-
-String id = searchContainer.getId(request, namespace);
-
 int end = searchContainer.getEnd();
 int total = searchContainer.getTotal();
-List resultRows = searchContainer.getResultRows();
-List<String> headerNames = searchContainer.getHeaderNames();
-List<String> normalizedHeaderNames = searchContainer.getNormalizedHeaderNames();
-Map orderableHeaders = searchContainer.getOrderableHeaders();
-String emptyResultsMessage = searchContainer.getEmptyResultsMessage();
-RowChecker rowChecker = searchContainer.getRowChecker();
 
 if (end > total) {
 	end = total;
@@ -54,15 +41,15 @@ if (iteratorURL != null) {
 	url = HttpUtil.removeParameter(url, namespace + searchContainer.getOrderByColParam());
 	url = HttpUtil.removeParameter(url, namespace + searchContainer.getOrderByTypeParam());
 }
-
-JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 %>
 
-<div class="alert alert-info <%= resultRows.isEmpty() && (emptyResultsMessage != null) ? StringPool.BLANK : "hide" %>" id="<%= namespace + id %>EmptyResultsMessage">
-	<%= LanguageUtil.get(request, emptyResultsMessage) %>
-</div>
+<c:if test="<%= emptyResultsMessage != null %>">
+	<div class="alert alert-info <%= resultRows.isEmpty() ? StringPool.BLANK : "hide" %>" id="<%= namespace + id %>EmptyResultsMessage">
+		<%= LanguageUtil.get(request, emptyResultsMessage) %>
+	</div>
+</c:if>
 
-<div class="lfr-search-container <%= resultRows.isEmpty() ? "hide" : StringPool.BLANK %> <%= searchContainer.getCssClass() %>">
+<div class="lfr-search-container lfr-search-container-wrapper <%= resultRows.isEmpty() ? "hide" : StringPool.BLANK %> <%= searchContainer.getCssClass() %>">
 	<c:if test="<%= PropsValues.SEARCH_CONTAINER_SHOW_PAGINATION_TOP && (resultRows.size() > PropsValues.SEARCH_CONTAINER_SHOW_PAGINATION_TOP_DELTA) && paginate %>">
 		<div class="taglib-search-iterator-page-iterator-top">
 			<liferay-ui:search-paginator id='<%= id + "PageIteratorTop" %>' searchContainer="<%= searchContainer %>" type="<%= type %>" />
@@ -72,7 +59,7 @@ JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 	<div id="<%= namespace + id %>SearchContainer">
 		<table class="table table-bordered table-hover table-striped">
 
-		<c:if test="<%= headerNames != null %>">
+		<c:if test="<%= ListUtil.isNotNull(headerNames) %>">
 			<thead class="table-columns">
 				<tr>
 
@@ -166,7 +153,7 @@ JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 										<a href="<%= url %>">
 									</c:when>
 									<c:otherwise>
-										<a href="<%= StringUtil.replace(orderByJS, new String[] { "orderKey", "orderByType" }, new String[] { orderKey, orderByType }) %>">
+										<a href="<%= StringUtil.replace(orderByJS, new String[] {"orderKey", "orderByType"}, new String[] {orderKey, orderByType}) %>">
 									</c:otherwise>
 								</c:choose>
 						</c:if>
@@ -341,26 +328,10 @@ JSONArray primaryKeysJSONArray = JSONFactoryUtil.createJSONArray();
 	<aui:script use="liferay-search-container">
 		var searchContainer = new Liferay.SearchContainer(
 			{
-				classNameHover: '<%= _CLASS_NAME_HOVER %>',
-				hover: <%= searchContainer.isHover() %>,
-				id: '<%= namespace + id %>',
-				rowClassNameAlternate: '<%= _ROW_CLASS_NAME_ALTERNATE %>',
-				rowClassNameAlternateHover: '<%= _ROW_CLASS_NAME_ALTERNATE_HOVER %>',
-				rowClassNameBody: '<%= _ROW_CLASS_NAME_BODY %>',
-				rowClassNameBodyHover: '<%= _ROW_CLASS_NAME_BODY %>'
+				id: '<%= namespace + id %>'
 			}
 		).render();
 
 		searchContainer.updateDataStore(<%= primaryKeysJSONArray.toString() %>);
 	</aui:script>
 </c:if>
-
-<%!
-private static final String _CLASS_NAME_HOVER = "hover";
-
-private static final String _ROW_CLASS_NAME_ALTERNATE = "";
-
-private static final String _ROW_CLASS_NAME_ALTERNATE_HOVER = "-hover";
-
-private static final String _ROW_CLASS_NAME_BODY = "";
-%>

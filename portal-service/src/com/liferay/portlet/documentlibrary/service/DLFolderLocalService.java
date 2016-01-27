@@ -76,19 +76,6 @@ public interface DLFolderLocalService extends BaseLocalService,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws PortalException;
 
-	/**
-	* @deprecated As of 6.2.0, replaced by more general {@link #addFolder(long,
-	long, long, boolean, long, String, String, boolean,
-	ServiceContext)}
-	*/
-	@java.lang.Deprecated
-	public com.liferay.portlet.documentlibrary.model.DLFolder addFolder(
-		long userId, long groupId, long repositoryId, boolean mountPoint,
-		long parentFolderId, java.lang.String name,
-		java.lang.String description,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws PortalException;
-
 	public void clearDLFileEntryTypeDLFolders(long fileEntryTypeId);
 
 	/**
@@ -268,13 +255,6 @@ public interface DLFolderLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
-
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getCompanyFolders(
 		long companyId, int start, int end);
@@ -388,28 +368,9 @@ public interface DLFolderLocalService extends BaseLocalService,
 		long groupId, long folderId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<?> queryDefinition);
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFileEntriesAndFileShortcuts(long, long, QueryDefinition)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<java.lang.Object> getFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, int start, int end);
-
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getFileEntriesAndFileShortcutsCount(long groupId, long folderId,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<?> queryDefinition);
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFileEntriesAndFileShortcutsCount(long, long,
-	QueryDefinition)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getFileEntriesAndFileShortcutsCount(long groupId, long folderId,
-		int status);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.documentlibrary.model.DLFolder getFolder(
@@ -463,56 +424,11 @@ public interface DLFolderLocalService extends BaseLocalService,
 		boolean includeMountFolders,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<?> queryDefinition);
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcuts(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, boolean includeMountFolders,
-		int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc);
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<java.lang.Object> getFoldersAndFileEntriesAndFileShortcuts(
-		long groupId, long folderId, int status, java.lang.String[] mimeTypes,
-		boolean includeMountFolders, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<?> obc);
-
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
 		long folderId, java.lang.String[] mimeTypes,
 		boolean includeMountFolders,
 		com.liferay.portal.kernel.dao.orm.QueryDefinition<?> queryDefinition);
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
-		long folderId, int status, boolean includeMountFolders);
-
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link
-	#getFoldersAndFileEntriesAndFileShortcutsCount(long, long,
-	String[], boolean, QueryDefinition)}
-	*/
-	@java.lang.Deprecated
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getFoldersAndFileEntriesAndFileShortcutsCount(long groupId,
-		long folderId, int status, java.lang.String[] mimeTypes,
-		boolean includeMountFolders);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getFoldersCount(long groupId, long parentFolderId);
@@ -534,6 +450,9 @@ public interface DLFolderLocalService extends BaseLocalService,
 		long groupId, long folderId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portlet.documentlibrary.model.DLFolder getMountFolder(
 		long repositoryId) throws PortalException;
 
@@ -547,6 +466,13 @@ public interface DLFolderLocalService extends BaseLocalService,
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getNoAssetFolders();
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -588,6 +514,9 @@ public interface DLFolderLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public boolean hasFolderLock(long userId, long folderId);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public boolean hasInheritableLock(long folderId) throws PortalException;
+
 	public com.liferay.portal.kernel.lock.Lock lockFolder(long userId,
 		long folderId) throws PortalException;
 
@@ -606,13 +535,6 @@ public interface DLFolderLocalService extends BaseLocalService,
 	public void rebuildTree(long companyId, long parentFolderId,
 		java.lang.String parentTreePath, boolean reindex)
 		throws PortalException;
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
 
 	public void setDLFileEntryTypeDLFolders(long fileEntryTypeId,
 		long[] folderIds);
@@ -706,4 +628,7 @@ public interface DLFolderLocalService extends BaseLocalService,
 		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
 		com.liferay.portal.service.ServiceContext serviceContext)
 		throws PortalException;
+
+	public boolean verifyInheritableLock(long folderId,
+		java.lang.String lockUuid) throws PortalException;
 }

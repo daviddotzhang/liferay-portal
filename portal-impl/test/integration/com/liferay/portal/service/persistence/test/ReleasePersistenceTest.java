@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchReleaseException;
+import com.liferay.portal.exception.NoSuchReleaseException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -311,11 +311,9 @@ public class ReleasePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ReleaseLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Release>() {
 				@Override
-				public void performAction(Object object) {
-					Release release = (Release)object;
-
+				public void performAction(Release release) {
 					Assert.assertNotNull(release);
 
 					count.increment();

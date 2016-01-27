@@ -33,7 +33,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.social.NoSuchActivitySettingException;
+import com.liferay.portlet.social.exception.NoSuchActivitySettingException;
 import com.liferay.portlet.social.model.SocialActivitySetting;
 import com.liferay.portlet.social.service.SocialActivitySettingLocalServiceUtil;
 import com.liferay.portlet.social.service.persistence.SocialActivitySettingPersistence;
@@ -332,11 +332,10 @@ public class SocialActivitySettingPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialActivitySettingLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialActivitySetting>() {
 				@Override
-				public void performAction(Object object) {
-					SocialActivitySetting socialActivitySetting = (SocialActivitySetting)object;
-
+				public void performAction(
+					SocialActivitySetting socialActivitySetting) {
 					Assert.assertNotNull(socialActivitySetting);
 
 					count.increment();

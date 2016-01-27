@@ -15,13 +15,13 @@
 package com.liferay.portlet;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.Portlet;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortletCategoryKeys;
@@ -111,6 +111,12 @@ public abstract class BaseControlPanelEntry implements ControlPanelEntry {
 		throws Exception {
 
 		String category = portlet.getControlPanelEntryCategory();
+
+		if (category.startsWith(PortletCategoryKeys.SITE_ADMINISTRATION) &&
+			group.isLayoutPrototype()) {
+
+			return true;
+		}
 
 		if (category.equals(PortletCategoryKeys.SITE_ADMINISTRATION_CONTENT) &&
 			group.isLayout() && !portlet.isScopeable()) {

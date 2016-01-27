@@ -47,11 +47,7 @@ import java.util.Locale;
 public class UserTestUtil {
 
 	public static User addCompanyAdminUser(Company company) throws Exception {
-		User user = addUser();
-
-		user.setCompanyId(company.getCompanyId());
-
-		UserLocalServiceUtil.updateUser(user);
+		User user = addUser(company);
 
 		Role role = RoleLocalServiceUtil.getRole(
 			company.getCompanyId(), RoleConstants.ADMINISTRATOR);
@@ -183,6 +179,16 @@ public class UserTestUtil {
 				birthdayYear, jobTitle, groupIds, organizationIds, roleIds,
 				userGroupIds, sendMail, serviceContext);
 		}
+	}
+
+	public static User addUser(Company company) throws Exception {
+		return addUser(
+			company.getCompanyId(), TestPropsValues.getUserId(),
+			RandomTestUtil.randomString(NumericStringRandomizerBumper.INSTANCE),
+			LocaleUtil.getDefault(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(),
+			new long[] {TestPropsValues.getGroupId()},
+			ServiceContextTestUtil.getServiceContext());
 	}
 
 	public static User addUser(long... groupIds) throws Exception {
@@ -325,15 +331,10 @@ public class UserTestUtil {
 		int birthdayDay = 1;
 		int birthdayYear = 1970;
 		String smsSn = StringPool.BLANK;
-		String aimSn = StringPool.BLANK;
 		String facebookSn = StringPool.BLANK;
-		String icqSn = StringPool.BLANK;
 		String jabberSn = StringPool.BLANK;
-		String msnSn = StringPool.BLANK;
-		String mySpaceSn = StringPool.BLANK;
 		String skypeSn = StringPool.BLANK;
 		String twitterSn = StringPool.BLANK;
-		String ymSn = StringPool.BLANK;
 		String jobTitle = StringPool.BLANK;
 		long[] groupIds = null;
 		long[] organizationIds = null;
@@ -347,9 +348,9 @@ public class UserTestUtil {
 			screenName, emailAddress, facebookId, openId, languageId,
 			timeZoneId, greeting, comments, firstName, middleName, lastName,
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
-			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
-			skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, serviceContext);
+			smsSn, facebookSn, jabberSn, skypeSn, twitterSn, jobTitle, groupIds,
+			organizationIds, roleIds, userGroupRoles, userGroupIds,
+			serviceContext);
 	}
 
 }

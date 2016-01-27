@@ -33,7 +33,7 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.blogs.NoSuchStatsUserException;
+import com.liferay.portlet.blogs.exception.NoSuchStatsUserException;
 import com.liferay.portlet.blogs.model.BlogsStatsUser;
 import com.liferay.portlet.blogs.service.BlogsStatsUserLocalServiceUtil;
 import com.liferay.portlet.blogs.service.persistence.BlogsStatsUserPersistence;
@@ -341,11 +341,9 @@ public class BlogsStatsUserPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = BlogsStatsUserLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<BlogsStatsUser>() {
 				@Override
-				public void performAction(Object object) {
-					BlogsStatsUser blogsStatsUser = (BlogsStatsUser)object;
-
+				public void performAction(BlogsStatsUser blogsStatsUser) {
 					Assert.assertNotNull(blogsStatsUser);
 
 					count.increment();

@@ -54,18 +54,18 @@
 	<td></td>
 </tr>
 <tr>
-	<td>SPECIFIC_PORTLET_OPTIONS_ICON</td>
+	<td>SPECIFIC_PORTLET_ELLIPSIS_ICON</td>
 	<td>//div[@id='main-content']//h2[contains(.,'${key_portletName}')]/../../header/menu/div[contains(@class,'portlet-options')]/a</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SPECIFIC_PORTLET_BORDERLESS_BAR</td>
-	<td>//div[contains(.,'${key_portletName}') and contains(@class,'portlet-borderless')]//span[contains(@class,'portlet-actions')]</td>
+	<td>//div[contains(@class,'portlet-title-default')]/span[contains(.,'${key_portletName}')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>SPECIFIC_PORTLET_BORDERLESS_OPTIONS_ICON</td>
-	<td>//div[@class='portlet-borderless-container']/div[contains(.,'${key_portletName}')]//a[@title='Options']</td>
+	<td>SPECIFIC_PORTLET_BORDERLESS_ELLIPSIS_ICON</td>
+	<td>//div[span[contains(.,'${key_portletName}')]]/following-sibling::menu//i[contains(@class,'icon-ellipsis-vertical')]</td>
 	<td></td>
 </tr>
 <tr>

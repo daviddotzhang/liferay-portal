@@ -83,15 +83,6 @@ public class DLAppHelperLocalServiceUtil {
 		getService().deleteRepositoryFileEntries(repositoryId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
-	}
-
 	public static void getFileAsStream(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		boolean incrementCounter) {
@@ -103,34 +94,23 @@ public class DLAppHelperLocalServiceUtil {
 		return getService().getFileShortcuts(groupId, folderId, active, status);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getFileShortcuts(long, long,
-	boolean, int)}
-	*/
-	@Deprecated
-	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileShortcut> getFileShortcuts(
-		long groupId, long folderId, int status) {
-		return getService().getFileShortcuts(groupId, folderId, status);
-	}
-
 	public static int getFileShortcutsCount(long groupId, long folderId,
 		boolean active, int status) {
 		return getService()
 				   .getFileShortcutsCount(groupId, folderId, active, status);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #getFileShortcutsCount(long,
-	long, boolean, int)}
-	*/
-	@Deprecated
-	public static int getFileShortcutsCount(long groupId, long folderId,
-		int status) {
-		return getService().getFileShortcutsCount(groupId, folderId, status);
-	}
-
 	public static java.util.List<com.liferay.portal.kernel.repository.model.FileEntry> getNoAssetFileEntries() {
 		return getService().getNoAssetFileEntries();
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	/**
@@ -169,7 +149,6 @@ public class DLAppHelperLocalServiceUtil {
 	* @param userId the primary key of the user moving the file entry
 	* @param fileEntry the file entry to be moved
 	* @return the moved file entry
-	* @throws PortalException if a user with the primary key could not be found
 	*/
 	public static com.liferay.portal.kernel.repository.model.FileEntry moveFileEntryToTrash(
 		long userId,
@@ -195,7 +174,6 @@ public class DLAppHelperLocalServiceUtil {
 	* @param userId the primary key of the user moving the file shortcut
 	* @param fileShortcut the file shortcut to be moved
 	* @return the moved file shortcut
-	* @throws PortalException if a user with the primary key could not be found
 	*/
 	public static com.liferay.portal.kernel.repository.model.FileShortcut moveFileShortcutToTrash(
 		long userId,
@@ -220,7 +198,6 @@ public class DLAppHelperLocalServiceUtil {
 	* @param userId the primary key of the user moving the folder
 	* @param folder the folder to be moved
 	* @return the moved folder
-	* @throws PortalException if a user with the primary key could not be found
 	*/
 	public static com.liferay.portal.kernel.repository.model.Folder moveFolderToTrash(
 		long userId, com.liferay.portal.kernel.repository.model.Folder folder)
@@ -274,15 +251,6 @@ public class DLAppHelperLocalServiceUtil {
 		com.liferay.portal.kernel.repository.model.Folder folder)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService().restoreFolderFromTrash(userId, folder);
-	}
-
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
 	}
 
 	public static com.liferay.portlet.asset.model.AssetEntry updateAsset(
@@ -367,13 +335,6 @@ public class DLAppHelperLocalServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(DLAppHelperLocalService service) {
 	}
 
 	private static DLAppHelperLocalService _service;

@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.kernel.zip.ZipWriterFactoryUtil;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
+import com.liferay.portal.model.StagedGroupedModel;
 import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
@@ -52,6 +53,7 @@ import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.portlet.asset.util.test.AssetTestUtil;
 import com.liferay.portlet.exportimport.lar.ExportImportClassedModelUtil;
 import com.liferay.portlet.exportimport.lar.ExportImportPathUtil;
+import com.liferay.portlet.exportimport.lar.ExportImportThreadLocal;
 import com.liferay.portlet.exportimport.lar.PortletDataContext;
 import com.liferay.portlet.exportimport.lar.PortletDataContextFactoryUtil;
 import com.liferay.portlet.exportimport.lar.PortletDataHandlerKeys;
@@ -145,6 +147,67 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		StagedModelDataHandlerUtil.importStagedModel(
 			portletDataContext, exportedStagedModel);
+	}
+
+	public void testLastPublishDate() throws Exception {
+		if (!supportLastPublishDateUpdate()) {
+			return;
+		}
+
+		Map<String, List<StagedModel>> dependentStagedModelsMap =
+			new HashMap<>();
+
+		StagedGroupedModel stagedGroupedModel =
+			(StagedGroupedModel)addStagedModel(
+				stagingGroup, dependentStagedModelsMap);
+
+		Assert.assertNull(stagedGroupedModel.getLastPublishDate());
+
+		initExport();
+
+		// Update last publish date
+
+		Map<String, String[]> parameterMap =
+			portletDataContext.getParameterMap();
+
+		parameterMap.put(
+			PortletDataHandlerKeys.UPDATE_LAST_PUBLISH_DATE,
+			new String[] {Boolean.TRUE.toString()});
+
+		try {
+			ExportImportThreadLocal.setPortletStagingInProcess(true);
+
+			StagedModelDataHandlerUtil.exportStagedModel(
+				portletDataContext, stagedGroupedModel);
+		}
+		finally {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+		}
+
+		Assert.assertEquals(
+			portletDataContext.getEndDate(),
+			stagedGroupedModel.getLastPublishDate());
+
+		// Do not update last publish date
+
+		Date originalLastPublishDate = stagedGroupedModel.getLastPublishDate();
+
+		parameterMap.put(
+			PortletDataHandlerKeys.UPDATE_LAST_PUBLISH_DATE,
+			new String[] {Boolean.TRUE.toString()});
+
+		try {
+			ExportImportThreadLocal.setPortletStagingInProcess(true);
+
+			StagedModelDataHandlerUtil.exportStagedModel(
+				portletDataContext, stagedGroupedModel);
+		}
+		finally {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+		}
+
+		Assert.assertEquals(
+			originalLastPublishDate, stagedGroupedModel.getLastPublishDate());
 	}
 
 	@Test
@@ -454,8 +517,7 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		portletDataContext.setExportDataRootElement(rootElement);
 
-		missingReferencesElement = SAXReaderUtil.createElement(
-			"missing-references");
+		missingReferencesElement = rootElement.addElement("missing-references");
 
 		portletDataContext.setMissingReferencesElement(
 			missingReferencesElement);
@@ -487,6 +549,17 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		portletDataContext.setImportDataRootElement(rootElement);
 
+		Element missingReferencesElement = rootElement.element(
+			"missing-references");
+
+		if (missingReferencesElement == null) {
+			missingReferencesElement = rootElement.addElement(
+				"missing-references");
+		}
+
+		portletDataContext.setMissingReferencesElement(
+			missingReferencesElement);
+
 		Group sourceCompanyGroup = GroupLocalServiceUtil.getCompanyGroup(
 			stagingGroup.getCompanyId());
 
@@ -495,6 +568,10 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		portletDataContext.setSourceCompanyId(stagingGroup.getCompanyId());
 		portletDataContext.setSourceGroupId(stagingGroup.getGroupId());
+	}
+
+	protected boolean isAssetPrioritySupported() {
+		return false;
 	}
 
 	protected boolean isCommentableStagedModel() {
@@ -513,6 +590,10 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 				stagedModelPath);
 
 		return exportedStagedModel;
+	}
+
+	protected boolean supportLastPublishDateUpdate() {
+		return false;
 	}
 
 	protected StagedModelAssets updateAssetEntry(
@@ -545,16 +626,31 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		AssetTag assetTag = AssetTestUtil.addTag(stagingGroup.getGroupId());
 
-		AssetEntryLocalServiceUtil.updateEntry(
+		double assetPriority = assetEntry.getPriority();
+
+		if (isAssetPrioritySupported()) {
+			assetPriority = RandomTestUtil.nextDouble();
+		}
+
+		assetEntry = AssetEntryLocalServiceUtil.updateEntry(
 			TestPropsValues.getUserId(), stagingGroup.getGroupId(),
+			assetEntry.getCreateDate(), assetEntry.getModifiedDate(),
 			assetEntry.getClassName(), assetEntry.getClassPK(),
+			assetEntry.getClassUuid(), assetEntry.getClassTypeId(),
 			new long[] {
 				assetCategory.getCategoryId(),
 				companyAssetCategory.getCategoryId()
 			},
-			new String[] {assetTag.getName()});
+			new String[] {assetTag.getName()}, assetEntry.isVisible(),
+			assetEntry.getStartDate(), assetEntry.getEndDate(),
+			assetEntry.getExpirationDate(), assetEntry.getMimeType(),
+			assetEntry.getTitle(), assetEntry.getDescription(),
+			assetEntry.getSummary(), assetEntry.getUrl(),
+			assetEntry.getLayoutUuid(), assetEntry.getHeight(),
+			assetEntry.getWidth(), assetPriority);
 
-		return new StagedModelAssets(assetCategory, assetTag, assetVocabulary);
+		return new StagedModelAssets(
+			assetCategory, assetEntry, assetTag, assetVocabulary);
 	}
 
 	protected void validateAssets(
@@ -566,13 +662,20 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 			return;
 		}
 
-		AssetEntry assetEntry = fetchAssetEntry(stagedModel, group);
+		AssetEntry importedAssetEntry = fetchAssetEntry(stagedModel, group);
 
-		List<AssetCategory> assetCategories =
+		if (isAssetPrioritySupported()) {
+			AssetEntry assetEntry = stagedModelAssets.getAssetEntry();
+
+			Assert.assertEquals(
+				assetEntry.getPriority(), importedAssetEntry.getPriority(), 0D);
+		}
+
+		List<AssetCategory> importedAssetCategories =
 			AssetCategoryLocalServiceUtil.getEntryCategories(
-				assetEntry.getEntryId());
+				importedAssetEntry.getEntryId());
 
-		Assert.assertEquals(2, assetCategories.size());
+		Assert.assertEquals(2, importedAssetCategories.size());
 
 		AssetCategory stagedAssetCategory =
 			stagedModelAssets.getAssetCategory();
@@ -584,7 +687,7 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		long companyGroupId = company.getGroupId();
 
-		for (AssetCategory assetCategory : assetCategories) {
+		for (AssetCategory assetCategory : importedAssetCategories) {
 			long groupId = assetCategory.getGroupId();
 
 			if (groupId != companyGroupId) {
@@ -597,13 +700,14 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 		Assert.assertEquals(
 			stagedAssetCategory.getUuid(), importedAssetCategory.getUuid());
 
-		List<AssetTag> assetTags = AssetTagLocalServiceUtil.getEntryTags(
-			assetEntry.getEntryId());
+		List<AssetTag> importedAssetTags =
+			AssetTagLocalServiceUtil.getEntryTags(
+				importedAssetEntry.getEntryId());
 
-		Assert.assertEquals(1, assetTags.size());
+		Assert.assertEquals(1, importedAssetTags.size());
 
 		AssetTag assetTag = stagedModelAssets.getAssetTag();
-		AssetTag importedAssetTag = assetTags.get(0);
+		AssetTag importedAssetTag = importedAssetTags.get(0);
 
 		Assert.assertEquals(assetTag.getName(), importedAssetTag.getName());
 
@@ -683,6 +787,10 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 
 		for (Element stagedModelGroupElement : stagedModelGroupElements) {
 			String className = stagedModelGroupElement.getName();
+
+			if (className.equals("missing-references")) {
+				continue;
+			}
 
 			List<StagedModel> dependentStagedModels =
 				dependentStagedModelsMap.get(className);
@@ -827,16 +935,21 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 	protected class StagedModelAssets implements Serializable {
 
 		public StagedModelAssets(
-			AssetCategory assetCategory, AssetTag assetTag,
-			AssetVocabulary assetVocabulary) {
+			AssetCategory assetCategory, AssetEntry assetEntry,
+			AssetTag assetTag, AssetVocabulary assetVocabulary) {
 
 			_assetCategory = assetCategory;
+			_assetEntry = assetEntry;
 			_assetTag = assetTag;
 			_assetVocabulary = assetVocabulary;
 		}
 
 		public AssetCategory getAssetCategory() {
 			return _assetCategory;
+		}
+
+		public AssetEntry getAssetEntry() {
+			return _assetEntry;
 		}
 
 		public AssetTag getAssetTag() {
@@ -851,6 +964,10 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 			_assetCategory = assetCategory;
 		}
 
+		public void setAssetEntry(AssetEntry assetEntry) {
+			_assetEntry = assetEntry;
+		}
+
 		public void setAssetTag(AssetTag assetTag) {
 			_assetTag = assetTag;
 		}
@@ -860,6 +977,7 @@ public abstract class BaseStagedModelDataHandlerTestCase {
 		}
 
 		private AssetCategory _assetCategory;
+		private AssetEntry _assetEntry;
 		private AssetTag _assetTag;
 		private AssetVocabulary _assetVocabulary;
 

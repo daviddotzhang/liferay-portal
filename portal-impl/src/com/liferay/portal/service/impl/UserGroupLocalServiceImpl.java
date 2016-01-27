@@ -14,10 +14,9 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.DuplicateUserGroupException;
-import com.liferay.portal.NoSuchUserGroupException;
-import com.liferay.portal.RequiredUserGroupException;
-import com.liferay.portal.UserGroupNameException;
+import com.liferay.portal.exception.DuplicateUserGroupException;
+import com.liferay.portal.exception.RequiredUserGroupException;
+import com.liferay.portal.exception.UserGroupNameException;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -29,6 +28,8 @@ import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.security.exportimport.UserGroupImportTransactionThreadLocal;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -45,8 +46,6 @@ import com.liferay.portal.model.Team;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
 import com.liferay.portal.model.UserGroupConstants;
-import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.security.exportimport.UserGroupImportTransactionThreadLocal;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.UserGroupLocalServiceBaseImpl;
@@ -57,7 +56,7 @@ import com.liferay.portlet.exportimport.lar.ExportImportHelperUtil;
 import com.liferay.portlet.exportimport.lar.PortletDataHandlerKeys;
 import com.liferay.portlet.exportimport.lar.UserIdStrategy;
 import com.liferay.portlet.exportimport.model.ExportImportConfiguration;
-import com.liferay.portlet.usersadmin.util.UsersAdminUtil;
+import com.liferay.users.admin.kernel.util.UsersAdminUtil;
 
 import java.io.File;
 import java.io.Serializable;
@@ -119,7 +118,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 * @param      name the user group's name
 	 * @param      description the user group's description
 	 * @return     the user group
-	 * @throws     PortalException if the user group's information was invalid
 	 * @deprecated As of 6.2.0, replaced by {@link #addUserGroup(long, long,
 	 *             String, String, ServiceContext)}
 	 */
@@ -150,7 +148,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *         <code>null</code>). Can set expando bridge attributes for the
 	 *         user group.
 	 * @return the user group
-	 * @throws PortalException if the user group's information was invalid
 	 */
 	@Override
 	public UserGroup addUserGroup(
@@ -215,10 +212,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 * Clears all associations between the user and its user groups and clears
 	 * the permissions cache.
 	 *
-	 * <p>
-	 * This method is called from {@link #deleteUserGroup(UserGroup)}.
-	 * </p>
-	 *
 	 * @param userId the primary key of the user
 	 */
 	@Override
@@ -233,8 +226,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *
 	 * @param      userGroupId the primary key of the user group
 	 * @param      userId the primary key of the user
-	 * @throws     PortalException if a user with the primary key could not be
-	 *             found or if a portal exception occurred
 	 * @deprecated As of 6.2.0
 	 */
 	@Deprecated
@@ -266,8 +257,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *
 	 * @param      userGroupId the primary key of the user group
 	 * @param      userIds the primary keys of the users
-	 * @throws     PortalException if any one of the users could not be found or
-	 *             if a portal exception occurred
 	 * @deprecated As of 6.1.0
 	 */
 	@Deprecated
@@ -302,8 +291,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *
 	 * @param      userGroupIds the primary keys of the user groups
 	 * @param      userId the primary key of the user
-	 * @throws     PortalException if a user with the primary key could not be
-	 *             found or if a portal exception occurred
 	 * @deprecated As of 6.1.0
 	 */
 	@Deprecated
@@ -323,8 +310,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *
 	 * @param  userGroupId the primary key of the user group
 	 * @return the deleted user group
-	 * @throws PortalException if a user group with the primary key could not be
-	 *         found or if the user group had a workflow in approved status
 	 */
 	@Override
 	public UserGroup deleteUserGroup(long userGroupId) throws PortalException {
@@ -339,8 +324,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *
 	 * @param  userGroup the user group
 	 * @return the deleted user group
-	 * @throws PortalException if the organization had a workflow in approved
-	 *         status
 	 */
 	@Override
 	@SystemEvent(
@@ -360,10 +343,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 		// Expando
 
 		expandoRowLocalService.deleteRows(userGroup.getUserGroupId());
-
-		// Users
-
-		clearUserUserGroups(userGroup.getUserId());
 
 		// Group
 
@@ -448,7 +427,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 * @param  companyId the primary key of the user group's company
 	 * @param  name the user group's name
 	 * @return Returns the user group with the name
-	 * @throws PortalException if a user group with the name could not be found
 	 */
 	@Override
 	public UserGroup getUserGroup(long companyId, String name)
@@ -473,7 +451,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *
 	 * @param  userGroupIds the primary keys of the user groups
 	 * @return the user groups with the primary keys
-	 * @throws PortalException if any one of the user groups could not be found
 	 */
 	@Override
 	public List<UserGroup> getUserGroups(long[] userGroupIds)
@@ -544,14 +521,14 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *         user group's name or description (optionally <code>null</code>)
 	 * @param  params the finder params (optionally <code>null</code>). For more
 	 *         information see {@link
-	 *         com.liferay.portlet.usergroupsadmin.util.UserGroupIndexer}
+	 *         com.liferay.user.groups.admin.web.search.UserGroupIndexer}
 	 * @param  start the lower bound of the range of user groups to return
 	 * @param  end the upper bound of the range of user groups to return (not
 	 *         inclusive)
 	 * @param  sort the field and direction by which to sort (optionally
 	 *         <code>null</code>)
 	 * @return the matching user groups ordered by sort
-	 * @see    com.liferay.portlet.usergroupsadmin.util.UserGroupIndexer
+	 * @see    com.liferay.user.groups.admin.web.search.UserGroupIndexer
 	 */
 	@Override
 	public Hits search(
@@ -639,7 +616,7 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *         <code>null</code>)
 	 * @param  params the finder params (optionally <code>null</code>). For more
 	 *         information see {@link
-	 *         com.liferay.portlet.usergroupsadmin.util.UserGroupIndexer}
+	 *         com.liferay.user.groups.admin.web.search.UserGroupIndexer}
 	 * @param  andSearch whether every field must match its keywords or just one
 	 *         field
 	 * @param  start the lower bound of the range of user groups to return
@@ -828,9 +805,8 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 * layouts and removing and adding user group associations for the user as
 	 * necessary.
 	 *
-	 * @param  userId the primary key of the user
-	 * @param  userGroupIds the primary keys of the user groups
-	 * @throws PortalException if a portal exception occurred
+	 * @param userId the primary key of the user
+	 * @param userGroupIds the primary keys of the user groups
 	 */
 	@Override
 	public void setUserUserGroups(long userId, long[] userGroupIds)
@@ -895,8 +871,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 * @param      name the user group's name
 	 * @param      description the user group's description
 	 * @return     the user group
-	 * @throws     PortalException if a user group with the primary key could
-	 *             not be found or if the new information was invalid
 	 * @deprecated As of 6.2.0, replaced by {@link #updateUserGroup(long, long,
 	 *             String, String, ServiceContext)}
 	 */
@@ -920,8 +894,6 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 	 *         <code>null</code>). Can set expando bridge attributes for the
 	 *         user group.
 	 * @return the user group
-	 * @throws PortalException if a user group with the primary key could not be
-	 *         found or if the new information was invalid
 	 */
 	@Override
 	public UserGroup updateUserGroup(
@@ -1176,15 +1148,12 @@ public class UserGroupLocalServiceImpl extends UserGroupLocalServiceBaseImpl {
 			throw new UserGroupNameException();
 		}
 
-		try {
-			UserGroup userGroup = userGroupFinder.findByC_N(companyId, name);
+		UserGroup userGroup = fetchUserGroup(companyId, name);
 
-			if (userGroup.getUserGroupId() != userGroupId) {
-				throw new DuplicateUserGroupException(
-					"{userGroupId=" + userGroupId + "}");
-			}
-		}
-		catch (NoSuchUserGroupException nsuge) {
+		if ((userGroup != null) &&
+			(userGroup.getUserGroupId() != userGroupId)) {
+
+			throw new DuplicateUserGroupException("{name=" + name + "}");
 		}
 	}
 

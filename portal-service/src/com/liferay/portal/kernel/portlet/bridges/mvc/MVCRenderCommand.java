@@ -83,13 +83,15 @@ public interface MVCRenderCommand extends MVCCommand {
 
 	};
 
+	public static final String MVC_PATH_SKIP_DISPATCH =
+		MVCRenderCommand.class.getName() + "#MVC_PATH_SKIP_DISPATCH";
+
 	/**
 	 * Invoked by {@link MVCPortlet} to handle the render phase of the portlet.
 	 *
 	 * @param  renderRequest the render request
 	 * @param  renderResponse the render response
 	 * @return the path that should be dispatched
-	 * @throws PortletException if a portlet exception occurred
 	 */
 	public String render(
 			RenderRequest renderRequest, RenderResponse renderResponse)

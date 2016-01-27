@@ -48,16 +48,6 @@ public class DLFileShortcutServiceWrapper implements DLFileShortcutService,
 		_dlFileShortcutService.deleteFileShortcut(fileShortcutId);
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _dlFileShortcutService.getBeanIdentifier();
-	}
-
 	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFileShortcut getFileShortcut(
 		long fileShortcutId)
@@ -66,13 +56,13 @@ public class DLFileShortcutServiceWrapper implements DLFileShortcutService,
 	}
 
 	/**
-	* Sets the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @param beanIdentifier the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_dlFileShortcutService.setBeanIdentifier(beanIdentifier);
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _dlFileShortcutService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -90,23 +80,6 @@ public class DLFileShortcutServiceWrapper implements DLFileShortcutService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_dlFileShortcutService.updateFileShortcuts(oldToFileEntryId,
 			newToFileEntryId);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public DLFileShortcutService getWrappedDLFileShortcutService() {
-		return _dlFileShortcutService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedDLFileShortcutService(
-		DLFileShortcutService dlFileShortcutService) {
-		_dlFileShortcutService = dlFileShortcutService;
 	}
 
 	@Override

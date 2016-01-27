@@ -69,7 +69,8 @@ public class FinalizeManagerTest {
 					throw runtimeException;
 				}
 
-			}, FinalizeManager.PHANTOM_REFERENCE_FACTORY);
+			},
+			FinalizeManager.PHANTOM_REFERENCE_FACTORY);
 
 		Assert.assertNotNull(getReferent(reference));
 
@@ -82,7 +83,7 @@ public class FinalizeManagerTest {
 			Assert.fail();
 		}
 		catch (Exception e) {
-			Assert.assertSame(runtimeException, e.getCause());
+			Assert.assertSame(runtimeException, e);
 		}
 
 		Assert.assertNull(getReferent(reference));

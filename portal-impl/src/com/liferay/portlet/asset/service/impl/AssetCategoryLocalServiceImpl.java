@@ -14,7 +14,7 @@
 
 package com.liferay.portlet.asset.service.impl;
 
-import com.liferay.portal.kernel.cache.ThreadLocalCachable;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCachable;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.CharPool;
@@ -45,8 +46,8 @@ import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.permission.ModelPermissions;
-import com.liferay.portlet.asset.AssetCategoryNameException;
-import com.liferay.portlet.asset.DuplicateCategoryException;
+import com.liferay.portlet.asset.exception.AssetCategoryNameException;
+import com.liferay.portlet.asset.exception.DuplicateCategoryException;
 import com.liferay.portlet.asset.model.AssetCategory;
 import com.liferay.portlet.asset.model.AssetCategoryConstants;
 import com.liferay.portlet.asset.model.AssetCategoryProperty;
@@ -613,7 +614,8 @@ public class AssetCategoryLocalServiceImpl
 		throws PortalException {
 
 		SearchContext searchContext = buildSearchContext(
-			companyId, groupIds, title, new long[0], vocabularyIds, start, end);
+			companyId, groupIds, title, new long[0], vocabularyIds, start, end,
+			null);
 
 		return searchCategories(searchContext);
 	}
@@ -626,7 +628,20 @@ public class AssetCategoryLocalServiceImpl
 
 		SearchContext searchContext = buildSearchContext(
 			companyId, groupIds, title, parentCategoryIds, vocabularyIds, start,
-			end);
+			end, null);
+
+		return searchCategories(searchContext);
+	}
+
+	@Override
+	public BaseModelSearchResult<AssetCategory> searchCategories(
+			long companyId, long[] groupIds, String title, long[] vocabularyIds,
+			long[] parentCategoryIds, int start, int end, Sort sort)
+		throws PortalException {
+
+		SearchContext searchContext = buildSearchContext(
+			companyId, groupIds, title, parentCategoryIds, vocabularyIds, start,
+			end, sort);
 
 		return searchCategories(searchContext);
 	}
@@ -765,7 +780,7 @@ public class AssetCategoryLocalServiceImpl
 
 	protected SearchContext buildSearchContext(
 		long companyId, long[] groupIds, String title, long[] parentCategoryIds,
-		long[] vocabularyIds, int start, int end) {
+		long[] vocabularyIds, int start, int end, Sort sort) {
 
 		SearchContext searchContext = new SearchContext();
 
@@ -781,6 +796,7 @@ public class AssetCategoryLocalServiceImpl
 		searchContext.setEnd(end);
 		searchContext.setGroupIds(groupIds);
 		searchContext.setKeywords(title);
+		searchContext.setSorts(sort);
 		searchContext.setStart(start);
 
 		QueryConfig queryConfig = searchContext.getQueryConfig();

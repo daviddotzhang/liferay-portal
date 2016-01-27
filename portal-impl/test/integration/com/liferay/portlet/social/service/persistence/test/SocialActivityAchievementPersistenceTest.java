@@ -33,7 +33,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.social.NoSuchActivityAchievementException;
+import com.liferay.portlet.social.exception.NoSuchActivityAchievementException;
 import com.liferay.portlet.social.model.SocialActivityAchievement;
 import com.liferay.portlet.social.service.SocialActivityAchievementLocalServiceUtil;
 import com.liferay.portlet.social.service.persistence.SocialActivityAchievementPersistence;
@@ -342,11 +342,10 @@ public class SocialActivityAchievementPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SocialActivityAchievementLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<SocialActivityAchievement>() {
 				@Override
-				public void performAction(Object object) {
-					SocialActivityAchievement socialActivityAchievement = (SocialActivityAchievement)object;
-
+				public void performAction(
+					SocialActivityAchievement socialActivityAchievement) {
 					Assert.assertNotNull(socialActivityAchievement);
 
 					count.increment();

@@ -15,13 +15,13 @@
 package com.liferay.portal.service.permission;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.User;
-import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.security.permission.BaseModelPermissionChecker;
-import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 
@@ -87,12 +87,6 @@ public class GroupPermissionImpl
 			 actionId.equals(ActionKeys.MANAGE_LAYOUTS)) &&
 			(group.hasLocalOrRemoteStagingGroup() ||
 			 group.isLayoutPrototype())) {
-
-			return false;
-		}
-
-		if (actionId.equals(ActionKeys.VIEW_SITE_ADMINISTRATION) &&
-			group.isLayoutPrototype()) {
 
 			return false;
 		}

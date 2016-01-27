@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchClassNameException;
+import com.liferay.portal.exception.NoSuchClassNameException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -275,11 +275,9 @@ public class ClassNamePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ClassNameLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ClassName>() {
 				@Override
-				public void performAction(Object object) {
-					ClassName className = (ClassName)object;
-
+				public void performAction(ClassName className) {
 					Assert.assertNotNull(className);
 
 					count.increment();

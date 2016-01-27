@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchTicketException;
+import com.liferay.portal.exception.NoSuchTicketException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -309,11 +309,9 @@ public class TicketPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = TicketLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Ticket>() {
 				@Override
-				public void performAction(Object object) {
-					Ticket ticket = (Ticket)object;
-
+				public void performAction(Ticket ticket) {
 					Assert.assertNotNull(ticket);
 
 					count.increment();

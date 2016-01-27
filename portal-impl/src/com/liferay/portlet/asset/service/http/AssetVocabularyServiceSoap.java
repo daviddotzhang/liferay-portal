@@ -112,23 +112,6 @@ public class AssetVocabularyServiceSoap {
 		}
 	}
 
-	/**
-	* @deprecated As of 6.2.0, Replaced by {@link #deleteVocabularies(long[],
-	ServiceContext)}
-	*/
-	@Deprecated
-	public static void deleteVocabularies(long[] vocabularyIds)
-		throws RemoteException {
-		try {
-			AssetVocabularyServiceUtil.deleteVocabularies(vocabularyIds);
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
 	public static com.liferay.portlet.asset.model.AssetVocabularySoap[] deleteVocabularies(
 		long[] vocabularyIds,
 		com.liferay.portal.service.ServiceContext serviceContext)
@@ -420,27 +403,6 @@ public class AssetVocabularyServiceSoap {
 	}
 
 	/**
-	* @deprecated As of 6.2.0, with no direct replacement
-	*/
-	@Deprecated
-	public static java.lang.String getJSONGroupVocabularies(long groupId,
-		java.lang.String name, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<com.liferay.portlet.asset.model.AssetVocabulary> obc)
-		throws RemoteException {
-		try {
-			com.liferay.portal.kernel.json.JSONObject returnValue = AssetVocabularyServiceUtil.getJSONGroupVocabularies(groupId,
-					name, start, end, obc);
-
-			return returnValue.toString();
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-
-			throw new RemoteException(e.getMessage());
-		}
-	}
-
-	/**
 	* @deprecated As of 7.0.0, replaced by {@link
 	AssetUtil#filterVocabularyIds(PermissionChecker, long[])}
 	*/
@@ -475,11 +437,28 @@ public class AssetVocabularyServiceSoap {
 	}
 
 	public static com.liferay.portlet.asset.model.AssetVocabularyDisplay searchVocabulariesDisplay(
-		long groupId, java.lang.String title, int start, int end,
-		boolean addDefaultVocabulary) throws RemoteException {
+		long groupId, java.lang.String title, boolean addDefaultVocabulary,
+		int start, int end) throws RemoteException {
 		try {
 			com.liferay.portlet.asset.model.AssetVocabularyDisplay returnValue = AssetVocabularyServiceUtil.searchVocabulariesDisplay(groupId,
-					title, start, end, addDefaultVocabulary);
+					title, addDefaultVocabulary, start, end);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static com.liferay.portlet.asset.model.AssetVocabularyDisplay searchVocabulariesDisplay(
+		long groupId, java.lang.String title, boolean addDefaultVocabulary,
+		int start, int end, com.liferay.portal.kernel.search.Sort sort)
+		throws RemoteException {
+		try {
+			com.liferay.portlet.asset.model.AssetVocabularyDisplay returnValue = AssetVocabularyServiceUtil.searchVocabulariesDisplay(groupId,
+					title, addDefaultVocabulary, start, end, sort);
 
 			return returnValue;
 		}

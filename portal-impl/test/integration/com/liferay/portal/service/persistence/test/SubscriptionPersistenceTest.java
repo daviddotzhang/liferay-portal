@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchSubscriptionException;
+import com.liferay.portal.exception.NoSuchSubscriptionException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -349,11 +349,9 @@ public class SubscriptionPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = SubscriptionLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Subscription>() {
 				@Override
-				public void performAction(Object object) {
-					Subscription subscription = (Subscription)object;
-
+				public void performAction(Subscription subscription) {
 					Assert.assertNotNull(subscription);
 
 					count.increment();

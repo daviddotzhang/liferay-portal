@@ -21,11 +21,11 @@
 				<condition function="IsElementPresent" locator1="BasePortlet#SPECIFIC_PORTLET_BORDERLESS_BAR" />
 				<then>
 					<execute function="MakeVisible" locator1="BasePortlet#SPECIFIC_PORTLET_BORDERLESS_BAR" />
-					<execute function="Click" locator1="BasePortlet#SPECIFIC_PORTLET_BORDERLESS_OPTIONS_ICON" />
+					<execute function="Click" locator1="BasePortlet#SPECIFIC_PORTLET_BORDERLESS_ELLIPSIS_ICON" />
 				</then>
 			</elseif>
 			<else>
-				<execute function="AssertClick" locator1="BasePortlet#SPECIFIC_PORTLET_OPTIONS_ICON" value1="Options" />
+				<execute function="AssertClick" locator1="BasePortlet#SPECIFIC_PORTLET_ELLIPSIS_ICON" value1="Options" />
 			</else>
 		</if>
 

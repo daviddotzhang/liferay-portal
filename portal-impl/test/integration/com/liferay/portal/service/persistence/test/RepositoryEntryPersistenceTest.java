@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchRepositoryEntryException;
+import com.liferay.portal.exception.NoSuchRepositoryEntryException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -357,11 +357,9 @@ public class RepositoryEntryPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = RepositoryEntryLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<RepositoryEntry>() {
 				@Override
-				public void performAction(Object object) {
-					RepositoryEntry repositoryEntry = (RepositoryEntry)object;
-
+				public void performAction(RepositoryEntry repositoryEntry) {
 					Assert.assertNotNull(repositoryEntry);
 
 					count.increment();

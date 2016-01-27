@@ -34,7 +34,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.asset.NoSuchCategoryPropertyException;
+import com.liferay.portlet.asset.exception.NoSuchCategoryPropertyException;
 import com.liferay.portlet.asset.model.AssetCategoryProperty;
 import com.liferay.portlet.asset.service.AssetCategoryPropertyLocalServiceUtil;
 import com.liferay.portlet.asset.service.persistence.AssetCategoryPropertyPersistence;
@@ -335,11 +335,10 @@ public class AssetCategoryPropertyPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = AssetCategoryPropertyLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<AssetCategoryProperty>() {
 				@Override
-				public void performAction(Object object) {
-					AssetCategoryProperty assetCategoryProperty = (AssetCategoryProperty)object;
-
+				public void performAction(
+					AssetCategoryProperty assetCategoryProperty) {
 					Assert.assertNotNull(assetCategoryProperty);
 
 					count.increment();

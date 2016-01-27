@@ -32,7 +32,7 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PersistenceTestRule;
 
-import com.liferay.portlet.documentlibrary.NoSuchFileRankException;
+import com.liferay.portlet.documentlibrary.exception.NoSuchFileRankException;
 import com.liferay.portlet.documentlibrary.model.DLFileRank;
 import com.liferay.portlet.documentlibrary.service.DLFileRankLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.persistence.DLFileRankPersistence;
@@ -322,11 +322,9 @@ public class DLFileRankPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = DLFileRankLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<DLFileRank>() {
 				@Override
-				public void performAction(Object object) {
-					DLFileRank dlFileRank = (DLFileRank)object;
-
+				public void performAction(DLFileRank dlFileRank) {
 					Assert.assertNotNull(dlFileRank);
 
 					count.increment();

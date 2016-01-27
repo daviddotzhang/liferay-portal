@@ -6,7 +6,7 @@
 
 		<execute function="AssertClick" locator1="Button#SAVE_LOCALIZED" value1="${saveButton}" />
 
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="${successMessage}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="${successMessage}" />
 	</command>
 
 	<command name="configureDisplaySettingsLanguage">
@@ -20,14 +20,13 @@
 
 		<execute function="AssertClick" locator1="Button#SAVE_LOCALIZED" value1="${saveButton}" />
 
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="${successMessage}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="${successMessage}" />
 	</command>
 
 	<command name="configureDisplaySettingsLanguageLocalized">
-		<execute macro="ProductMenu#gotoLocalizedMySpaceMyAccount">
+		<execute macro="ProductMenu#gotoLocalizedUserMyAccount">
 			<var name="category" value="${category}" />
 			<var name="portlet" value="${portlet}" />
-			<var name="tab" value="${tab}" />
 		</execute>
 
 		<execute function="Select" locator1="MyAccount#LANGUAGE_SELECT" value1="${languageName}" />
@@ -36,7 +35,7 @@
 
 		<execute function="AssertClick" locator1="Button#SAVE_LOCALIZED" value1="${saveButton}" />
 
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="${successMessage}" />
+		<execute function="AssertTextEquals#assertPartialText" locator1="Message#SUCCESS" value1="${successMessage}" />
 	</command>
 
 	<command name="view">

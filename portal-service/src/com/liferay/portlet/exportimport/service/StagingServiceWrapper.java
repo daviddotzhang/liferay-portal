@@ -45,13 +45,13 @@ public class StagingServiceWrapper implements StagingService,
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _stagingService.getBeanIdentifier();
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _stagingService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -76,16 +76,6 @@ public class StagingServiceWrapper implements StagingService,
 			privateLayout, parameterMap);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_stagingService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void updateStagingRequest(long stagingRequestId,
 		java.lang.String fileName, byte[] bytes)
@@ -105,22 +95,6 @@ public class StagingServiceWrapper implements StagingService,
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _stagingService.validateStagingRequest(stagingRequestId,
 			privateLayout, parameterMap);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public StagingService getWrappedStagingService() {
-		return _stagingService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedStagingService(StagingService stagingService) {
-		_stagingService = stagingService;
 	}
 
 	@Override

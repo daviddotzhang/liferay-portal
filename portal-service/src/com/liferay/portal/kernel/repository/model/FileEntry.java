@@ -20,8 +20,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.repository.capabilities.Capability;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.Accessor;
-import com.liferay.portal.security.permission.PermissionChecker;
 
 import java.io.InputStream;
 
@@ -34,8 +34,8 @@ import java.util.List;
 @JSON
 @ProviderType
 public interface FileEntry extends RepositoryEntry, RepositoryModel<FileEntry> {
-	public static final Accessor<FileEntry, Long> FILE_ENTRY_ID_ACCESSOR =
 
+	public static final Accessor<FileEntry, Long> FILE_ENTRY_ID_ACCESSOR =
 		new Accessor<FileEntry, Long>() {
 
 			@Override
@@ -69,7 +69,6 @@ public interface FileEntry extends RepositoryEntry, RepositoryModel<FileEntry> {
 	 * workflow state.
 	 *
 	 * @return the content stream of the current file version
-	 * @throws PortalException if a portal exception occurred
 	 * @see    #getFileVersion()
 	 */
 	@JSON(include = false)
@@ -99,7 +98,6 @@ public interface FileEntry extends RepositoryEntry, RepositoryModel<FileEntry> {
 	 * may function identically.
 	 *
 	 * @return the current file version
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public FileVersion getFileVersion() throws PortalException;
 
@@ -125,7 +123,6 @@ public interface FileEntry extends RepositoryEntry, RepositoryModel<FileEntry> {
 	 * #getFileVersion()} may be identical.
 	 *
 	 * @return the latest file version
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public FileVersion getLatestFileVersion() throws PortalException;
 
@@ -138,7 +135,6 @@ public interface FileEntry extends RepositoryEntry, RepositoryModel<FileEntry> {
 	 * @param  trusted whether to bypass permission checks. In third-party
 	 *         repositories, this parameter may be ignored.
 	 * @return the latest file version
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public FileVersion getLatestFileVersion(boolean trusted)
 		throws PortalException;

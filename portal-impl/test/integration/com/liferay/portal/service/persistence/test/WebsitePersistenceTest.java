@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchWebsiteException;
+import com.liferay.portal.exception.NoSuchWebsiteException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -366,11 +366,9 @@ public class WebsitePersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = WebsiteLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<Website>() {
 				@Override
-				public void performAction(Object object) {
-					Website website = (Website)object;
-
+				public void performAction(Website website) {
 					Assert.assertNotNull(website);
 
 					count.increment();

@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchServiceComponentException;
+import com.liferay.portal.exception.NoSuchServiceComponentException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -297,11 +297,9 @@ public class ServiceComponentPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = ServiceComponentLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<ServiceComponent>() {
 				@Override
-				public void performAction(Object object) {
-					ServiceComponent serviceComponent = (ServiceComponent)object;
-
+				public void performAction(ServiceComponent serviceComponent) {
 					Assert.assertNotNull(serviceComponent);
 
 					count.increment();

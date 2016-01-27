@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchOrgGroupRoleException;
+import com.liferay.portal.exception.NoSuchOrgGroupRoleException;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
@@ -113,6 +113,8 @@ public class OrgGroupRolePersistenceTest {
 
 		newOrgGroupRole.setMvccVersion(RandomTestUtil.nextLong());
 
+		newOrgGroupRole.setCompanyId(RandomTestUtil.nextLong());
+
 		_orgGroupRoles.add(_persistence.update(newOrgGroupRole));
 
 		OrgGroupRole existingOrgGroupRole = _persistence.findByPrimaryKey(newOrgGroupRole.getPrimaryKey());
@@ -125,6 +127,8 @@ public class OrgGroupRolePersistenceTest {
 			newOrgGroupRole.getGroupId());
 		Assert.assertEquals(existingOrgGroupRole.getRoleId(),
 			newOrgGroupRole.getRoleId());
+		Assert.assertEquals(existingOrgGroupRole.getCompanyId(),
+			newOrgGroupRole.getCompanyId());
 	}
 
 	@Test
@@ -351,6 +355,8 @@ public class OrgGroupRolePersistenceTest {
 		OrgGroupRole orgGroupRole = _persistence.create(pk);
 
 		orgGroupRole.setMvccVersion(RandomTestUtil.nextLong());
+
+		orgGroupRole.setCompanyId(RandomTestUtil.nextLong());
 
 		_orgGroupRoles.add(_persistence.update(orgGroupRole));
 

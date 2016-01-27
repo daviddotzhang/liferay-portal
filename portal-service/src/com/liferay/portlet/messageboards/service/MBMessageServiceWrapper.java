@@ -78,26 +78,6 @@ public class MBMessageServiceWrapper implements MBMessageService,
 			serviceContext);
 	}
 
-	/**
-	* @deprecated As of 6.2.0, replaced by {@link #addMessage(long, String,
-	String, String, List, boolean, double, boolean,
-	ServiceContext)}
-	*/
-	@Deprecated
-	@Override
-	public com.liferay.portlet.messageboards.model.MBMessage addMessage(
-		long groupId, long categoryId, long threadId, long parentMessageId,
-		java.lang.String subject, java.lang.String body,
-		java.lang.String format,
-		java.util.List<com.liferay.portal.kernel.util.ObjectValuePair<java.lang.String, java.io.InputStream>> inputStreamOVPs,
-		boolean anonymous, double priority, boolean allowPingbacks,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _mbMessageService.addMessage(groupId, categoryId, threadId,
-			parentMessageId, subject, body, format, inputStreamOVPs, anonymous,
-			priority, allowPingbacks, serviceContext);
-	}
-
 	@Override
 	public com.liferay.portlet.messageboards.model.MBMessage addMessage(
 		long parentMessageId, java.lang.String subject, java.lang.String body,
@@ -163,16 +143,6 @@ public class MBMessageServiceWrapper implements MBMessageService,
 	public void emptyMessageAttachments(long messageId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		_mbMessageService.emptyMessageAttachments(messageId);
-	}
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _mbMessageService.getBeanIdentifier();
 	}
 
 	@Override
@@ -249,11 +219,34 @@ public class MBMessageServiceWrapper implements MBMessageService,
 
 	@Override
 	public com.liferay.portlet.messageboards.model.MBMessageDisplay getMessageDisplay(
+		long messageId, int status, boolean includePrevAndNext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _mbMessageService.getMessageDisplay(messageId, status,
+			includePrevAndNext);
+	}
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getMessageDisplay(long, int,
+	boolean)}
+	*/
+	@Deprecated
+	@Override
+	public com.liferay.portlet.messageboards.model.MBMessageDisplay getMessageDisplay(
 		long messageId, int status, java.lang.String threadView,
 		boolean includePrevAndNext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return _mbMessageService.getMessageDisplay(messageId, status,
 			threadView, includePrevAndNext);
+	}
+
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _mbMessageService.getOSGiServiceIdentifier();
 	}
 
 	@Override
@@ -296,16 +289,6 @@ public class MBMessageServiceWrapper implements MBMessageService,
 		_mbMessageService.restoreMessageAttachmentFromTrash(messageId, fileName);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_mbMessageService.setBeanIdentifier(beanIdentifier);
-	}
-
 	@Override
 	public void subscribeMessage(long messageId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -345,22 +328,6 @@ public class MBMessageServiceWrapper implements MBMessageService,
 		return _mbMessageService.updateMessage(messageId, subject, body,
 			inputStreamOVPs, existingFiles, priority, allowPingbacks,
 			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public MBMessageService getWrappedMBMessageService() {
-		return _mbMessageService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedMBMessageService(MBMessageService mbMessageService) {
-		_mbMessageService = mbMessageService;
 	}
 
 	@Override

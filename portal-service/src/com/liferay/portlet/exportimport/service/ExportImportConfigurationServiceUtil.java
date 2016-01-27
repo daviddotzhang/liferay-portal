@@ -47,12 +47,12 @@ public class ExportImportConfigurationServiceUtil {
 	}
 
 	/**
-	* Returns the Spring bean ID for this bean.
+	* Returns the OSGi service identifier.
 	*
-	* @return the Spring bean ID for this bean
+	* @return the OSGi service identifier
 	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
 	}
 
 	public static com.liferay.portlet.exportimport.model.ExportImportConfiguration moveExportImportConfigurationToTrash(
@@ -69,15 +69,6 @@ public class ExportImportConfigurationServiceUtil {
 				   .restoreExportImportConfigurationFromTrash(exportImportConfigurationId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
-	}
-
 	public static ExportImportConfigurationService getService() {
 		if (_service == null) {
 			_service = (ExportImportConfigurationService)PortalBeanLocatorUtil.locate(ExportImportConfigurationService.class.getName());
@@ -87,13 +78,6 @@ public class ExportImportConfigurationServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(ExportImportConfigurationService service) {
 	}
 
 	private static ExportImportConfigurationService _service;

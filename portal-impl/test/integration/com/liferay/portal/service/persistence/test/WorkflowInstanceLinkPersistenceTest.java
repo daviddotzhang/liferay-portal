@@ -14,7 +14,7 @@
 
 package com.liferay.portal.service.persistence.test;
 
-import com.liferay.portal.NoSuchWorkflowInstanceLinkException;
+import com.liferay.portal.exception.NoSuchWorkflowInstanceLinkException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -312,11 +312,10 @@ public class WorkflowInstanceLinkPersistenceTest {
 
 		ActionableDynamicQuery actionableDynamicQuery = WorkflowInstanceLinkLocalServiceUtil.getActionableDynamicQuery();
 
-		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod<WorkflowInstanceLink>() {
 				@Override
-				public void performAction(Object object) {
-					WorkflowInstanceLink workflowInstanceLink = (WorkflowInstanceLink)object;
-
+				public void performAction(
+					WorkflowInstanceLink workflowInstanceLink) {
 					Assert.assertNotNull(workflowInstanceLink);
 
 					count.increment();

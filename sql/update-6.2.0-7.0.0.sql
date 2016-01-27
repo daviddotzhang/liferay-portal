@@ -14,6 +14,16 @@ alter table BlogsEntry add coverImageFileEntryId LONG;
 alter table BlogsEntry add coverImageURL STRING null;
 alter table BlogsEntry add smallImageFileEntryId LONG;
 
+alter table Contact_ drop column aimSn;
+alter table Contact_ drop column icqSn;
+alter table Contact_ drop column msnSn;
+alter table Contact_ drop column mySpaceSn;
+alter table Contact_ drop column ymSn;
+
+drop table CyrusUser;
+
+drop table CyrusVirtual;
+
 drop index IX_C803899D on DDMStructureLink;
 
 alter table DLFileEntryMetadata drop column fileEntryTypeId;
@@ -62,6 +72,38 @@ alter table LayoutSetBranch drop column logo;
 alter table Organization_ add logoId LONG;
 
 alter table RatingsEntry add uuid_ VARCHAR(75) null;
+
+create table RecentLayoutBranch (
+	mvccVersion LONG default 0,
+	recentLayoutBranchId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	layoutBranchId LONG,
+	layoutSetBranchId LONG,
+	plid LONG
+);
+
+create table RecentLayoutRevision (
+	mvccVersion LONG default 0,
+	recentLayoutRevisionId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	layoutRevisionId LONG,
+	layoutSetBranchId LONG,
+	plid LONG
+);
+
+create table RecentLayoutSetBranch (
+	mvccVersion LONG default 0,
+	recentLayoutSetBranchId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	layoutSetBranchId LONG,
+	layoutSetId LONG
+);
 
 insert into Region (regionId, countryId, regionCode, name, active_) values (33001, 33, 'AT-1', 'Burgenland', TRUE);
 insert into Region (regionId, countryId, regionCode, name, active_) values (33002, 33, 'AT-2', 'Kärnten', TRUE);
