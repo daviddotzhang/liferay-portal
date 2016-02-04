@@ -185,13 +185,19 @@ if (groupThreadsUserId > 0) {
 						<liferay-ui:search-container-column-text colspan="<%= 2 %>">
 
 							<%
+							String messageUserName = "anonymous";
+
+							if (!message.isAnonymous()) {
+								messageUserName = message.getUserName();
+							}
+
 							Date modifiedDate = message.getModifiedDate();
 
 							String modifiedDateDescription = LanguageUtil.getTimeDescription(request, System.currentTimeMillis() - modifiedDate.getTime(), true);
 							%>
 
 							<h5 class="text-default">
-								<liferay-ui:message arguments="<%= new String[] {message.getUserName(), modifiedDateDescription} %>" key="x-modified-x-ago" />
+								<liferay-ui:message arguments="<%= new String[] {messageUserName, modifiedDateDescription} %>" key="x-modified-x-ago" />
 							</h5>
 
 							<h4>
