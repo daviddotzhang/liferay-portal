@@ -194,7 +194,7 @@ public class HookHotDeployListener
 		"dl.file.entry.drafts.enabled",
 		"dl.file.entry.open.in.ms.office.manual.check.in.required",
 		"dl.file.entry.processors", "dl.repository.impl",
-		"dl.store.antivirus.impl", "dl.store.impl",
+		"dl.store.antivirus.impl", "dl.store.antivirus.impl", "dl.store.impl",
 		"field.enable.com.liferay.portal.kernel.model.Contact.birthday",
 		"field.enable.com.liferay.portal.kernel.model.Contact.male",
 		"field.enable.com.liferay.portal.kernel.model.Organization.status",
@@ -421,12 +421,23 @@ public class HookHotDeployListener
 			dlRepositoryContainer.unregisterRepositoryFactories();
 		}
 
-		if (portalProperties.containsKey(PropsKeys.DL_STORE_ANTIVIRUS_IMPL)) {
-			AntivirusScannerWrapper antivirusScannerWrapper =
-				(AntivirusScannerWrapper)
-					AntivirusScannerUtil.getAntivirusScanner();
+		if (portalProperties.containsKey(
+				PropsKeys.DL_STORE_ANTIVIRUS_ENABLED)) {
 
-			antivirusScannerWrapper.setAntivirusScanner(null);
+			Boolean value = Boolean.valueOf(
+				GetterUtil.getBoolean(
+					PropsUtil.get(PropsKeys.DL_STORE_ANTIVIRUS_ENABLED)));
+
+			if (value &&
+				portalProperties.containsKey(
+					PropsKeys.DL_STORE_ANTIVIRUS_IMPL)) {
+
+				AntivirusScannerWrapper antivirusScannerWrapper =
+					(AntivirusScannerWrapper)
+						AntivirusScannerUtil.getAntivirusScanner();
+
+				antivirusScannerWrapper.setAntivirusScanner(null);
+			}
 		}
 
 		if (portalProperties.containsKey(PropsKeys.DL_STORE_IMPL)) {
@@ -1500,19 +1511,31 @@ public class HookHotDeployListener
 			}
 		}
 
-		if (portalProperties.containsKey(PropsKeys.DL_STORE_ANTIVIRUS_IMPL)) {
-			String antivirusScannerClassName = portalProperties.getProperty(
-				PropsKeys.DL_STORE_ANTIVIRUS_IMPL);
+		if (portalProperties.containsKey(
+				PropsKeys.DL_STORE_ANTIVIRUS_ENABLED)) {
 
-			AntivirusScanner antivirusScanner = (AntivirusScanner)newInstance(
-				portletClassLoader, AntivirusScanner.class,
-				antivirusScannerClassName);
+			Boolean value = Boolean.valueOf(
+				GetterUtil.getBoolean(
+					PropsUtil.get(PropsKeys.DL_STORE_ANTIVIRUS_ENABLED)));
 
-			AntivirusScannerWrapper antivirusScannerWrapper =
-				(AntivirusScannerWrapper)
-					AntivirusScannerUtil.getAntivirusScanner();
+			if (value &&
+				portalProperties.containsKey(
+					PropsKeys.DL_STORE_ANTIVIRUS_IMPL)) {
 
-			antivirusScannerWrapper.setAntivirusScanner(antivirusScanner);
+				String antivirusScannerClassName = portalProperties.getProperty(
+					PropsKeys.DL_STORE_ANTIVIRUS_IMPL);
+
+				AntivirusScanner antivirusScanner =
+					(AntivirusScanner)newInstance(
+						portletClassLoader, AntivirusScanner.class,
+						antivirusScannerClassName);
+
+				AntivirusScannerWrapper antivirusScannerWrapper =
+					(AntivirusScannerWrapper)
+						AntivirusScannerUtil.getAntivirusScanner();
+
+				antivirusScannerWrapper.setAntivirusScanner(antivirusScanner);
+			}
 		}
 
 		if (portalProperties.containsKey(PropsKeys.DL_STORE_IMPL)) {
