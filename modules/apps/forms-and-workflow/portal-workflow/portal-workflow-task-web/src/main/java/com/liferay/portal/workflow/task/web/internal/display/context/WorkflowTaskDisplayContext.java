@@ -61,9 +61,9 @@ import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManagerUtil;
 import com.liferay.portal.kernel.workflow.comparator.WorkflowComparatorFactoryUtil;
 import com.liferay.portal.workflow.task.web.internal.display.context.util.WorkflowTaskRequestHelper;
+import com.liferay.portal.workflow.task.web.internal.permission.WorkflowTaskPermissionChecker;
 import com.liferay.portal.workflow.task.web.internal.search.WorkflowTaskSearch;
 import com.liferay.portal.workflow.task.web.internal.util.WorkflowTaskPortletUtil;
-import com.liferay.portal.workflow.task.web.internal.permission.WorkflowTaskPermissionChecker;
 
 import java.io.Serializable;
 
@@ -1048,26 +1048,27 @@ public class WorkflowTaskDisplayContext {
 		return searchContainer;
 	}
 
-	protected void setAuthorizedSearchContainerResults(List<WorkflowTask> 
-		workflowTasks, WorkflowTaskSearch searchContainer){
+	protected void setAuthorizedSearchContainerResults(
+		List<WorkflowTask> workflowTasks, WorkflowTaskSearch searchContainer) {
 
 		ThemeDisplay themeDisplay =
 			_workflowTaskRequestHelper.getThemeDisplay();
 
 		List<WorkflowTask> authorizedWorkflowTasks = new ArrayList<>();
 
-		for (WorkflowTask workFlowTask : workflowTasks ) {
-
-			long groupId = MapUtil.getLong(workFlowTask.getOptionalAttributes(), "groupId",
+		for (WorkflowTask workflowTask : workflowTasks) {
+			long groupId = MapUtil.getLong(
+				workflowTask.getOptionalAttributes(), "groupId",
 				themeDisplay.getSiteGroupId());
 
-			if (!_workflowTaskPermissionChecker.hasPermission(groupId, workFlowTask,
-				themeDisplay.getPermissionChecker())) {
+			if (!_workflowTaskPermissionChecker.hasPermission(
+					groupId, workflowTask,
+					themeDisplay.getPermissionChecker())) {
 
 				continue;
 			}
 
-			authorizedWorkflowTasks.add(workFlowTask);
+			authorizedWorkflowTasks.add(workflowTask);
 		}
 
 		searchContainer.setTotal(authorizedWorkflowTasks.size());
@@ -1122,7 +1123,8 @@ public class WorkflowTaskDisplayContext {
 	private final HttpServletRequest _request;
 	private final Map<Long, Role> _roles = new HashMap<>();
 	private final Map<Long, User> _users = new HashMap<>();
-	private final WorkflowTaskRequestHelper _workflowTaskRequestHelper;
 	private final WorkflowTaskPermissionChecker _workflowTaskPermissionChecker =
 		new WorkflowTaskPermissionChecker();
+	private final WorkflowTaskRequestHelper _workflowTaskRequestHelper;
+
 }
