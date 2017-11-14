@@ -369,9 +369,19 @@ public class DefaultTextExportImportContentProcessor
 
 			try {
 				if (exportReferencedContent) {
-					StagedModelDataHandlerUtil.exportReferenceStagedModel(
-						portletDataContext, stagedModel, fileEntry,
-						PortletDataContext.REFERENCE_TYPE_DEPENDENCY);
+					if(fileEntry.isInTrash){
+						Element entityElement =
+							portletDataContext.getExportDataElement(stagedModel);
+
+						portletDataContext.addReferenceElement(
+							stagedModel, entityElement, fileEntry,
+							PortletDataContext.REFERENCE_TYPE_DEPENDENCY_DISPOSABLE, true);
+					}else{
+						StagedModelDataHandlerUtil.exportReferenceStagedModel(
+							portletDataContext, stagedModel, fileEntry,
+							PortletDataContext.REFERENCE_TYPE_DEPENDENCY);
+							
+					}
 				}
 				else {
 					Element entityElement =
@@ -379,7 +389,7 @@ public class DefaultTextExportImportContentProcessor
 
 					portletDataContext.addReferenceElement(
 						stagedModel, entityElement, fileEntry,
-						PortletDataContext.REFERENCE_TYPE_DEPENDENCY, true);
+						PortletDataContext.REFERENCE_TYPE_DEPENDENCY_DISPOSABLE, true);
 				}
 
 				String path = ExportImportPathUtil.getModelPath(fileEntry);
