@@ -116,6 +116,45 @@ public class DLFileEntryFinderTest {
 	}
 
 	@Test
+	public void testCountBy_G_U_R_F_M_FileVersionUserChangedByWorkflow()
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		FileEntry fileEntry = DLAppTestUtil.addFileEntryWithWorkflow(
+			_user.getUserId(), _group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString(), "FE.txt", false, serviceContext);
+
+		DLFileEntry dlFileEntry =
+			((LiferayFileEntry)fileEntry).getDLFileEntry();
+
+		DLFileVersion dlFileVersion = dlFileEntry.getLatestFileVersion(true);
+
+		DLFileEntryLocalServiceUtil.updateStatus(
+			TestPropsValues.getUserId(), dlFileVersion.getFileVersionId(),
+			WorkflowConstants.STATUS_APPROVED, serviceContext,
+			new HashMap<String, Serializable>());
+
+		QueryDefinition<DLFileEntry> queryDefinition = new QueryDefinition<>();
+
+		queryDefinition.setStatus(WorkflowConstants.STATUS_APPROVED);
+
+		List<Long> repositoryIds = ListUtil.toList(
+			new long[] {_group.getGroupId()});
+
+		List<Long> folderIds = ListUtil.toList(
+			new long[] {DLFolderConstants.DEFAULT_PARENT_FOLDER_ID});
+
+		Assert.assertEquals(
+			1,
+			doCountBy_G_U_R_F_M(
+				_user.getUserId(), repositoryIds, folderIds, null,
+				queryDefinition));
+	}
+
+	@Test
 	public void testCountByExtraSettings() throws Exception {
 		Assert.assertEquals(
 			4, DLFileEntryLocalServiceUtil.getExtraSettingsFileEntriesCount());
@@ -920,7 +959,9 @@ public class DLFileEntryFinderTest {
 	}
 
 	@Test
-	public void testDLFileVersionCreatorChangedByWorkflow() throws Exception {
+	public void testFindBy_G_U_R_F_M_FileVersionUserChangedByWorkflow()
+		throws Exception {
+
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
@@ -949,10 +990,8 @@ public class DLFileEntryFinderTest {
 		List<Long> folderIds = ListUtil.toList(
 			new long[] {DLFolderConstants.DEFAULT_PARENT_FOLDER_ID});
 
-		List<DLFileEntry> dlFileEntries =
-			DLFileEntryLocalServiceUtil.getFileEntries(
-				_group.getGroupId(), _user.getUserId(), repositoryIds,
-				folderIds, null, queryDefinition);
+		List<DLFileEntry> dlFileEntries = doFindBy_G_U_R_F_M(
+			_user.getUserId(), repositoryIds, folderIds, null, queryDefinition);
 
 		Assert.assertEquals(dlFileEntries.toString(), 1, dlFileEntries.size());
 
